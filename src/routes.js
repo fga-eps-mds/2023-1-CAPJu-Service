@@ -46,6 +46,7 @@ routes.delete(
   ProcessController.deleteProcess
 );
 routes.put("/processNextStage/", protect, ProcessController.nextStage);
+routes.put("/processNewObservation/", protect, ProcessController.newObservation);
 
 //Rotas de Fluxos
 routes.get(

@@ -2,6 +2,7 @@ import Process from "../schemas/Process.js";
 import {
   ProcessValidator,
   ProcessEditValidator,
+  // ProcessNewObsercationValidator,
   NextStageValidator,
 } from "../validators/Process.js";
 
@@ -108,6 +109,30 @@ class ProcessController {
       const result = await Process.updateOne(search, {
         etapaAtual: body.stageIdTo,
         etapas: processes.etapas,
+      });
+
+      res.status(200).json(result);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
+    }
+  }
+
+  async newObservation(req, res) {
+    try {
+      const { observation, originStage, destinationStage, processId } = req.body;
+      // const body = await ProcessNewObsercationValidator.validateAsync(req.body);
+      const search = { _id: processId };
+      const process = await Process.findOne(search);
+
+      process.etapas.push({
+        createdAt: new Date(),
+        stageIdTo: destinationStage,
+        stageIdFrom: originStage,
+        observation,
+      });
+      const result = await Process.updateOne(search, {
+        etapas: process.etapas,
       });
 
       res.status(200).json(result);
