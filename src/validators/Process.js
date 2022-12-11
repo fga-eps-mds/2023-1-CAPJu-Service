@@ -28,3 +28,9 @@ export const NextStageValidator = Joi.object({
   stageIdFrom: Joi.string().required(),
   observation: Joi.string().allow(null, ""),
 });
+
+export const updateObservation = Joi.object({
+  processId: Joi.string().required(),
+  stageIdFrom: Joi.string().required(),
+  observation: Joi.string().allow(null, ""),
+});
