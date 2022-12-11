@@ -4,6 +4,7 @@ import {
   ProcessEditValidator,
   // ProcessNewObsercationValidator,
   NextStageValidator,
+  updateObservation,
 } from "../validators/Process.js";
 
 const findProcess = async (res, search) => {
@@ -137,6 +138,26 @@ class ProcessController {
 
       res.status(200).json(result);
     } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
+    }
+  }
+
+  async updateObservation (req, res){
+    try{
+      const body = await updateObservation.validateAsync(req.body);
+      const search = { _id: body.processId };
+      const process = await Process.findOne(search);
+      const index = process.etapas.map (etapa => etapa.stageIdFrom).indexOf(body.stageIdFrom);
+
+      process.etapas[index].observation = body.observation;
+
+      const result = await Process.updateOne(search, {
+        etapas: process.etapas
+      })
+
+      return res.status(200).json(result);
+    } catch(error){
       console.log(error);
       return res.status(500).json(error);
     }
