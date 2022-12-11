@@ -120,17 +120,30 @@ class ProcessController {
 
   async newObservation(req, res) {
     try {
-      const { observation, originStage, destinationStage, processId } = req.body;
+      const { observation, originStage, destinationStage, processId } =
+        req.body;
       // const body = await ProcessNewObsercationValidator.validateAsync(req.body);
       const search = { _id: processId };
       const process = await Process.findOne(search);
 
-      process.etapas.push({
+      let foundStage = process.etapas.find((etapa) => {
+        etapa.stageIdTo === destinationStage;
+      });
+
+      const newObservation = {
         createdAt: new Date(),
         stageIdTo: destinationStage,
         stageIdFrom: originStage,
         observation,
-      });
+      };
+      
+      if (!foundStage) {
+        process.etapas.push(newObservation);
+      } else {
+        foundStage.observation = observation;
+        process.etapas = [...process.etapas, foundStage];
+      }
+
       const result = await Process.updateOne(search, {
         etapas: process.etapas,
       });
