@@ -81,7 +81,6 @@ class ProcessController {
     try {
       const result = await Process.deleteOne({ registro: req.params.registro });
 
-      console.log(result);
       if (result.deletedCount === 0) {
         throw new Error(`Não há registro ${req.params.registro}!`);
       }
@@ -98,13 +97,24 @@ class ProcessController {
       const body = await NextStageValidator.validateAsync(req.body);
       const search = { _id: body.processId };
       const processes = await Process.findOne(search);
+      
+      let foundStage = processes.etapas.find((etapa) => 
+        etapa.stageIdTo == body.stageIdTo
+      );
 
-      processes.etapas.push({
+      const advanceStage = {
         stageIdTo: body.stageIdTo,
         stageIdFrom: body.stageIdFrom,
         observation: body.observation,
         createdAt: new Date(),
-      });
+      }
+
+      if(!foundStage){
+        processes.etapas.push(advanceStage);
+      }else{
+        foundStage.observation = body.observation;
+        processes.etapas = [...processes.etapas, foundStage];
+      }
 
       const result = await Process.updateOne(search, {
         etapaAtual: body.stageIdTo,
@@ -126,9 +136,9 @@ class ProcessController {
       const search = { _id: processId };
       const process = await Process.findOne(search);
 
-      let foundStage = process.etapas.find((etapa) => {
-        etapa.stageIdTo === destinationStage;
-      });
+      let foundStage = process.etapas.find((etapa) => 
+        etapa.stageIdTo === destinationStage
+      );
 
       const newObservation = {
         createdAt: new Date(),
