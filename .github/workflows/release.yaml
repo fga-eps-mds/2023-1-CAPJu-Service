@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Get file name
         id: name
-        run: echo "::set-output name=file_name::fga-eps-mds-2022-2-Capju-Interface-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
+        run: echo "::set-output name=file_name::fga-eps-mds-2022-2-Capju-Service-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
 
       - name: Copy repository
         uses: actions/checkout@v2
