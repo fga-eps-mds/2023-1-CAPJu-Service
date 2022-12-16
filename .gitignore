@@ -19,3 +19,6 @@ globalConfig.json
 #environment variables
 /src/.env
 .env
+
+# database
+data
