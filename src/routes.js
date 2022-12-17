@@ -4,6 +4,7 @@ import ProcessController from "./controllers/ProcessController.js";
 import StageController from "./controllers/StageController.js";
 import UnityController from "./controllers/UnityController.js";
 import UnitController from "./controllers/UnitController.js";
+import RoleController from "./controllers/RoleController.js";
 import { protect, authRole } from "./middleware/authMiddleware.js";
 import { ROLE } from "./schemas/role.js";
 
@@ -118,6 +119,11 @@ routes.post(
 routes.post(
   "/newUnit",
   UnitController.store
+);
+
+routes.post(
+  "/newRole",
+  RoleController.store
 );
 
 routes.post(
