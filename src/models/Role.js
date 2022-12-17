@@ -1,21 +1,26 @@
-import Sequelize, { Model } from 'sequelize';
+import { Model , DataTypes } from 'sequelize';
 
 class Role extends Model {
-  static init(sequelize) {
-    super.init(
-      {
-        idRole: Sequelize.INTEGER,
-        name: Sequelize.STRING(30),
-        accessLevel: Sequelize.SMALLINT,
-      },
-      {
-        sequelize,
-      }
-    );
+    static init(sequelize) {
+        super.init({
+            name: DataTypes.STRING,
+            accessLevel: DataTypes.SMALLINT,
+        }, {
+            sequelize
+        })
+    }
 
-    return this;
-  }
-
+    static associate(models) {
+        this.hasMany(models.User, {
+            foreignKey: 'cpf',
+            as: 'users'
+        })
+    
+    }
 }
+
+
+  
+
 
 export default Role;
