@@ -7,7 +7,6 @@ module.exports = {
       cpf: {
         type: Sequelize.BIGINT,
         primaryKey: true,
-        autoIncrement: true,
         allowNull: false,
       },
       fullName: {

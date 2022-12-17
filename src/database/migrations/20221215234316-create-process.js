@@ -29,10 +29,10 @@ module.exports = {
         references: { model: 'stage', key: 'idStage' },
         onDelete: 'RESTRICT'
       },
-      idPrioritised: {
+      idPriority: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'prioritised', key: 'idPrioritised' },
+        references: { model: 'priority', key: 'idPriority' },
         onDelete: 'RESTRICT'
       },
       createdAt: {

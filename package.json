@@ -7,7 +7,7 @@
     "test": "jest --runInBand --coverage",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "migration": "sequelize migration:create --name=create-unit & sequelize migration:create --name=create-role & sequelize migration:create --name=create-user & sequelize migration:create --name=create-flow & sequelize migration:create --name=create-stage & sequelize migration:create --name=create-prioritised & sequelize migration:create --name=create-process",
+    "migration": "sequelize migration:create --name=create-process && sequelize migration:create --name=create-priority && sequelize migration:create --name=create-stage && sequelize migration:create --name=create-flow && sequelize migration:create --name=create-user && sequelize migration:create --name=create-role && sequelize migration:create --name=create-unit",
     "prettier": "prettier src -w"
   },
   "license": "MIT",

@@ -3,6 +3,7 @@ import FlowController from "./controllers/FlowController.js";
 import ProcessController from "./controllers/ProcessController.js";
 import StageController from "./controllers/StageController.js";
 import UnityController from "./controllers/UnityController.js";
+import UnitController from "./controllers/UnitController.js";
 import { protect, authRole } from "./middleware/authMiddleware.js";
 import { ROLE } from "./schemas/role.js";
 
@@ -113,6 +114,12 @@ routes.post(
   authRole([ROLE.DIRETOR]),
   UnityController.createUnity
 );
+
+routes.post(
+  "/newUnit",
+  UnitController.store
+);
+
 routes.post(
   "/deleteUnity",
   protect,
