@@ -4,13 +4,39 @@ import Flow from '../models/Flow.js';
 
 class FlowController {
 
+  async index(req, res) {
+    const flows = await Flow.findAll();
+
+    if (!flows) {
+        return res
+          .status(401)
+          .json({ error: 'Não Existe flows' });
+      } else {
+          return res.json(flows);
+      }
+}
+
+  async getById(req, res) {
+      const idFlow = req.params.id;
+
+      const flow = await Flow.findByPk(idFlow);
+
+      if (!flow) {
+          return res
+            .status(401)
+            .json({ error: 'Esse flow não existe!' });
+        } else {
+            return res.json(flow);
+        }
+  }
+
   async store(req,res){
     try {
-      const { name, idUnit } = req.body; 
+      const { name, idFlow } = req.body; 
        
       const flow = await Flow.create({
         name,
-        idUnit,
+        idFlow,
       });
 
       return res.json(flow);
@@ -18,6 +44,40 @@ class FlowController {
     } catch(error) {
       return res.status(401).json(error);
     }
+  }
+
+  async update(req, res) {
+    const { name, idFlow } = req.body; 
+
+    const flow = await Flow.findByPk(idFlow);
+
+    if (!flow) {
+        return res
+          .status(401)
+          .json({ error: 'Esse flow não existe!' });
+      } else {
+        
+          flow.set({ name, idFlow });
+        
+          await flow.save();
+
+          return res.json(flow);
+      } 
+  }
+
+  async delete(req, res) {
+    const { name, idFlow } = req.body; 
+
+    const flow = await Flow.findByPk(idFlow);
+
+    if (!flow) {
+        return res
+          .status(401)
+          .json({ error: 'Esse flow não existe!' });
+      } else {
+          await flow.destroy();
+          return res.json(flow);
+      }
   }
 
   // async createFlow(req, res) {

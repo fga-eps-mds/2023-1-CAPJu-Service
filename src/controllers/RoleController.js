@@ -1,6 +1,67 @@
 import Role from '../models/Role.js';
 
 class RoleController {
+    
+    async index(req, res) {
+        const role = await Role.findAll();
+    
+        if (!role) {
+            return res
+              .status(401)
+              .json({ error: 'Não Existe cargo' });
+          } else {
+              return res.json(role);
+          }
+    }
+    
+    async getById(req, res) {
+        const idRole = req.params.id;
+    
+        const role = await Role.findByPk(idRole);
+    
+        if (!role) {
+            return res
+              .status(401)
+              .json({ error: 'Esse cargo não existe!' });
+          } else {
+              return res.json(role);
+          }
+    }
+    
+    async update(req, res) {
+        const { name, idRole } = req.body; 
+    
+        const role = await Role.findByPk(idRole);
+    
+        if (!role) {
+            return res
+              .status(401)
+              .json({ error: 'Esse cargo não existe!' });
+          } else {
+            
+            role.set({ name, idFlow });
+            
+              await role.save();
+    
+              return res.json(role);
+          } 
+      }
+    
+      async delete(req, res) {
+        const { idRole } = req.body; 
+    
+        const role = await Role.findByPk(idRole);
+    
+        if (!role) {
+            return res
+              .status(401)
+              .json({ error: 'Esse cargo não existe!' });
+          } else {
+              await role.destroy();
+              return res.json(role);
+          }
+      }
+    
 
     // async index(req, res) {
     //     const { user_id } = req.params;

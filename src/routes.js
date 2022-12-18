@@ -115,6 +115,7 @@ routes.post(
   UnityController.createUnity
 );
 
+//  Rotas de units
 routes.post(
   "/newUnit",
   UnitController.store
@@ -127,14 +128,44 @@ routes.get(
   UnitController.getById
 );
 
+routes.put(
+  "/updateUnit",
+  UnitController.update
+);
+
+routes.delete(
+  "/deleteUnit",
+  UnitController.delete
+);
+
 routes.post(
   "/newRole",
   RoleController.store
 );
 
+// Rotas de User
 routes.post(
   "/newUser",
   UserContoller.store
+);
+
+routes.get(
+  "/users",
+  UserContoller.index
+);
+routes.get(
+  "/user",
+  UserContoller.getById
+);
+
+routes.put(
+  "/updateUser",
+  UserContoller.update
+);
+
+routes.delete(
+  "/deleteUser",
+  UserContoller.delete
 );
 
 routes.post(

@@ -39,9 +39,41 @@ class UnitController {
             console.log(error);
             return res.status(error).json(error);
         }
-        
-
     }
+
+    async update(req, res) {
+        const {  idUnit, name } = req.body; 
+    
+        const unit = await Unit.findByPk(idUnit);
+    
+        if (!unit) {
+            return res
+              .status(401)
+              .json({ error: 'Essa unidade não existe!' });
+          } else {
+            
+            unit.set({ name, idUnit });
+            
+              await unit.save();
+    
+              return res.json(unit);
+          } 
+      }
+    
+      async delete(req, res) {
+        const { idUnit } = req.body; 
+    
+        const unit = await Unit.findByPk(idUnit);
+    
+        if (!unit) {
+            return res
+              .status(401)
+              .json({ error: 'Essa unidade não existe!' });
+          } else {
+              await unit.destroy();
+              return res.json(unit);
+          }
+      }
 }
 
 export default new UnitController();
