@@ -120,6 +120,13 @@ routes.post(
   UnitController.store
 );
 
+routes.get("/unit", UnitController.index);
+
+routes.get(
+  "/unitAdmins/:id",
+  UnitController.getById
+);
+
 routes.post(
   "/newRole",
   RoleController.store

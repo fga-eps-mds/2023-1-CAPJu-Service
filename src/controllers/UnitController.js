@@ -3,23 +3,33 @@ import Unit from '../models/Unit.js';
 class UnitController {
 
     async index(req, res) {
-        const { user_id } = req.params;
+        const units = await Unit.findAll();
 
-        const user = await User.findByPk(user_id, {
-            include: { association: 'adresses' }
-        });
-
-        return res.json(user.adresses);
+        if (!units) {
+            return res
+              .status(401)
+              .json({ error: 'Não Existe unidades' });
+          } else {
+              return res.json(units);
+          }
     }
 
-    async store(req, res ) {
+    async getById(req, res) {
+        const idUnit = req.params.id;
+
+        const unit = await Unit.findByPk(idUnit);
+
+        if (!unit) {
+            return res
+              .status(401)
+              .json({ error: 'Essa unidade não existe' });
+          } else {
+              return res.json(unit);
+          }
+    }
+
+    async store(req, res) {
         const { name } = req.body;
-        console.log('Caiu aqui nesse caralho = ' + name);
-        // const unit = await Unit.findByPk(user_id);
-        
-        // if(!user) {
-        //     return res.status(400).json({ error: 'User not found' });
-        // }
         try {
             const unit = await Unit.create({
                 name,
