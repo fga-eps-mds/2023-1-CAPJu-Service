@@ -2,7 +2,7 @@ import Process from "../schemas/Process.js";
 import {
   ProcessValidator,
   ProcessEditValidator,
-  // ProcessNewObsercationValidator,
+  ProcessNewObservationValidator,
   NextStageValidator,
 } from "../validators/Process.js";
 
@@ -95,30 +95,31 @@ class ProcessController {
   async nextStage(req, res) {
     try {
       const body = await NextStageValidator.validateAsync(req.body);
+      const { stageIdTo, stageIdFrom, observation } = body;
       const search = { _id: body.processId };
-      const processes = await Process.findOne(search);
-      
-      let foundStage = processes.etapas.find((etapa) => 
+      const process = await Process.findOne(search);
+
+      let foundStage = process.etapas.find((etapa) =>
         etapa.stageIdTo == body.stageIdTo
       );
 
-      const advanceStage = {
-        stageIdTo: body.stageIdTo,
-        stageIdFrom: body.stageIdFrom,
-        observation: body.observation,
-        createdAt: new Date(),
-      }
-
-      if(!foundStage){
-        processes.etapas.push(advanceStage);
-      }else{
-        foundStage.observation = body.observation;
-        processes.etapas = [...processes.etapas, foundStage];
+      if (foundStage === undefined) {
+        process.etapas.push({
+          stageIdTo: stageIdTo,
+          stageIdFrom: stageIdFrom,
+          observation: observation,
+          createdAt: new Date(),
+        });
+      }  else {
+        process.etapas.forEach((process) => {
+          if (process.stageIdTo == stageIdTo)
+            process.observation = observation;
+        })
       }
 
       const result = await Process.updateOne(search, {
         etapaAtual: body.stageIdTo,
-        etapas: processes.etapas,
+        etapas: process.etapas,
       });
 
       res.status(200).json(result);
@@ -130,28 +131,27 @@ class ProcessController {
 
   async newObservation(req, res) {
     try {
-      const { observation, originStage, destinationStage, processId } =
-        req.body;
-      // const body = await ProcessNewObsercationValidator.validateAsync(req.body);
+      const body = await ProcessNewObservationValidator.validateAsync(req.body);
+      const { observation, originStage, destinationStage, processId } = body;
       const search = { _id: processId };
       const process = await Process.findOne(search);
 
-      let foundStage = process.etapas.find((etapa) => 
+      let foundStage = process.etapas.find((etapa) =>
         etapa.stageIdTo === destinationStage
       );
 
-      const newObservation = {
-        createdAt: new Date(),
-        stageIdTo: destinationStage,
-        stageIdFrom: originStage,
-        observation,
-      };
-      
-      if (!foundStage) {
-        process.etapas.push(newObservation);
+      if (foundStage === undefined) {
+        process.etapas.push({
+          createdAt: new Date(),
+          stageIdTo: destinationStage,
+          stageIdFrom: originStage,
+          observation,
+        })
       } else {
-        foundStage.observation = observation;
-        process.etapas = [...process.etapas, foundStage];
+        process.etapas.forEach((process) => {
+          if (process.stageIdTo == destinationStage)
+            process.observation = observation;
+        })
       }
 
       const result = await Process.updateOne(search, {
