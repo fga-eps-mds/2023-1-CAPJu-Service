@@ -5,6 +5,7 @@ import config from '../../config/database.js';
 import Unit from '../models/Unit.js';
 import Role from '../models/Role.js';
 import User from '../models/User.js'
+import Flow from '../models/Flow.js'
 
 const models = [Unit, Role];
 
@@ -19,10 +20,13 @@ class Database {
     Unit.init(this.connection);
     Role.init(this.connection);
     User.init(this.connection);
+    Flow.init(this.connection);
+    
 
     Unit.associate(this.connection.models);
     Role.associate(this.connection.models);
     User.associate(this.connection.models);
+    Flow.associate(this.connection.models);
   }
 }
 

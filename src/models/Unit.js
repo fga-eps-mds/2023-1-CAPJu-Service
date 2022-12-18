@@ -1,4 +1,4 @@
-import Sequelize, { Model , DataTypes } from 'sequelize';
+import { Model , DataTypes } from 'sequelize';
 
 class Unit extends Model {
     static init(sequelize) {
@@ -19,11 +19,12 @@ class Unit extends Model {
         this.hasMany(models.User, {
             foreignKey: 'cpf',
             as: 'users'
-        })
-    
+        });
+        this.hasMany(models.Flow, {
+            foreignKey: 'idFlow',
+            as: 'flow'
+        });
     }
 }
-  
-
 
 export default Unit;

@@ -5,6 +5,7 @@ import StageController from "./controllers/StageController.js";
 import UnityController from "./controllers/UnityController.js";
 import UnitController from "./controllers/UnitController.js";
 import RoleController from "./controllers/RoleController.js";
+import UserContoller from "./controllers/UserContoller.js";
 import { protect, authRole } from "./middleware/authMiddleware.js";
 import { ROLE } from "./schemas/role.js";
 
@@ -50,36 +51,34 @@ routes.delete(
 routes.put("/processNextStage/", protect, ProcessController.nextStage);
 
 //Rotas de Fluxos
-routes.get(
-  "/flows",
-  protect,
-  authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
-  FlowController.allFlows
-);
-routes.get(
-  "/flows/:id",
-  protect,
-  authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR]),
-  FlowController.getFlow
-);
+// routes.get(
+//   "/flows",
+//   protect,
+//   authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
+//   FlowController.allFlows
+// );
+// routes.get(
+//   "/flows/:id",
+//   protect,
+//   authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR]),
+//   FlowController.getFlow
+// );
 routes.post(
   "/newFlow",
-  protect,
-  authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
-  FlowController.createFlow
+  FlowController.store
 );
-routes.post(
-  "/deleteFlow",
-  protect,
-  authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
-  FlowController.deleteFlow
-);
-routes.put(
-  "/editFlow",
-  protect,
-  authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
-  FlowController.editFlow
-);
+// routes.post(
+//   "/deleteFlow",
+//   protect,
+//   authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
+//   FlowController.deleteFlow
+// );
+// routes.put(
+//   "/editFlow",
+//   protect,
+//   authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
+//   FlowController.editFlow
+// );
 
 //Rotas de Etapas
 routes.get(
@@ -124,6 +123,11 @@ routes.post(
 routes.post(
   "/newRole",
   RoleController.store
+);
+
+routes.post(
+  "/newUser",
+  UserContoller.store
 );
 
 routes.post(
