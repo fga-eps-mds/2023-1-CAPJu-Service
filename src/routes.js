@@ -63,42 +63,59 @@ routes.put("/processNextStage/", protect, ProcessController.nextStage);
 //   authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR]),
 //   FlowController.getFlow
 // );
+
+//Rotas de Fluxos
 routes.post(
   "/newFlow",
   FlowController.store
 );
-// routes.post(
-//   "/deleteFlow",
-//   protect,
-//   authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
-//   FlowController.deleteFlow
-// );
-// routes.put(
-//   "/editFlow",
-//   protect,
-//   authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
-//   FlowController.editFlow
-// );
+
+routes.get(
+  "/flows",
+  FlowController.index
+);
+
+routes.get(
+  "/flow/:id",
+  FlowController.getById
+);
+
+routes.put(
+  "/flow",
+  FlowController.update
+);
+
+routes.delete(
+  "/flow/:id",
+  FlowController.delete
+);
 
 //Rotas de Etapas
-routes.get(
-  "/stages",
-  protect,
-  authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
-  StageController.allStages
-);
 routes.post(
   "/newStage",
-  protect,
-  authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
-  StageController.createStage
+  StageController.store
 );
-routes.post(
-  "/deleteStage",
-  protect,
-  authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
-  StageController.deleteStage
+
+routes.get(
+  "/stages",
+  StageController.index
 );
+
+routes.get(
+  "/stage/:id",
+  StageController.getById
+);
+
+routes.put(
+  "/stage",
+  StageController.update
+);
+
+routes.delete(
+  "/stage/:id",
+  FlowController.delete
+);
+
 
 //Rotas de Etapas
 routes.get("/unitys", UnityController.allUnitys);

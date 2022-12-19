@@ -1,4 +1,4 @@
-import { Model , DataTypes } from 'sequelize';
+import { Model, DataTypes } from 'sequelize';
 
 class Flow extends Model {
   static init(sequelize) {
@@ -25,10 +25,9 @@ class Flow extends Model {
   }
 
   static associate(models) {
-    // this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
-    // this.hasMany(models.Stage, { foreignKey: 'idStage', as: 'stage' })
+    this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
+    this.hasMany(models.Stage, { foreignKey: 'idFlow', trough: 'idFlowStage' , as: 'stage' })
   }
-
 }
 
 export default Flow;

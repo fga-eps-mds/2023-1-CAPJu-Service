@@ -1,66 +1,80 @@
-import Stage from "../schemas/Stage.js";
-import { StageValidator } from "../validators/Stage.js";
+import Stage from '../models/Stage.js';
 
 class StageController {
 
-  async createStage(req, res) {
-    try {
-      const { name, time } = await StageValidator.validateAsync(req.body);
-      const exist = await Stage.find({ name, time, deleted: false });
-      console.log(exist);
-      if(Object.keys(exist).length === 0){
-        const stage = await Stage.create({
-          name,
-          time,
-          deleted: false,
-          unity: req.user.unity,
-        });
-        return res.status(200).json(stage);
+    async index(req, res) {
+        const stages = await Stage.findAll();
+
+        if (!stages) {
+            return res
+              .status(401)
+              .json({ error: 'Não Existem fluxos' });
+          } else {
+              return res.json(stages);
+          }
+    }
+
+    async getById(req, res) {
+        const idStage = req.params.id;
+
+        const stage = await Stage.findByPk(idStage);
+
+        if (!stage) {
+            return res
+              .status(401)
+              .json({ error: 'Esse fluxo não existe' });
+          } else {
+              return res.json(stage);
+          }
+    }
+
+    async store(req, res) {
+        const { name, idUnit } = req.body;
+        try {
+            const stage = await Stage.create({
+                name,
+                idUnit
+            });
+            return res.json(stage);
+        } catch(error) {
+            console.log(error);
+            return res.status(error).json(error);
+        }
+    }
+
+    async update(req, res) {
+        const { idStage, name } = req.body;
+
+        const stage = await Stage.findByPk(idStage);
+
+        if (!stage) {
+            return res
+              .status(401)
+              .json({ error: 'Esse fluxo não existe!' });
+          } else {
+
+            stage.set({ name });
+
+              await stage.save();
+
+              return res.json(stage);
+          }
       }
-      return res.status(400).json({
-        message: "Stage exist",
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json(error);
-    }
-  }
 
-  async deleteStage(req, res) {
-    try {
-      const stageId = req.body.stageId;
-      const stage = await Stage.findOne({ _id: stageId });
+      async delete(req, res) {
+        const idStage = req.params.id;
 
-      if (!stage) {
-        return res.status(404).json({
-          message: "Stage not found",
-        });
+        const stage = await Stage.findByPk(idStage);
+
+        if (!stage) {
+            return res
+              .status(401)
+              .json({ error: 'Esse fluxo não existe!' });
+          } else {
+              await stage.destroy();
+              return res.json(stage);
+          }
       }
-
-      const result = await Stage.updateOne(
-        { _id: stage._id },
-        { deleted: true },
-        { upsert: true }
-      );
-
-      return res.status(200).json(result);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json(error);
-    }
-  }
-
-  async allStages(req, res) {
-    try {
-      const Stages = await Stage.find({ deleted: false, unity: req.user.unity, });
-      return res.status(200).json({
-        Stages,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json(error);
-    }
-  }
 }
 
 export default new StageController();

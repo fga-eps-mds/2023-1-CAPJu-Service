@@ -30,9 +30,9 @@ class Stage extends Model {
 
   static associate(models) {
     this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
-    this.hasMany(models.Stage, { foreignKey: 'idStage', as: 'stage' })
+    this.belongsToMany(models.Flow, { foreignKey: 'idStage', through: 'idFlowStage', as: 'flow' })
   }
 
 }
 
-export default Flow;
+export default Stage;
