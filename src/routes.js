@@ -138,9 +138,27 @@ routes.delete(
   UnitController.delete
 );
 
+// rotas de Role
 routes.post(
   "/newRole",
   RoleController.store
+);
+
+routes.get("/role", RoleController.index);
+
+routes.get(
+  "/roleAdmins/:id",
+  RoleController.getById
+);
+
+routes.put(
+  "/updateRole",
+  RoleController.update
+);
+
+routes.delete(
+  "/deleteRole",
+  RoleController.delete
 );
 
 // Rotas de User

@@ -3,22 +3,32 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('flow', { 
-      idFlow: {
+    await queryInterface.createTable('flowStage', { 
+      idFlowStage: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
       },
-      name: {
-        type: Sequelize.STRING(100),
-        allowNull: false,
-      },
-      idUnit: {
+      idStage: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'unit', key: 'idUnit' },
+        references: { model: 'stage', key: 'idStage' },
         onDelete: 'RESTRICT'
+      },
+      idFlow: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'flow', key: 'idFlow' },
+        onDelete: 'RESTRICT'
+      },
+      order: {
+        type: Sequelize.SMALLINT,
+        allowNull: false
+      },
+      commentary: {
+        type: Sequelize.STRING(100),
+        allowNull: false
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -32,6 +42,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('flow');
+    await queryInterface.dropTable('stage');
   }
 };

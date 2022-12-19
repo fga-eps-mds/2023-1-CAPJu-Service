@@ -1,5 +1,4 @@
 import { Model , DataTypes } from 'sequelize';
-// import bcrypt from 'bcryptjs';
 
 class Flow extends Model {
   static init(sequelize) {
@@ -26,7 +25,8 @@ class Flow extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
+    // this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
+    // this.hasMany(models.Stage, { foreignKey: 'idStage', as: 'stage' })
   }
 
 }

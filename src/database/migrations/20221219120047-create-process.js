@@ -25,7 +25,6 @@ module.exports = {
       },
       idStage: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         references: { model: 'stage', key: 'idStage' },
         onDelete: 'RESTRICT'
       },
@@ -34,6 +33,10 @@ module.exports = {
         allowNull: false,
         references: { model: 'priority', key: 'idPriority' },
         onDelete: 'RESTRICT'
+      },
+      finalised: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,

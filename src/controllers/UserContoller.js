@@ -30,8 +30,6 @@ class UserController {
 
     async store(req, res ) {
         const { fullName, cpf, email, password, idUnit, idRole } = req.body;
-
-        console.log('Caiu aqui nesse caralho = ' + fullName);
         
         try {
             const user = await User.create({
