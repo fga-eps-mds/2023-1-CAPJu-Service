@@ -7,12 +7,17 @@ assignees: ''
 
 ---
 
-## Descrição
+# Titulo
 
-## Tarefas
-- [ ] Tarefa1
-- [ ] Tarefa2
+## Descrição.
 
-## Critérios de Aceitação
 
-## Informação Adicional (se aplicável)
+<!--  ### Issue relacionada com [US <Numero>](link) <Se tiver> -->
+
+## Como solucionar <Nao necessario>
+  
+## Critérios de aceitação
+
+- [ ] Critério 1
+- [ ] Critério 2
+- [ ] Critério 3
