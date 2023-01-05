@@ -24,6 +24,10 @@ class Unit extends Model {
             foreignKey: 'idFlow',
             as: 'flow'
         });
+        //this.hasMany(models.Process, {
+        //    foreignKey: 'record',
+        //    as: 'procs'
+        //});
     }
 }
 

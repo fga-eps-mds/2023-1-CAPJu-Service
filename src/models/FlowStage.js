@@ -32,7 +32,7 @@ class FlowStage extends Model {
   static associate(models) {
     this.belongsToMany(models.Flow, { foreignKey: 'idStage', through: 'idFlowStage', as: 'flow' });
     this.belongsToMany(models.Stage, { foreignKey: 'idFlow', through: 'idFlowStage', as: 'stage' });
-  }this
+  }
 
 }
 
