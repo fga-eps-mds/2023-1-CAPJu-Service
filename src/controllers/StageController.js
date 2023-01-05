@@ -1,3 +1,4 @@
+import Flow from '../models/Flow.js';
 import Stage from '../models/Stage.js';
 
 class StageController {
@@ -29,12 +30,15 @@ class StageController {
     }
 
     async store(req, res) {
-        const { name, idUnit } = req.body;
+        const { name, idUnit, duration } = req.body;
         try {
             const stage = await Stage.create({
                 name,
-                idUnit
+                idUnit,
+                duration
             });
+            
+
             return res.json(stage);
         } catch(error) {
             console.log(error);

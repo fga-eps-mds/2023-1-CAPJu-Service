@@ -3,40 +3,32 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('process', { 
-      record: {
-        type: Sequelize.STRING(20),
-        primaryKey: true,
-        allowNull: false,
-      },
-      nickname: {
-        type: Sequelize.STRING(50),
-        allowNull: false,
-      },
-      effectiveDate: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      idUnit: {
+    await queryInterface.createTable('flowStage', { 
+      idFlowStage: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
         allowNull: false,
-        references: { model: 'unit', key: 'idUnit' },
-        onDelete: 'RESTRICT'
       },
       idStage: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: { model: 'stage', key: 'idStage' },
         onDelete: 'RESTRICT'
       },
-      idPriority: {
+      idFlow: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'priority', key: 'idPriority' },
+        references: { model: 'flow', key: 'idFlow' },
         onDelete: 'RESTRICT'
       },
-      finalised: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
+      order: {
+        type: Sequelize.SMALLINT,
+        allowNull: false
+      },
+      commentary: {
+        type: Sequelize.STRING(100),
+        allowNull: true
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -50,6 +42,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('process');
+    await queryInterface.dropTable('flowStage');
   }
 };

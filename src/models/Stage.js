@@ -10,18 +10,18 @@ class Stage extends Model {
           autoIncrement: true,
         },
         name: DataTypes.STRING(100),
+        duration: {
+          type: DataTypes.SMALLINT,
+          allowNull: false
+        },
         idUnit: {
           type: DataTypes.INTEGER,
           foreignKey: true,
         },
-        iFlow: {
-            type: DataTypes.INTEGER,
-            foreignKey: true,
-          },
       },
       {
         sequelize,
-        tableName: 'flow'
+        tableName: 'stage'
       }
     );
 

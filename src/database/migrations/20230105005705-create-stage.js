@@ -24,14 +24,6 @@ module.exports = {
         type: Sequelize.SMALLINT,
         allowNull: false
       },
-      order: {
-        type: Sequelize.SMALLINT,
-        allowNull: false
-      },
-      commentary: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false

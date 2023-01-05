@@ -3,18 +3,12 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('flowStage', { 
-      idFlowStage: {
+    await queryInterface.createTable('flowProcess', { 
+      idFlowProcess: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
-      },
-      idStage: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: { model: 'stage', key: 'idStage' },
-        onDelete: 'RESTRICT'
       },
       idFlow: {
         type: Sequelize.INTEGER,
@@ -22,13 +16,15 @@ module.exports = {
         references: { model: 'flow', key: 'idFlow' },
         onDelete: 'RESTRICT'
       },
-      order: {
-        type: Sequelize.SMALLINT,
-        allowNull: false
+      record: {
+        type: Sequelize.STRING(20),
+        allowNull: false,
+        references: { model: 'process', key: 'record' },
+        onDelete: 'RESTRICT'
       },
-      commentary: {
-        type: Sequelize.STRING(100),
-        allowNull: false
+      finalised: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
