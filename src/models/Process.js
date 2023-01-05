@@ -5,29 +5,29 @@ class Process extends Model {
     super.init (
       {
         record: {
-          type: Sequelize.STRING(20),
+          type: DataTypes.STRING(20),
           primaryKey: true,
           allowNull: false,
         },
         nickname: {
-          type: Sequelize.STRING(50),
+          type: DataTypes.STRING(50),
           allowNull: false,
         },
         effectiveDate: {
-          type: Sequelize.DATE,
+          type: DataTypes.DATE,
           allowNull: false
         },
         idUnit: {
-          type: Sequelize.INTEGER,
+          type: DataTypes.INTEGER,
           allowNull: false,
           foreignKey: true,
         },
         idStage: {
-          type: Sequelize.INTEGER,
+          type: DataTypes.INTEGER,
           foreignKey: true,
         },
         idPriority: {
-          type: Sequelize.INTEGER,
+          type: DataTypes.INTEGER,
           allowNull: false,
           foreignKey: true,
         }

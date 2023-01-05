@@ -1,29 +1,27 @@
 import { Model , DataTypes } from 'sequelize';
-import { Flow } from './Flow';
-import { Process } from './Process';
 
 class FlowProcess extends Model {
   static init(sequelize) {
     super.init(
       {
         idFlowProcess: {
-          type: Sequelize.INTEGER,
+          type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
           allowNull: false,
         },
         idFlow: {
-          type: Sequelize.INTEGER,
+          type: DataTypes.INTEGER,
           allowNull: false,
           foreignKey: true,
         },
         record: {
-          type: Sequelize.STRING(20),
+          type: DataTypes.STRING(20),
           allowNull: false,
           foreignKey: true,
         },
         finalised: {
-          type: Sequelize.BOOLEAN,
+          type: DataTypes.BOOLEAN,
           allowNull: false,
         }
       },

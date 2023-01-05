@@ -5,13 +5,13 @@ class Priority extends Model {
     super.init(
       {
         idPriority: {
-          type: Sequelize.INTEGER,
+          type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
           allowNull: false,
         },
         description: {
-          type: Sequelize.STRING(50),
+          type: DataTypes.STRING(50),
           allowNull: false,
         },
       },
@@ -29,4 +29,4 @@ class Priority extends Model {
   }
 }
 
-export default Unit;
+export default Priority;

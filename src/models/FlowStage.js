@@ -1,6 +1,4 @@
 import { Model , DataTypes } from 'sequelize';
-import { Flow } from './Flow';
-import { Stage } from './Stage';
 
 class FlowStage extends Model {
   static init(sequelize) {
