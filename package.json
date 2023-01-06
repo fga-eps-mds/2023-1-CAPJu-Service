@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "jest --runInBand --coverage",
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start": "node --experimental-json-modules src/server.js",
+    "dev": "nodemon --experimental-json-modules src/server.js",
     "migration": "sequelize migration:create --name=create-process && sequelize migration:create --name=create-priority && sequelize migration:create --name=create-stage && sequelize migration:create --name=create-flow && sequelize migration:create --name=create-user && sequelize migration:create --name=create-role && sequelize migration:create --name=create-unit",
     "prettier": "prettier src -w"
   },
@@ -22,7 +22,8 @@
     "mongoose": "^6.4.4",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.26.0"
+    "sequelize": "^6.26.0",
+    "swagger-ui-express": "4.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",

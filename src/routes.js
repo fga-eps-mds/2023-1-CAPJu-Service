@@ -11,6 +11,13 @@ import { ROLE } from "./schemas/role.js";
 
 const routes = Router();
 
+routes.get('/', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'Up and running',
+  });
+});
+
 //Rotas de processos
 routes.get(
   "/processes",

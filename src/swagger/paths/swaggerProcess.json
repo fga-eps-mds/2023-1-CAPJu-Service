@@ -1,0 +1,45 @@
+{
+    "/processes":{
+        "get":{
+            "tags":["processes"],
+            "summary":"Get all processes",
+            "description":"Get all processes",
+            "operationId":"getProcesses",
+            "produces":["application/json"],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "type":"array",
+                        "items":{
+                            "$ref":"#/definitions/Process"
+                        }
+                    }
+                }
+            }
+        },
+        "post":{
+            "tags":["processes"],
+            "summary":"Create a process",
+            "description":"Create a process",
+            "operationId":"createProcess",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "in":"body",
+                    "name":"body",
+                    "description":"Process object that needs to be added",
+                    "required":true,
+                    "schema":{
+                        "$ref":"#/definitions/Process"
+                    }
+                }
+            ],
+            "responses":{
+                "405":{
+                    "description":"Invalid input"
+                }
+            }
+        }
+    }
+}
