@@ -15,22 +15,26 @@ curl_json() {
 }
 
 test_init() {
+	local -r COMPOSE_UP_DELAY=5
+	local -r MIGRATION_DELAY=1
+	local -r SERVER_DELAY=5
+
 	printf "Cleaning 'data' directory\n" 1>&2
 	gio trash 'data'
 
 	mkdir --verbose 'data'
 
 	printf "Starting database container\n" 1>&2
-	docker-compose up &
-	sleep 5
+	docker-compose up --no-color &
+	sleep ${COMPOSE_UP_DELAY}
 
 	printf "Running migrations\n" 1>&2
 	yarn sequelize db:migrate
-	sleep 1
+	sleep ${MIGRATION_DELAY}
 
 	printf "Starting server\n" 1>&2
-	npx nodemon --experimental-json-modules src/server.js &
-	sleep 5
+	npx nodemon --experimental-json-modules --no-colors src/server.js &
+	sleep ${SERVER_DELAY}
 
 	return 0
 }
@@ -93,7 +97,7 @@ run_simple_test() {
 is_json() {
 	local maybe_json="$1"
 
-	if jq --exit-status --color-output '.' <<< "${maybe_json}"; then
+	if jq --exit-status '.' <<< "${maybe_json}"; then
 		return $(true)
 	else
 		return $(false)
@@ -197,6 +201,16 @@ test_new_units_list() {
 }
 
 main() {
+	if ! command -v jq &>/dev/null; then
+		echo "Please install 'jq'"
+		return 1
+	fi
+
+	if ! command -v gio &>/dev/null; then
+		echo "Please install 'libglib2' and 'gvfs'"
+		return 1
+	fi
+
 	local api_tests=(
 		test_new_unit
 		test_new_units_list
@@ -232,4 +246,4 @@ main() {
 
 main 2>&1 | tee "$(date '+%Y-%m-%dT%H%M%S%z').log"
 
-exit 0
+exit ${PIPESTATUS[0]}
