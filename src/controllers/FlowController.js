@@ -1,4 +1,5 @@
 import Flow from '../models/Flow.js';
+import Stage from '../models/Stage.js';
 
 class FlowController {
 
@@ -29,12 +30,24 @@ class FlowController {
     }
 
     async store(req, res) {
-        const { name, idUnit } = req.body;
+        const { name, idUnit, idStage } = req.body;
         try {
             const flow = await Flow.create({
                 name,
                 idUnit
             });
+            if(idStage){
+                const stage = await Stage.findByPk(idStage);
+                await flow.addStage(stage);
+            }
+
+            const result = await Flow.findOne({
+                where: { name: name },
+                include: Stage 
+            })
+            
+            console.log('Teste = ', result);
+
             return res.json(flow);
         } catch(error) {
             console.log(error);
