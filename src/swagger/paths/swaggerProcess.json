@@ -4,7 +4,6 @@
             "tags":["processes"],
             "summary":"Get all processes",
             "description":"Get all processes",
-            "operationId":"getProcesses",
             "produces":["application/json"],
             "responses":{
                 "200":{
@@ -17,12 +16,65 @@
                     }
                 }
             }
-        },
+        }
+    },
+    "/processes/{flowId}":{
+        "get":{
+            "tags":["processes"],
+            "summary":"Get process by id",
+            "description":"Get process by id",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "name":"flowId",
+                    "in":"path",
+                    "description":"ID of process to return",
+                    "required":true,
+                    "type":"integer",
+                    "format":"int64"
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Process"
+                    }
+                }
+            }
+        }
+    },
+    "getOneProcess/{id}":{
+        "get":{
+            "tags":["processes"],
+            "summary":"Get process by id",
+            "description":"Get process by id",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"ID of process to return",
+                    "required":true,
+                    "type":"integer",
+                    "format":"int64"
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Process"
+                    }
+                }
+            }
+        }
+    },
+    "/newProcess":{
         "post":{
             "tags":["processes"],
-            "summary":"Create a process",
-            "description":"Create a process",
-            "operationId":"createProcess",
+            "summary":"Create new process",
+            "description":"Create new process",
             "produces":["application/json"],
             "parameters":[
                 {
@@ -36,8 +88,349 @@
                 }
             ],
             "responses":{
-                "405":{
-                    "description":"Invalid input"
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Process"
+                    }
+                }
+            }
+        }
+    },
+    "/updateProcess/{id}":{
+        "put":{
+            "tags":["processes"],
+            "summary":"Update process",
+            "description":"Update process",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"ID of process to return",
+                    "required":true,
+                    "type":"integer",
+                    "format":"int64"
+                },
+                {
+                    "in":"body",
+                    "name":"body",
+                    "description":"Process object that needs to be updated",
+                    "required":true,
+                    "schema":{
+                        "$ref":"#/definitions/Process"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Process"
+                    }
+                }
+            }
+        }
+    },
+    "/deleteProcess/{id}":{
+        "delete":{
+            "tags":["processes"],
+            "summary":"Delete process",
+            "description":"Delete process",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"ID of process to return",
+                    "required":true,
+                    "type":"integer",
+                    "format":"int64"
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Process"
+                    }
+                }
+            }
+        }
+    },
+    "/processNextStage":{
+        "put":{
+            "tags":["processes"],
+            "summary":"Process next stage",
+            "description":"Process next stage",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "in":"body",
+                    "name":"body",
+                    "description":"Process object that needs to be updated",
+                    "required":true,
+                    "schema":{
+                        "$ref":"#/definitions/Process"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Process"
+                    }
+                }
+            }
+        }
+    },
+    "/newFlow":{
+        "post":{
+            "tags":["processes"],
+            "summary":"Create new flow",
+            "description":"Create new flow",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "in":"body",
+                    "name":"body",
+                    "description":"Flow object that needs to be added",
+                    "required":true,
+                    "schema":{
+                        "$ref":"#/definitions/Flow"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Flow"
+                    }
+                }
+            }
+        }
+    },
+    "/flows":{
+        "get":{
+            "tags":["processes"],
+            "summary":"Get all flows",
+            "description":"Get all flows",
+            "produces":["application/json"],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "type":"array",
+                        "items":{
+                            "$ref":"#/definitions/Flow"
+                        }
+                    }
+                }
+            }
+        },
+        "/flow/{id}":{
+            "get":{
+                "tags":["processes"],
+                "summary":"Get flow by id",
+                "description":"Get flow by id",
+                "produces":["application/json"],
+                "parameters":[
+                    {
+                        "name":"id",
+                        "in":"path",
+                        "description":"ID of flow to return",
+                        "required":true,
+                        "type":"integer",
+                        "format":"int64"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"successful operation",
+                        "schema":{
+                            "$ref":"#/definitions/Flow"
+                        }
+                    }
+                }
+            }
+        },
+        "/flow":{
+            "put":{
+                "tags":["processes"],
+                "summary":"Update flow",
+                "description":"Update flow",
+                "produces":["application/json"],
+                "parameters":[
+                    {
+                        "in":"body",
+                        "name":"body",
+                        "description":"Flow object that needs to be updated",
+                        "required":true,
+                        "schema":{
+                            "$ref":"#/definitions/Flow"
+                        }
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"successful operation",
+                        "schema":{
+                            "$ref":"#/definitions/Flow"
+                        }
+                    }
+                }
+            }
+        },
+        "/flow/{id}":{
+            "delete":{
+                "tags":["processes"],
+                "summary":"Delete flow",
+                "description":"Delete flow",
+                "produces":["application/json"],
+                "parameters":[
+                    {
+                        "name":"id",
+                        "in":"path",
+                        "description":"ID of flow to return",
+                        "required":true,
+                        "type":"integer",
+                        "format":"int64"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"successful operation",
+                        "schema":{
+                            "$ref":"#/definitions/Flow"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/newStage":{
+        "post":{
+            "tags":["processes"],
+            "summary":"Create new stage",
+            "description":"Create new stage",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "in":"body",
+                    "name":"body",
+                    "description":"Stage object that needs to be added",
+                    "required":true,
+                    "schema":{
+                        "$ref":"#/definitions/Stage"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Stage"
+                    }
+                }
+            }
+        }
+    },
+    "/stages":{
+        "get":{
+            "tags":["processes"],
+            "summary":"Get all stages",
+            "description":"Get all stages",
+            "produces":["application/json"],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "type":"array",
+                        "items":{
+                            "$ref":"#/definitions/Stage"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "/stage/{id}":{
+        "get":{
+            "tags":["processes"],
+            "summary":"Get stage by id",
+            "description":"Get stage by id",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"ID of stage to return",
+                    "required":true,
+                    "type":"integer",
+                    "format":"int64"
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Stage"
+                    }
+                }
+            }
+        }
+    },
+    "/stage":{
+        "put":{
+            "tags":["processes"],
+            "summary":"Update stage",
+            "description":"Update stage",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "in":"body",
+                    "name":"body",
+                    "description":"Stage object that needs to be updated",
+                    "required":true,
+                    "schema":{
+                        "$ref":"#/definitions/Stage"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Stage"
+                    }
+                }
+            }
+        }
+    },
+    "/stage/{id}":{
+        "delete":{
+            "tags":["processes"],
+            "summary":"Delete stage",
+            "description":"Delete stage",
+            "produces":["application/json"],
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"ID of stage to return",
+                    "required":true,
+                    "type":"integer",
+                    "format":"int64"
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"successful operation",
+                    "schema":{
+                        "$ref":"#/definitions/Stage"
+                    }
                 }
             }
         }
