@@ -118,6 +118,16 @@ test_new_unit() {
 
 		if is_json "${output}"; then
 			printf "Request is a valid JSON\n" 1>&2
+
+			if ! jq --exit-status '.idUnit | numbers' <<< "${output}"; then
+				printf ".idUnit is not a number\n"
+				return 3
+			fi
+
+			if ! jq --exit-status '.name | strings' <<< "${output}"; then
+				printf ".name is not a string\n"
+				return 3
+			fi
 		else
 			printf "Request is an INVALID JSON\n" 1>&2
 			return 1
