@@ -6,6 +6,7 @@ curl_json() {
 	local -r url="$3"
 
 	curl \
+	--insecure \
 	--header 'Content-Type: application/json' \
 	--request "${method}" \
 	--data "${json}" \
@@ -110,7 +111,7 @@ test_new_unit() {
 
 	printf "\nBegin test '%s'\n" "${FUNCNAME[0]}"
 
-	output=$(run_simple_test "POST" '{"name": "nomeunidade"}' 'http://localhost:3333/newUnit')
+	output=$(run_simple_test "POST" '{"name": "nomeunidade"}' 'https://localhost:3333/newUnit')
 	estatus=$?
 
 	if [[ $estatus == 0 ]]; then
@@ -148,7 +149,7 @@ test_new_units_list() {
 
 	test_init
 
-	output=$(send_test_request "POST" '{"name": "nomeunidade1"}' 'http://localhost:3333/newUnit')
+	output=$(send_test_request "POST" '{"name": "nomeunidade1"}' 'https://localhost:3333/newUnit')
 	estatus=$?
 
 	if [[ $estatus == 0 ]]; then
@@ -167,7 +168,7 @@ test_new_units_list() {
 		return 2
 	fi
 
-	output=$(send_test_request "POST" '{"name": "nomeunidade2"}' 'http://localhost:3333/newUnit')
+	output=$(send_test_request "POST" '{"name": "nomeunidade2"}' 'https://localhost:3333/newUnit')
 	estatus=$?
 
 	if [[ $estatus == 0 ]]; then
@@ -186,7 +187,7 @@ test_new_units_list() {
 		return 4
 	fi
 
-	output=$(send_test_request "GET" '' 'http://localhost:3333/unit')
+	output=$(send_test_request "GET" '' 'https://localhost:3333/unit')
 	estatus=$?
 
 	if [[ $estatus == 0 ]]; then
