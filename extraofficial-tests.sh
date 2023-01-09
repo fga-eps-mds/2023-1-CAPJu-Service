@@ -29,7 +29,7 @@ test_init() {
 	sleep 1
 
 	printf "Starting server\n" 1>&2
-	yarn start &
+	npx nodemon --experimental-json-modules src/server.js &
 	sleep 5
 
 	return 0
@@ -62,7 +62,7 @@ send_test_request() {
 test_clean() {
 	printf "killing server\n" 1>&2
 	kill '%2'
-	pkill --full 'node src/server.js'
+	pkill --full 'node .* src/server.js'
 
 	printf "Stopping database container\n" 1>&2
 	kill '%1'
