@@ -1,15 +1,18 @@
-name: Release
+name: Interface-Release
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
+  pull_request:
+    types: [closed]
+
 jobs:
   generate-release:
     runs-on: ubuntu-latest
     steps:
       - name: Get file name
         id: name
-        run: echo "::set-output name=file_name::fga-eps-mds-2022-1-Capju-Service-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
+        run: echo "::set-output name=file_name::fga-eps-mds-2022-2-Capju-Service-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
 
       - name: Copy repository
         uses: actions/checkout@v2
@@ -27,8 +30,8 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         with:
           source_file: ${{ steps.name.outputs.file_name }}.json
-          destination_repo: "fga-eps-mds/2022-1-CAPJu-Doc"
-          destination_folder: "analytics-raw-data/2022-1-CAPJu"
+          destination_repo: 'fga-eps-mds/2022-2-CAPJu-Doc'
+          destination_folder: 'analytics-raw-data/2022-2-CAPJu'
           user_email: ${{ secrets.GIT_EMAIL}}
           user_name: ${{ secrets.GIT_USER }}
           commit_message: Métricas automáticas da release ${{github.ref_name}} - ${{ github.event.repository.name }}
