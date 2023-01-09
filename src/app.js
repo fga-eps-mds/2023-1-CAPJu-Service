@@ -2,9 +2,8 @@ import swaggerUI from 'swagger-ui-express';
 import express from "express";
 import cors from "cors";
 import routes from "./routes.js";
-// import Database from "./database/index.js";
+import Database from "./database/index.js";
 import swaggerFile from "./swagger/swaggerFile.js";
-
 
 const app = express();
 
