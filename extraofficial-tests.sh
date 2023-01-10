@@ -99,10 +99,71 @@ is_json() {
 	local maybe_json="$1"
 
 	if jq --exit-status '.' <<< "${maybe_json}"; then
+		printf "Request is a valid JSON\n" 1>&2
 		return $(true)
+	else
+		printf "Request is NOT a valid JSON\n" 1>&2
+		return $(false)
+	fi
+}
+
+json_field_equals() {
+	local -r field_name="$1"
+	local -r expected_value="$2"
+	local -r maybe_json="$3"
+
+	local output
+	local estatus
+
+	if ! is_json "${maybe_json}"; then
+		return $(false)
+	fi
+
+	output=$(jq --exit-status ".[\"${field_name}\"] == ${expected_value}" <<< "${maybe_json}")
+	estatus=$?
+
+	if [[ $estatus == 0 ]]; then
+		if [[ "${output}" == "true" ]]; then
+			return $(true)
+		else
+			printf "On field '.%s': Expected '%s'\n" "${field_name}" "${expected_value}" 1>&2
+			return $(false)
+		fi
 	else
 		return $(false)
 	fi
+}
+
+is_json_field_number() {
+	local -r field_name="$1"
+	local -r maybe_json="$2"
+
+	if ! is_json "${maybe_json}"; then
+		return $(false)
+	fi
+
+	if ! jq --exit-status ".[\"${field_name}\"] | numbers" <<< "${output}"; then
+		printf "'.%s' is not a number\n" "${field_name}" 1>&2
+		return 1
+	fi
+
+	return $(true)
+}
+
+is_json_field_string() {
+	local -r field_name="$1"
+	local -r maybe_json="$2"
+
+	if ! is_json "${maybe_json}"; then
+		return $(false)
+	fi
+
+	if ! jq --exit-status ".[\"${field_name}\"] | strings" <<< "${output}"; then
+		printf "'.%s' is not a string\n" "${field_name}" 1>&2
+		return 1
+	fi
+
+	return $(true)
 }
 
 test_new_unit() {
@@ -117,21 +178,12 @@ test_new_unit() {
 	if [[ $estatus == 0 ]]; then
 		printf "Request returned\n" 1>&2
 
-		if is_json "${output}"; then
-			printf "Request is a valid JSON\n" 1>&2
-
-			if ! jq --exit-status '.idUnit | numbers' <<< "${output}"; then
-				printf ".idUnit is not a number\n"
-				return 3
-			fi
-
-			if ! jq --exit-status '.name | strings' <<< "${output}"; then
-				printf ".name is not a string\n"
-				return 3
-			fi
-		else
-			printf "Request is an INVALID JSON\n" 1>&2
+		if ! json_field_equals "idUnit" "1" "${output}"; then
 			return 1
+		fi
+
+		if ! json_field_equals "name" '"nomeunidade"' "${output}"; then
+			return 2
 		fi
 	else
 		echo "${FUNCNAME[0]} failed with status $estatus, returned '${output}'" 1>&2
@@ -155,12 +207,14 @@ test_new_units_list() {
 	if [[ $estatus == 0 ]]; then
 		printf "Request returned\n" 1>&2
 
-		if is_json "${output}"; then
-			printf "Request is a valid JSON\n" 1>&2
-		else
-			printf "Request is an INVALID JSON\n" 1>&2
+		if ! json_field_equals "idUnit" "1" "${output}"; then
 			test_clean
 			return 1
+		fi
+
+		if ! json_field_equals "name" '"nomeunidade1"' "${output}"; then
+			test_clean
+			return 2
 		fi
 	else
 		echo "${FUNCNAME[0]} failed with status $estatus, returned '${output}'" 1>&2
@@ -174,12 +228,14 @@ test_new_units_list() {
 	if [[ $estatus == 0 ]]; then
 		printf "Request returned\n" 1>&2
 
-		if is_json "${output}"; then
-			printf "Request is a valid JSON\n" 1>&2
-		else
-			printf "Request is an INVALID JSON\n" 1>&2
+		if ! json_field_equals "idUnit" "2" "${output}"; then
 			test_clean
 			return 3
+		fi
+
+		if ! json_field_equals "name" '"nomeunidade2"' "${output}"; then
+			test_clean
+			return 4
 		fi
 	else
 		echo "${FUNCNAME[0]} failed with status $estatus, returned '${output}'" 1>&2
