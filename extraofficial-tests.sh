@@ -249,12 +249,23 @@ test_new_units_list() {
 	if [[ $estatus == 0 ]]; then
 		printf "Request returned\n" 1>&2
 
-		if is_json "${output}"; then
-			printf "Request is a valid JSON\n" 1>&2
-		else
-			printf "Request is an INVALID JSON\n" 1>&2
+		if ! is_json "${output}"; then
 			test_clean
 			return 5
+		fi
+
+		output=$(jq --exit-status 'length' <<< "${output}")
+		estatus=$?
+
+		if [[ $estatus == 0 ]]; then
+			if [[ $output != 2 ]]; then
+				printf "Expected length '%d' but got '%d'\n" "2" "${output}" 1>&2
+				test_clean
+				return 7
+			fi
+		else
+			test_clean
+			return 8
 		fi
 	else
 		echo "${FUNCNAME[0]} failed with status $estatus, returned '${output}'" 1>&2
