@@ -5,7 +5,7 @@ import { FlowValidator, FlowEditValidator } from "../validators/Flow.js";
 class FlowController {
   async createFlow(req, res) {
     try {
-      const { name, stages, sequences } = await FlowValidator.validateAsync(
+      const { name, stages, sequences, users } = await FlowValidator.validateAsync(
         req.body
       );
 
@@ -25,10 +25,12 @@ class FlowController {
         name,
         stages,
         sequences,
+        users,
         deleted: false,
         unity: req.user.unity,
       });
 
+      console.log(flow);
       return res.status(200).json(flow);
     } catch (error) {
       console.log(error);

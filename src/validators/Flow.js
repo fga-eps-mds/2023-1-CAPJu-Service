@@ -11,6 +11,7 @@ export const FlowValidator = Joi.object({
       })
     )
     .required(),
+  users: Joi.array().items(Joi.string()).required(),
 });
 
 export const FlowEditValidator = Joi.object({
@@ -25,6 +26,7 @@ export const FlowEditValidator = Joi.object({
       })
     )
     .allow(null),
+  users: Joi.array().items(Joi.string()).required(),
   deleted: Joi.bool().allow(null),
   updatedAt: Joi.string().allow(null,'')
 });
