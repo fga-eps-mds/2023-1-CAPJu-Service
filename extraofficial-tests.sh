@@ -278,6 +278,54 @@ test_new_units_list() {
 	return 0
 }
 
+test_new_stage() {
+	local output
+	local estatus
+
+	printf "\nBegin test '%s'\n" "${FUNCNAME[0]}"
+
+	test_init
+
+	output=$(send_test_request "POST" '{"name": "nomeunidade1"}' 'https://localhost:3333/newUnit')
+	estatus=$?
+
+	if ! is_json "${output}"; then
+		echo "${FUNCNAME[0]} got status $estatus, returned '${output}'" 1>&2
+		test_clean
+		return 1
+	fi
+
+	output=$(send_test_request "POST" '{"name": "estag1", "idUnit": 1, "duration": 2}' 'https://localhost:3333/newStage')
+	estatus=$?
+
+	if [[ $estatus == 0 ]]; then
+		printf "Request returned\n" 1>&2
+
+		if ! json_field_equals "idStage" "1" "${output}"; then
+			test_clean
+			return 2
+		fi
+
+		if ! json_field_equals "name" '"estag1"' "${output}"; then
+			test_clean
+			return 3
+		fi
+
+		if ! json_field_equals "idUnit" "1" "${output}"; then
+			test_clean
+			return 4
+		fi
+	else
+		echo "${FUNCNAME[0]} got status $estatus, returned '${output}'" 1>&2
+		test_clean
+		return 5
+	fi
+
+	test_clean
+
+	return 0
+}
+
 main() {
 	if ! command -v jq &>/dev/null; then
 		echo "Please install 'jq'"
@@ -292,6 +340,7 @@ main() {
 	local api_tests=(
 		test_new_unit
 		test_new_units_list
+		test_new_stage
 	)
 
 	local total_tests=${#api_tests[@]}
