@@ -347,7 +347,10 @@ main() {
 	local successful_tests=0
 	local failed_tests=0
 	local executed_tests=0
+	local time_begin=0
+	local time_end=0
 
+	time_begin=$(date '+%s')
 	for api_test in "${api_tests[@]}"; do
 		printf "Running test %d/%d\n" $executed_tests $total_tests 1>&2
 
@@ -362,11 +365,13 @@ main() {
 		((executed_tests++))
 		sleep 1
 	done
+	time_end=$(date '+%s')
 
 	printf "\ntotal_tests=%d\n" $total_tests
 	printf "successful_tests=%d\n" $successful_tests
 	printf "failed_tests=%d\n" $failed_tests
 	printf "executed_tests=%d\n" $executed_tests
+	printf "test_execution_time_seconds=%d\n" $((time_end - time_begin))
 
 	return 0
 }
