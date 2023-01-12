@@ -17,6 +17,9 @@ class FlowStage extends Model {
             type: DataTypes.INTEGER,
             foreignKey: true,
           },
+        order: {
+          type: DataTypes.SMALLINT
+        }
       },
       {
         sequelize,

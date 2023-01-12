@@ -145,7 +145,7 @@ routes.post(
   UnitController.store
 );
 
-routes.get("/unit", UnitController.index);
+routes.get("/units", UnitController.index);
 
 routes.get(
   "/unitAdmins/:id",

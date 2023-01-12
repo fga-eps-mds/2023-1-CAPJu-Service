@@ -1,5 +1,5 @@
-import swaggerProcess from '../swagger/paths/swaggerProcess.json' ;
-import swaggerProcessSchemas from '../swagger/schemas/swaggerProcessSchemas.json';
+import swaggerProcess from '../swagger/paths/swaggerProcess.json' assert {type: 'json'} ;
+import swaggerProcessSchemas from '../swagger/schemas/swaggerProcessSchemas.json' assert {type: 'json'};
 
 
 const endereco = process.env.APP_ADDESS || 'https://localhost:3333';
