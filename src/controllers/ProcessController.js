@@ -1,3 +1,4 @@
+import FlowProcess from "../models/FlowProcess.js";
 import Priority from "../models/Priority.js";
 import Process from "../schemas/Process.js";
 import {
@@ -24,19 +25,31 @@ class ProcessController {
       const { record, idUnit, nickname, idStage, effectiveDate, priority,description, idFlow, finalised } =
         req.body;
       let priorityProcess;
-      if(priority){
-        priorityProcess = Priority.create({description});
-      }
-
-      const process = await Process.create({
-        record,
-        idUnit, 
-        nickname, 
-        idStage, 
-        effectiveDate,
-        idPriority: priorityProcess.idPriority,
-      });
-
+      const flow = await Flow.findByPk(idFlow);
+      if(flow){
+        if(priority){
+          priorityProcess = Priority.create({description});
+        }
+  
+        const process = await Process.create({
+          record,
+          idUnit, 
+          nickname, 
+          idStage, 
+          effectiveDate,
+          idPriority: priorityProcess.idPriority,
+        });
+        
+        const { idProcess } = process;
+  
+        try{
+          if(flow){
+          const flowProcess = await FlowProcess.create(idFlow, record, idProcess, finalised);
+          }
+        } catch(err) {
+          console.log(err);
+        }
+      } 
       return res.status(200).json(process);
     } catch (error) {
       console.log(error);

@@ -30,7 +30,7 @@ module.exports = {
       },
       idPriority: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: { model: 'priority', key: 'idPriority' },
         onDelete: 'RESTRICT'
       },
