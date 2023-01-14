@@ -1,3 +1,4 @@
+import Priority from "../models/Priority.js";
 import Process from "../schemas/Process.js";
 import {
   ProcessValidator,
@@ -20,17 +21,20 @@ const findProcess = async (res, search) => {
 class ProcessController {
   async createProcess(req, res) {
     try {
-      const { registro, apelido, etapaAtual, etapas, arquivado, fluxoId } =
-        await ProcessValidator.validateAsync(req.body);
+      const { record, idUnit, nickname, idStage, effectiveDate, priority,description, idFlow, finalised } =
+        req.body;
+      let priorityProcess;
+      if(priority){
+        priorityProcess = Priority.create({description});
+      }
 
       const process = await Process.create({
-        registro,
-        apelido,
-        etapaAtual,
-        arquivado,
-        etapas,
-        fluxoId,
-        unity: req.user.unity,
+        record,
+        idUnit, 
+        nickname, 
+        idStage, 
+        effectiveDate,
+        idPriority: priorityProcess.idPriority,
       });
 
       return res.status(200).json(process);
