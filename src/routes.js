@@ -21,9 +21,7 @@ routes.get('/', (req, res) => {
 //Rotas de processos
 routes.get(
   "/processes",
-  protect,
-  authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
-  ProcessController.allProcesses
+  ProcessController.index
 );
 routes.get(
   "/processes/:flowId",
@@ -33,15 +31,11 @@ routes.get(
 );
 routes.get(
   "/getOneProcess/:id",
-  protect,
-  authRole([ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
-  ProcessController.getOneProcess
+  ProcessController.getById
 );
 routes.post(
   "/newProcess",
-  protect,
-  authRole([ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
-  ProcessController.createProcess
+  ProcessController.store
 );
 routes.put(
   "/updateProcess/:id",

@@ -17,7 +17,7 @@ class Priority extends Model {
       },
       {
         sequelize,
-        tableName: 'priorities'
+        tableName: 'priority'
       }
     );
 

@@ -1,26 +1,43 @@
 import FlowProcess from "../models/FlowProcess.js";
 import Priority from "../models/Priority.js";
-import Process from "../schemas/Process.js";
+import Process from "../models/Process.js";
+import Flow from "../models/Flow.js";
 import {
   ProcessValidator,
   ProcessEditValidator,
   NextStageValidator,
 } from "../validators/Process.js";
 
-const findProcess = async (res, search) => {
-  try {
-    const processes = await Process.find(search);
-    return res.status(200).json({
-      processes,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json(error);
-  }
-};
-
 class ProcessController {
-  async createProcess(req, res) {
+
+  async index(req, res) {
+  
+    const processes = await Process.findAll();
+
+    if (!processes) {
+        return res
+          .status(401)
+          .json({ error: 'Não existe processos' });
+      } else {
+          return res.json(role);
+      }
+  }
+
+  async getById(req, res) {
+    const idProcess = req.params.id;
+
+    const process = await Role.findByPk(idProcess);
+
+    if (!process) {
+        return res
+          .status(401)
+          .json({ error: 'Esse processo não existe!' });
+      } else {
+          return res.json(process);
+      }
+}
+
+  async store(req, res) {
     try {
       const { record, idUnit, nickname, idStage, effectiveDate, priority,description, idFlow, finalised } =
         req.body;
@@ -28,26 +45,44 @@ class ProcessController {
       const flow = await Flow.findByPk(idFlow);
       if(flow){
         if(priority){
-          priorityProcess = Priority.create({description});
+          priorityProcess = await Priority.create({description});
+          const { idPriority } = priorityProcess;
+
+          console.log("=======================")
+          console.log(priorityProcess);
+          console.log("=======================")
+
+          const process = await Process.create({
+            record,
+            idUnit, 
+            nickname, 
+            idStage, 
+            effectiveDate,
+            idPriority,
+          });
+        } else {
+          const process = await Process.create({
+            record,
+            idUnit, 
+            nickname, 
+            idStage, 
+            effectiveDate,
+            idPriority: 20
+          });
         }
-  
-        const process = await Process.create({
-          record,
-          idUnit, 
-          nickname, 
-          idStage, 
-          effectiveDate,
-          idPriority: priorityProcess.idPriority,
-        });
         
         const { idProcess } = process;
   
-        try{
+        try {
           if(flow){
-          const flowProcess = await FlowProcess.create(idFlow, record, idProcess, finalised);
+            console.log("=======================")
+            console.log(idFlow);
+            console.log("=======================")
+          const flowProcess = await FlowProcess.create({idFlow, record, idProcess, finalised});
           }
         } catch(err) {
           console.log(err);
+          return res.status(500).json(error);
         }
       } 
       return res.status(200).json(process);

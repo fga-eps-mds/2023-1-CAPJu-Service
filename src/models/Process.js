@@ -34,7 +34,7 @@ class Process extends Model {
       },
       {
         sequelize,
-        tableName: 'processes'
+        tableName: 'process'
       }
     );
 
