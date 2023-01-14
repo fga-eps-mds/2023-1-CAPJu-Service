@@ -45,20 +45,10 @@ class FlowController {
                     .json({ error: 'Necessário pelo menos duas etapas!' });
 
             } else {
-                console.log('==========================================');
-                console.log('idFlow = ', idFlow);
-                console.log('==========================================');
-
                 stages.forEach(async (stage) => {
                     const findedStage = await Stage.findByPk(stage.idStage);
                     if (stage.idStage && findedStage) {
-                        console.log('idFlow = ', idFlow);
-                        const { idStage, order } = stage
-                        console.log('==========================================');
-                        console.log('order = ', order);
-                        console.log('==========================================');
-                        console.log('idStage = ', idStage);
-                        
+                        const { idStage, order } = stage;
                         const flowStage = await FlowStage.create({
                             idStage,
                             idFlow,
