@@ -17,17 +17,17 @@ mongoose
     console.log("Error:", err.message);
   });
 
-// const __dirname = './'
-// const sslServer = https.createServer({
-//     key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
-//     cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem')),
-//     },
-//     app
-// )
+const __dirname = './';
+const sslServer = https.createServer({
+     key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
+     cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem')),
+     },
+     app
+ );
 
-// sslServer.listen(process.env.PORT || 3333, () => console.log("Server running"));
+sslServer.listen(process.env.PORT || 3333, () => console.log("Server running"));
 
-app.listen(process.env.PORT || 3333, () => console.log("Server running"));
+// app.listen(process.env.PORT || 3333, () => console.log("Server running"));
 
 async function failGracefully() {
   console.log("Something is gonna blow up.");

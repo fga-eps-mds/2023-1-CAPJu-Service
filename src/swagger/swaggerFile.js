@@ -1,6 +1,4 @@
-import swaggerProcess from '../swagger/paths/swaggerProcess.json' assert {type: 'json'} ;
-import swaggerProcessSchemas from '../swagger/schemas/swaggerProcessSchemas.json' assert {type: 'json'};
-
+import swaggerProcess from '../swagger/paths/swaggerProcess.json';
 
 const endereco = process.env.APP_ADDESS || 'https://localhost:3333';
 
@@ -24,12 +22,7 @@ const swaggerFile = {
     ],
     paths: {
         ...swaggerProcess,
-    },
-    components: {
-        schemas:{
-            ...swaggerProcessSchemas,
-        },
-    },
+    }
 };
 
 export default swaggerFile;
