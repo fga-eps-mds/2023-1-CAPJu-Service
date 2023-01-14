@@ -8,6 +8,7 @@
     "start": "node --experimental-json-modules src/server.js",
     "dev": "nodemon --experimental-json-modules src/server.js",
     "migration": "sequelize db:migrate",
+    "seed": "sequelize db:seed:all",
     "prettier": "prettier src -w"
   },
   "license": "MIT",

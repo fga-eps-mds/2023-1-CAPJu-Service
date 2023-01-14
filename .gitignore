@@ -23,3 +23,6 @@ globalConfig.json
 
 # database
 data
+
+# vim swap files
+*.swp
