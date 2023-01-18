@@ -4,11 +4,15 @@
   "description": "CAPJu process management service",
   "main": "app.js",
   "scripts": {
-    "test": "jest --runInBand --coverage",
+    "test": "NODE_ENV=test jest --detectOpenHandles --coverage",
     "start": "node --experimental-json-modules src/server.js",
-    "dev": "nodemon --experimental-json-modules src/server.js",
+    "dev": "npx nodemon --experimental-json-modules src/server.js",
     "migration": "sequelize db:migrate",
+    "test-migration": "NODE_ENV=test sequelize db:migrate",
     "seed": "sequelize db:seed:all",
+    "test-seed": "NODE_ENV=test sequelize db:seed:all",
+    "shred": "sequelize db:migrate:undo:all",
+    "test-shred": "NODE_ENV=test sequelize db:migrate:undo:all",
     "prettier": "prettier src -w"
   },
   "license": "MIT",
@@ -24,6 +28,7 @@
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.26.0",
+    "sqlite3": "^5.1.4",
     "swagger-ui-express": "4.6.0"
   },
   "devDependencies": {
