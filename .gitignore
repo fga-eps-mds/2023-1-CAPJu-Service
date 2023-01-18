@@ -23,6 +23,7 @@ globalConfig.json
 
 # database
 data
+test-db.sqlite3
 
 # vim swap files
 *.swp
