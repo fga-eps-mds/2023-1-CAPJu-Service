@@ -1,4 +1,4 @@
-
+import dotenv from "dotenv";
 import Sequelize from 'sequelize';
 import config from '../../config/database.js';
 // const config = require('../../config/database.js');
@@ -11,6 +11,8 @@ import Role from '../models/Role.js';
 import Stage from '../models/Stage.js';
 import Unit from '../models/Unit.js';
 import User from '../models/User.js';
+
+dotenv.config();
 
 // const models = [Unit, Role];
 const models = [
@@ -25,13 +27,17 @@ const models = [
   User
 ];
 
+// use sequelize-cli defaults
+const getEnvironmentType = () => {return process.env.NODE_ENV || 'development'};
+
 class Database {
   constructor() {
     this.init();
   }
 
   init() {
-    this.connection = new Sequelize(config);
+    console.log("environmentType = '" + getEnvironmentType() + "'");
+    this.connection = new Sequelize(config[getEnvironmentType()]);
 
     Flow.init(this.connection);
     FlowProcess.init(this.connection);
