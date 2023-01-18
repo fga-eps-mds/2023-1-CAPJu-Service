@@ -24,7 +24,6 @@ export default {
     "./src/{app,routes}.js",
     "./src/controllers/*.js",
     "./src/database/*.js",
-    "./src/middleware/*.js",
     "./src/models/*.js"
   ],
 
