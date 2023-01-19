@@ -97,4 +97,30 @@ describe('user endpoints', () => {
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual(expect.objectContaining(testUser));
 	});
+
+	test('new user and edit fullName', async () => {
+		const testUser = {
+			fullName: "Nomen Nomes",
+			cpf: "86891382424",
+			email: "aaa@bb.com",
+			password: "spw123456",
+			idUnit: 1,
+			idRole: 3
+		};
+
+		const newUserResponse = await supertest(app).post("/newUser").send(testUser);
+		expect(newUserResponse.status).toBe(200);
+
+		const newName = "Nomena Nomeno";
+
+		const expectedUser = {
+			"cpf": testUser.cpf,
+			"email": testUser.email,
+			"fullName": newName
+		};
+
+		const response = await supertest(app).put("/updateUser").send(expectedUser);
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual(expect.objectContaining(expectedUser));
+	});
 });
