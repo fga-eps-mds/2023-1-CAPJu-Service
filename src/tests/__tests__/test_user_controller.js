@@ -79,4 +79,22 @@ describe('user endpoints', () => {
 			);
 		}
 	});
+
+	test('new user and check by id', async () => {
+		const testUser = {
+			fullName: "Nome Nome",
+			cpf: "07859382903",
+			email: "aaa@bb.com",
+			password: "apw123456",
+			idUnit: 1,
+			idRole: 2
+		};
+
+		const newUserResponse = await supertest(app).post("/newUser").send(testUser);
+		expect(newUserResponse.status).toBe(200);
+
+		const response = await supertest(app).get("/user").send({"cpf": testUser.cpf});
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual(expect.objectContaining(testUser));
+	});
 });
