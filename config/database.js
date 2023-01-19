@@ -1,11 +1,19 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const HOST = process.env.POSTGRES_HOST || '0.0.0.0';
+const PORT = process.env.POSTGRES_PORT || 5432;
+const DATABASE = process.env.POSTGRES_DATABASE || 'postgres';
+
 export default  {
 	development: {
 		dialect: "postgres",
-		username: 'postgres',
-		password: 'postgre',
-		database: 'postgres',
-		host: '0.0.0.0',
-		port: 5432
+		username: process.env.POSTGRES_USER,
+		password: process.env.POSTGRES_PASSWORD,
+		database: DATABASE,
+		host: HOST,
+		port: PORT
 	},
 	test: {
 		database: "db",
@@ -14,10 +22,10 @@ export default  {
     },
     production: {
 		dialect: "postgres",
-		username: 'postgres',
-		password: 'postgre',
-		database: 'postgres',
-		host: '0.0.0.0',
-		port: 5432
+		username: process.env.POSTGRES_USER,
+		password: process.env.POSTGRES_PASSWORD,
+		database: DATABASE,
+		host: HOST,
+		port: PORT
 	}
 };
