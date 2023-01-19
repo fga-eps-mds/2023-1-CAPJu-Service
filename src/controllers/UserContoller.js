@@ -1,7 +1,14 @@
 import User from '../models/User.js';
+import jwt from "jsonwebtoken";
 
+const cpfFilter = (cpf) => cpf.replace(/[^0-9]/g, '');
+
+const generateToken = (id) => {
+        return jwt.sign({ id }, process.env.JWT_SECRET, {
+            expiresIn: "3d",
+        });
+};
 class UserController {
-
     async index(req, res) {
         const users = await User.findAll();
 
@@ -14,19 +21,30 @@ class UserController {
           }
     }
 
-
     async login(req, res) {
         try {
             const { cpf, password } = req.body;
             // Check for user cpf
-            const user = await User.findByPk(cpf);
+            const user = await User.findByPk(cpfFilter(cpf));
             if (!user) {
                 return res.status(401).json({ message: "o usuário não existe" });
             }
             if (user.password === password) {
+                let expiresIn = new Date();
+                expiresIn.setDate(expiresIn.getDate() + 3);
+                return res.status(200).json({
+                    _id: user.id,
+                    name: user.fullName,
+                    email: user.email,
+                    token: generateToken(user._id),
+                    expiresIn,
+                });
                 return res.status(200).json(user);
-            }
+            } else {
+		    return res.status(401).json({message: "Senha ou usuário incorretos"});
+	    }
         } catch (error) {
+            console.log(error);
             return res.status(500).json({ message: "erro inesperado" });
         }
     }
