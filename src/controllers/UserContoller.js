@@ -8,7 +8,7 @@ class UserController {
         if (!users) {
             return res
               .status(401)
-              .json({ error: 'Não Existe unidades' });
+              .json({ error: 'Não há usuários cadastrados' });
           } else {
               return res.json(users);
           }
@@ -22,7 +22,7 @@ class UserController {
         if (!user) {
             return res
               .status(401)
-              .json({ error: 'Esse user não existe' });
+              .json({ error: 'Usuário não existe' });
           } else {
               return res.json(user);
           }
@@ -30,11 +30,11 @@ class UserController {
 
     async store(req, res ) {
         const { fullName, cpf, email, password, idUnit, idRole } = req.body;
-        
+
         try {
             const user = await User.create({
                 fullName,
-                cpf, 
+                cpf,
                 email,
                 password,
                 idUnit,
@@ -48,33 +48,33 @@ class UserController {
     }
 
     async update(req, res) {
-        const { fullName, cpf, email } = req.body; 
-    
+        const { fullName, cpf, email } = req.body;
+
         const user = await User.findByPk(cpf);
-    
+
         if (!user) {
             return res
               .status(401)
-              .json({ error: 'Essa usuário não existe!' });
+              .json({ error: 'Usuário não existe!' });
           } else {
-            
+
             user.set({ fullName, email });
-            
+
               await user.save();
-    
+
               return res.json(user);
-          } 
+          }
       }
-    
+
       async delete(req, res) {
-        const { cpf } = req.body; 
+        const { cpf } = req.body;
 
         const user = await User.findByPk(cpf);
 
         if (!user) {
             return res
               .status(401)
-              .json({ error: 'Essa usuário não existe!' });
+              .json({ error: 'Usuário não existe!' });
           } else {
               await user.destroy();
               return res.json(user);
