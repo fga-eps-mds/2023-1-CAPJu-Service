@@ -149,4 +149,26 @@ describe('user endpoints', () => {
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual(expect.objectContaining(expectedUser));
 	});
+
+	test('new user and delete it', async () => {
+		const testUser = {
+			fullName: "Nomenni Nomesos",
+			cpf: "26585841212",
+			email: "ala@bb.com",
+			password: "sfwJ23456",
+			idUnit: 1,
+			idRole: 5
+		};
+
+		const newUserResponse = await supertest(app).post("/newUser").send(testUser);
+		expect(newUserResponse.status).toBe(200);
+
+		const response = await supertest(app).delete("/deleteUser").send({"cpf": testUser.cpf});
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual(expect.objectContaining(testUser));
+
+		const checkUserResponse = await supertest(app).get("/user").send({"cpf": testUser.cpf});
+		expect(checkUserResponse.status).toBe(401);
+		expect(checkUserResponse.body).toEqual(expect.anything());
+	});
 });
