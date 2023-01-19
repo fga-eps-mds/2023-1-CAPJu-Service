@@ -6,7 +6,7 @@ class User extends Model {
     super.init(
       {
         cpf: {
-          type: DataTypes.BIGINT,
+          type: DataTypes.STRING(11),
           primaryKey: true,
         },
         fullName: DataTypes.STRING(300),

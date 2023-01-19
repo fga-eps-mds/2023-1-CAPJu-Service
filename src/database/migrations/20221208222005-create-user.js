@@ -3,9 +3,9 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('users', { 
+    await queryInterface.createTable('users', {
       cpf: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.STRING(11),
         primaryKey: true,
         allowNull: false,
       },
@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.STRING(256),
         allowNull: false
       },
-      
+
       idUnit: {
         type: Sequelize.INTEGER,
         allowNull: false,

@@ -5,7 +5,7 @@ import User from '../../models/User.js';
 import Role from '../../models/Role.js';
 
 describe('initial database', () => {
-	beforeAll(() => {
+	beforeEach(() => {
 		console.log("Preparing test...");
 		execSync("yarn test-shred");
 		execSync("yarn test-migration");
@@ -25,9 +25,9 @@ describe('initial database', () => {
 	});
 
 	test('user exists', async () => {
-		const expectedCpf = BigInt('3472718129');
-		const foundUser = await User.findByPk(expectedCpf.toString());
-		expect(foundUser.cpf.toString()).toBe(expectedCpf.toString());
+		const expectedCpf = '03472718129';
+		const foundUser = await User.findByPk(expectedCpf);
+		expect(foundUser.cpf).toBe(expectedCpf);
 		expect(foundUser.idRole).toBe(5);
 	});
 
