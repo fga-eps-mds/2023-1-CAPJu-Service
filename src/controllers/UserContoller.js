@@ -14,6 +14,23 @@ class UserController {
           }
     }
 
+
+    async login(req, res) {
+        try {
+            const { cpf, password } = req.body;
+            // Check for user cpf
+            const user = await User.findByPk(cpf);
+            if (!user) {
+                return res.status(401).json({ message: "o usuário não existe" });
+            }
+            if (user.password === password) {
+                return res.status(200).json(user);
+            }
+        } catch (error) {
+            return res.status(500).json({ message: "erro inesperado" });
+        }
+    }
+
     async getById(req, res) {
         const { cpf } = req.body;
 

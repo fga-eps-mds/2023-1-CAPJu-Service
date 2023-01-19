@@ -182,6 +182,11 @@ routes.delete(
 
 // Rotas de User
 routes.post(
+  "/login",
+  UserContoller.login
+);
+
+routes.post(
   "/newUser",
   UserContoller.store
 );
