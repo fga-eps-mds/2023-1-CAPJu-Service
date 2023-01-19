@@ -25,7 +25,7 @@ const sslServer = https.createServer({
      app
  );
 
-app.listen(process.env.PORT || 3333, () => console.log("Server running"));
+sslServer.listen(process.env.PORT || 3333, () => console.log("Server running"));
 
 async function failGracefully() {
   console.log("Something is gonna blow up.");
