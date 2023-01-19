@@ -98,6 +98,12 @@ describe('user endpoints', () => {
 		expect(response.body).toEqual(expect.objectContaining(testUser));
 	});
 
+	test('try reading inexistent user', async () => {
+		const response = await supertest(app).get("/user").send({"cpf": '44061969510'});
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual(expect.anything());
+	});
+
 	test('new user and edit fullName', async () => {
 		const testUser = {
 			fullName: "Nomen Nomes",
@@ -122,6 +128,18 @@ describe('user endpoints', () => {
 		const response = await supertest(app).put("/updateUser").send(expectedUser);
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual(expect.objectContaining(expectedUser));
+	});
+
+	test('try editing inexistent user', async () => {
+		const expectedUser = {
+			"cpf": '55490433353',
+			"email": 'email@email.com.mx',
+			"fullName": 'Asdfgo Iopqwerty'
+		};
+
+		const response = await supertest(app).put("/updateUser").send(expectedUser);
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual(expect.anything());
 	});
 
 	test('new user and edit email', async () => {
