@@ -15,6 +15,13 @@ export const ProcessEditValidator = Joi.object({
   fluxoId: Joi.string().allow(null, ""),
 });
 
+export const ProcessNewObservationValidator = Joi.object({
+  processId: Joi.string().required(),
+  originStage: Joi.string().required(),
+  destinationStage: Joi.string().required(),
+  observation: Joi.string().allow(null, ""),
+});
+
 export const NextStageValidator = Joi.object({
   processId: Joi.string().required(),
   stageIdTo: Joi.string().required(),
