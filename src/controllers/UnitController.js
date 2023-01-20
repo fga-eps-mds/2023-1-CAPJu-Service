@@ -85,7 +85,6 @@ class UnitController {
                 idRole: 5
             }
         });
-        console.log(users);
 
         if (!users) {
             return res.status(401).json(
