@@ -1,6 +1,7 @@
 export const ROLE = {
-  DIRETOR: 1,
-  JUIZ: 2,
-  SERVIDOR: 3,
-  ESTAGIARIO: 4,
+  ADMINISTRADOR: 5,
+  DIRETOR: 4,
+  JUIZ: 3,
+  SERVIDOR: 2,
+  ESTAGIARIO: 1,
 };
