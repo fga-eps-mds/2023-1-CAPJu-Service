@@ -33,10 +33,10 @@ class UserController {
                 let expiresIn = new Date();
                 expiresIn.setDate(expiresIn.getDate() + 3);
                 return res.status(200).json({
-                    _id: user.id,
+                    _id: user.cpf,
                     name: user.fullName,
                     email: user.email,
-                    token: generateToken(user._id),
+                    token: generateToken(user.cpf),
                     expiresIn,
                 });
                 return res.status(200).json(user);
@@ -63,6 +63,30 @@ class UserController {
           }
     }
 
+  async allUser(req, res) {
+    try {
+      let accepted, user;
+      console.log(req.query.accepted);
+      if (req.query.accepted) {
+        //accepted = req.query.accepted === true;
+        accepted = req.query.accepted;
+        user = await User.findAll({where: { accepted: accepted }});
+        console.log(user);
+        return res.status(200).json({
+            user: user
+          });
+      } else {
+          user = await User.findAll();
+          return res.status(200).json({
+            user: user
+          });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json(error);
+    }
+  }
+
     async store(req, res ) {
         const { fullName, cpf, email, password, idUnit, idRole } = req.body;
 
@@ -72,6 +96,7 @@ class UserController {
                 cpf,
                 email,
                 password,
+                accepted: false,
                 idUnit,
                 idRole
             });

@@ -181,6 +181,14 @@ routes.delete(
 );
 
 // Rotas de User
+// TODO: Mover para User
+routes.get(
+	"/allUser",
+	protect,
+	authRole([ROLE.ADMINISTRADOR, ROLE.DIRETOR, ROLE.SERVIDOR]),
+	UserContoller.allUser,
+);
+// TODO: Mover para User
 routes.post(
   "/login",
   UserContoller.login
