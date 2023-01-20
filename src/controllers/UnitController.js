@@ -97,7 +97,71 @@ class UnitController {
     }
 
     async setUnitAdmin(req, res) {
-        // TODO
+        const {idUnit, cpf} = req.body;
+
+        const user = await User.findOne(
+            {
+                where:
+                {
+                    cpf: cpf,
+                    idUnit: idUnit
+                }
+            }
+        );
+
+        if (!user) {
+            return res.status(401).json(
+                {
+                    error: "Usuário não existe nesta unidade"
+                }
+            );
+        } else {
+            try {
+                user.set({idRole: 5});
+                await user.save();
+                return res.status(200).json(user);
+            } catch (error) {
+                console.log(error);
+                return res.status(500).json(
+                    {
+                        error: "Erro ao configurar usuário como administrador"
+                    }
+                );
+            }
+        }
+    }
+
+    async removeUnitAdmin(req, res) {
+        const {idUnit, cpf} = req.body;
+        const user = await User.findOne(
+            {
+                where:
+                {
+                    cpf: cpf,
+                    idUnit: idUnit
+                }
+            }
+        );
+        if (!user) {
+            return res.status(401).json(
+                {
+                    error: "Usuário não existe nesta unidade"
+                }
+            );
+        } else {
+            try {
+                user.set({idRole: 2});
+                await user.save();
+                return res.status(200).json(user);
+            } catch (error) {
+                console.log(error);
+                return res.status(500).json(
+                    {
+                        error: "Erro ao configurar usuário como administrador"
+                    }
+                );
+            }
+        }
     }
 }
 
