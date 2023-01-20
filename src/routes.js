@@ -143,6 +143,7 @@ routes.post(
 routes.get("/units", UnitController.index);
 
 routes.put("/setUnitAdmin", UnitController.setUnitAdmin);
+routes.put("/removeUnitAdmin", UnitController.removeUnitAdmin);
 
 routes.get(
   "/unitAdmins/:id",
@@ -196,6 +197,20 @@ routes.post(
   UserContoller.login
 );
 
+// TODO: Mover para User
+routes.put("/updateUser/:id", UserContoller.updateUser);
+
+// TODO: Mover para User
+routes.post("/updateUserPassword/:id", UserContoller.editPassword);
+
+// TODO: Mover para User
+routes.post("/acceptRequest/:id", protect, UserContoller.acceptRequest);
+// TODO: Mover para User
+routes.delete("/deleteRequest/:id", protect, UserContoller.deleteRequest);
+
+
+routes.put("/updateUserRole", UserContoller.updateRole);
+
 routes.post(
   "/newUser",
   UserContoller.store
@@ -210,6 +225,11 @@ routes.get(
   UserContoller.getById
 );
 
+routes.get(
+  "/user/:id",
+  UserContoller.getByIdParam
+);
+
 routes.put(
   "/updateUser",
   UserContoller.update
@@ -218,6 +238,11 @@ routes.put(
 routes.delete(
   "/deleteUser",
   UserContoller.delete
+);
+
+routes.delete(
+  "/deleteUser/:id",
+  UserContoller.deleteByParam
 );
 
 routes.post(
