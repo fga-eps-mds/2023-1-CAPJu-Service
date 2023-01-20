@@ -12,6 +12,7 @@ class User extends Model {
         fullName: DataTypes.STRING(300),
         email: DataTypes.STRING(300),
         password: DataTypes.STRING(256),
+          accepted: DataTypes.BOOLEAN,
         idUnit: {
           type: DataTypes.INTEGER,
           foreignKey: true,

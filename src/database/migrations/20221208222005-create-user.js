@@ -21,6 +21,10 @@ module.exports = {
         type: Sequelize.STRING(256),
         allowNull: false
       },
+	    accepted: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false
+        },
 
       idUnit: {
         type: Sequelize.INTEGER,
