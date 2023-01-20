@@ -78,12 +78,10 @@ class UserController {
   async allUser(req, res) {
     try {
       let accepted, user;
-      console.log(req.query.accepted);
       if (req.query.accepted) {
         //accepted = req.query.accepted === true;
         accepted = req.query.accepted;
         user = await User.findAll({where: { accepted: accepted }});
-        console.log(user);
         return res.status(200).json({
             user: user
           });
@@ -149,7 +147,6 @@ class UserController {
                     error: "Usuário não existe"
                 });
             } else {
-                console.log(user);
                 user.set({email: newEmail});
                 await user.save();
                 return res.status(200).json(user);
@@ -163,7 +160,6 @@ class UserController {
 	async updateRole(req, res) {
         try {
             const {idRole, cpf} = req.body;
-            console.log(req.body);
             const user = await User.findByPk(cpf);
 
             if (!user) {
@@ -171,7 +167,6 @@ class UserController {
                     error: "Usuário não existe"
                 });
             } else {
-                console.log(user);
                 user.set({idRole: idRole});
                 await user.save();
                 return res.status(200).json(user);
