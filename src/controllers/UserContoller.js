@@ -17,7 +17,7 @@ class UserController {
               .status(401)
               .json({ error: 'Não há usuários cadastrados' });
           } else {
-              return res.json(users);
+              return res.json({users: users});
           }
     }
 
@@ -93,7 +93,7 @@ class UserController {
         try {
             const user = await User.create({
                 fullName,
-                cpf,
+                cpf: cpfFilter(cpf),
                 email,
                 password,
                 accepted: false,
