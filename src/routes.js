@@ -114,8 +114,8 @@ routes.put(
 );
 
 routes.delete(
-  "/stage/:id",
-  FlowController.delete
+  "/deleteStage/:id",
+  StageController.delete
 );
 
 
@@ -142,9 +142,11 @@ routes.post(
 
 routes.get("/units", UnitController.index);
 
+routes.put("/setUnitAdmin", UnitController.setUnitAdmin);
+
 routes.get(
   "/unitAdmins/:id",
-  UnitController.getById
+  UnitController.getAdminsByUnitId
 );
 
 routes.put(
