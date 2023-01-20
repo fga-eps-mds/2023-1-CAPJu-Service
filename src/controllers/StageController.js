@@ -11,7 +11,7 @@ class StageController {
               .status(401)
               .json({ error: 'Não Existem fluxos' });
           } else {
-              return res.json(stages);
+              return res.json({Stages: stages});
           }
     }
 
@@ -37,7 +37,6 @@ class StageController {
                 idUnit,
                 duration
             });
-            
 
             return res.json(stage);
         } catch(error) {
