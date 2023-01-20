@@ -33,8 +33,8 @@ class UserController {
                 let expiresIn = new Date();
                 expiresIn.setDate(expiresIn.getDate() + 3);
                 return res.status(200).json({
-                    _id: user.cpf,
-                    name: user.fullName,
+                    cpf: user.cpf,
+                    fullName: user.fullName,
                     email: user.email,
                     token: generateToken(user.cpf),
                     expiresIn,
@@ -63,6 +63,18 @@ class UserController {
           }
     }
 
+    async getByIdParam(req, res) {
+        const cpf = req.params.id;
+        const user = await User.findByPk(cpf);
+
+        if (!user) {
+            return res
+              .status(401)
+              .json({ error: 'Usuário não existe' });
+          } else {
+              return res.json(user);
+          }
+    }
   async allUser(req, res) {
     try {
       let accepted, user;
@@ -126,9 +138,78 @@ class UserController {
           }
       }
 
+    async updateUser(req, res) {
+        try {
+            const cpf = req.params.id;
+            const user = await User.findByPk(cpf);
+            const newEmail = req.body.email;
+
+            if (!user) {
+                return res.status(401).json({
+                    error: "Usuário não existe"
+                });
+            } else {
+                console.log(user);
+                user.set({email: newEmail});
+                await user.save();
+                return res.status(200).json(user);
+            }
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: "Usuário não atualizado!" });
+        }
+    }
+
+	async updateRole(req, res) {
+        try {
+            const {idRole, cpf} = req.body;
+            console.log(req.body);
+            const user = await User.findByPk(cpf);
+
+            if (!user) {
+                return res.status(401).json({
+                    error: "Usuário não existe"
+                });
+            } else {
+                console.log(user);
+                user.set({idRole: idRole});
+                await user.save();
+                return res.status(200).json(user);
+            }
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: "Usuário não atualizado!" });
+        }
+    }
+
+    async editPassword(req, res) {
+        try {
+            const cpf = req.params.id;
+            const { oldPassword, newPassword } = req.body;
+            const user = await User.findByPk(cpf);
+            if (!user) {
+                return res
+                .status(401)
+                .json({ message: "Nenhum usuário foi encontrado" });
+            }
+
+            if (oldPassword === user.password) {
+                user.set({password: newPassword});
+                await user.save();
+                return res
+                .status(200)
+                .json({ message: "Usuário atualizado com sucesso!" });
+            } else {
+                return res.status(400).json({ message: "Senha inválida!" });
+            }
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: "Erro a atualizar usuário " });
+        }
+    }
+
       async delete(req, res) {
         const { cpf } = req.body;
-
         const user = await User.findByPk(cpf);
 
         if (!user) {
@@ -137,9 +218,57 @@ class UserController {
               .json({ error: 'Usuário não existe!' });
           } else {
               await user.destroy();
-              return res.json(user);
+              return res.status(200).json(user);
           }
       }
+    async deleteByParam(req, res) {
+        const cpf = req.params.id;
+        const user = await User.findByPk(cpf);
+
+        if (!user) {
+            return res
+              .status(401)
+              .json({ error: 'Usuário não existe!' });
+          } else {
+              await user.destroy();
+              return res.status(200).json(user);
+          }
+      }
+
+    async acceptRequest(req, res) {
+        try {
+            const cpf = req.params.id;
+            const user = await User.findByPk(cpf);
+
+            if (!user) {
+                res.status(401).json({error: "Usuário não existe"});
+            } else {
+                user.set({accepted: true});
+                await user.save();
+                return res.status(200).send(user);
+            }
+        } catch (error) {
+            console.log("error", error);
+            return res.status(500);
+        }
+    }
+
+    async deleteRequest(req, res) {
+        try {
+            const cpf = req.params.id;
+            const user = await User.findByPk(cpf);
+
+            if (!user) {
+                res.status(401).json({error: "Usuário não existe"});
+            } else {
+                await user.destroy();
+                return res.status(200).send(user);
+            }
+        } catch (error) {
+            console.log("error", error);
+            return res.status(500).json(error);
+        }
+    }
 }
 
 export default new UserController();
