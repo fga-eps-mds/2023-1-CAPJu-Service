@@ -73,6 +73,11 @@ routes.post(
 );
 
 routes.get(
+  "/flow/:idFlow/usersToNotify",
+  FlowController.getUsersToNotify
+);
+
+routes.get(
   "/flows",
   FlowController.index
 );

@@ -1,6 +1,10 @@
 import Flow from '../models/Flow.js';
 import Stage from '../models/Stage.js';
 import FlowStage from '../models/FlowStage.js';
+import User from '../models/User.js';
+import FlowUser from '../models/FlowUser.js';
+import { QueryTypes } from 'sequelize';
+import Database from '../database/index.js';
 
 class FlowController {
 
@@ -80,19 +84,54 @@ class FlowController {
         return res.status(200).json(flowStages);
     }
 
-    async store(req, res) {
-        const { name, idUnit, idStages } = req.body;
+    async getUsersToNotify(req, res) {
+        const { idFlow } = req.params;
+
         try {
-            const flow = await Flow.create({ name, idUnit });
-            const idFlow  = flow.idFlow;
+            const result = await Database.connection.query(
+                "SELECT \
+                \"flowUser\".\"idFlow\", \"flowUser\".cpf, users.\"fullName\", users.email, users.\"idUnit\" \
+                FROM \"flowUser\" \
+                JOIN users ON \"flowUser\".cpf = users.cpf \
+                WHERE \"flowUser\".\"idFlow\" = ?",
+                {
+                    replacements: [idFlow],
+                    type: QueryTypes.SELECT
+                }
+            );
+
+            console.log('result = ', result);
+
+            res.status(200).json({usersToNotify: result});
+        } catch(error) {
+            console.log(error);
+            res.status(500).json({error: "Impossível obter usuários que devem ser notificados no fluxo" });
+        }
+    }
+
+    async store(req, res) {
+        const { name, idUnit, idStages, idUsersToNotify } = req.body;
+        try {
+
+            for (const idUser of idUsersToNotify) {
+                const user = await User.findByPk(idUser);
+
+                if (!user) {
+                    return res
+                    .status(401)
+                    .json({ error: `Usuário '${idUser}' não existe` });
+                }
+            }
 
             if (!(idStages.length >= 2)) {
-                await flow.destroy();
                 return res
                     .status(401)
                     .json({ error: 'Necessário pelo menos duas etapas!' });
 
             } else {
+                const flow = await Flow.create({ name, idUnit });
+                const idFlow  = flow.idFlow;
+
                 for (const idStage of idStages) {
                     const foundStage = await Stage.findByPk(idStage);
 
@@ -125,17 +164,25 @@ class FlowController {
                     }
                 }
 
+                for (const idUser of idUsersToNotify) {
+                    const flowUser = await FlowUser.create({
+                        cpf: idUser,
+                        idFlow
+                    });
+                }
+
                 return res.status(200).json({
                     idFlow: idFlow,
                     name: flow.name,
                     idUnit: idUnit,
-                    idStages: idStages
+                    idStages: idStages,
+                    usersToNotify: idUsersToNotify
                 });
             }
 
         } catch (error) {
             console.log(error);
-            return res.status(500).json(error);
+            return res.status(500).json({error: "Impossível criar fluxo"});
         }
     }
 
