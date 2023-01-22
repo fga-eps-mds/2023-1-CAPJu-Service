@@ -21,6 +21,14 @@ module.exports = {
         allowNull: false,
         references: {model: 'flow', key: 'idFlow'},
         onDelete: 'RESTRICT'
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false
       }
     });
   },
