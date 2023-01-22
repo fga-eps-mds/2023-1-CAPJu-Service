@@ -29,11 +29,8 @@ class FlowController {
         deleted: false,
         unity: req.user.unity,
       });
-
-      console.log(flow);
       return res.status(200).json(flow);
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -45,7 +42,6 @@ class FlowController {
         Flows,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -69,7 +65,6 @@ class FlowController {
 
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -81,7 +76,6 @@ class FlowController {
       const result = await Flow.updateOne({ _id: body._id }, body);
       res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -91,7 +85,6 @@ class FlowController {
       const result = await Flow.findOne({ _id: req.params.id });
       res.status(200).json(result);
     } catch (error) {
-      console.error(error);
       return res.status(500).json(error);
     }
   }
