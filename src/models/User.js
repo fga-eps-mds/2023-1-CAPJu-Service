@@ -34,6 +34,7 @@ class User extends Model {
   static associate(models) {
     this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
     this.belongsTo(models.Role, { foreignKey: 'idRole', as: 'role' });
+    this.belongsToMany(models.Flow, { foreignKey: 'cpf', through: 'idFlowUser', as: 'flow' });
   }
 
 }

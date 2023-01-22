@@ -28,6 +28,7 @@ class Flow extends Model {
     this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
     this.belongsToMany(models.Stage, { foreignKey: 'idFlow', through: 'idFlowStage' , as: 'stage' });
     this.belongsToMany(models.Process, { foreignKey: 'idFlow', through: 'idFlowProcess', as: 'process' });
+    this.belongsToMany(models.User, { foreignKey: 'idFlow', through: 'idFlowUser', as: 'user' });
   }
 }
 

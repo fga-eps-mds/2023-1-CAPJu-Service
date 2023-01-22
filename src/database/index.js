@@ -11,6 +11,7 @@ import Role from '../models/Role.js';
 import Stage from '../models/Stage.js';
 import Unit from '../models/Unit.js';
 import User from '../models/User.js';
+import FlowUser from '../models/FlowUser.js';
 
 dotenv.config();
 
@@ -24,7 +25,8 @@ const models = [
   Role,
   Stage,
   Unit,
-  User
+  User,
+  FlowUser
 ];
 
 // use sequelize-cli defaults
@@ -48,6 +50,7 @@ class Database {
     Stage.init(this.connection);
     Unit.init(this.connection);
     User.init(this.connection);
+    FlowUser.init(this.connection);
 
     Flow.associate(this.connection.models);
     FlowProcess.associate(this.connection.models);
@@ -58,6 +61,7 @@ class Database {
     Stage.associate(this.connection.models);
     Unit.associate(this.connection.models);
     User.associate(this.connection.models);
+    FlowUser.associate(this.connection.models);
   }
 }
 
