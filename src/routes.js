@@ -82,14 +82,29 @@ routes.get(
   FlowController.getById
 );
 
+routes.get(
+  "/flowStages",
+  FlowController.getFlowStages
+);
+
+routes.get(
+  "/flowSequences/:idFlow",
+  FlowController.getByIdWithSequence
+);
+
 routes.put(
   "/flow",
   FlowController.update
 );
 
 routes.delete(
-  "/flow/:id",
+  "/flow/:idFlow",
   FlowController.delete
+);
+
+routes.delete(
+  "/flow/:idFlow/:idStage",
+  FlowController.deleteFlowStage
 );
 
 //Rotas de Etapas
