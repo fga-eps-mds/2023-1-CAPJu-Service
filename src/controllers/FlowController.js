@@ -16,7 +16,48 @@ class FlowController {
                 .status(401)
                 .json({ error: 'Não Existem fluxos' });
         } else {
-            return res.json(flows);
+            return res.json({Flows: flows});
+        }
+    }
+
+    async indexForFrontend(req, res) {
+        try {
+            const flows = await Flow.findAll();
+            let flowsWithSequences = [];
+            for (const flow of flows) {
+                const flowStages = await FlowStage.findAll({
+                    where: {
+                        idFlow: flow.idFlow
+                    }
+                });
+
+                let sequences = [];
+
+                if (flowStages.length > 0) {
+                    for (let i = 0; i < flowStages.length; i++) {
+                        sequences.push([flowStages[i].idStageA, flowStages[i].idStageB]);
+                    }
+                }
+
+                const flowSequence = {
+                    idFlow: flow.idFlow,
+                    name: flow.name,
+                    idUnit: flow.idUnit,
+                    sequences,
+                };
+
+                console.log('flowSequence', flowSequence);
+
+                flowsWithSequences.push(flowSequence);
+            };
+
+            console.log('flows', flows);
+            console.log('flowsWithSequences', flowsWithSequences);
+
+            return res.status(200).json({ Flows: flowsWithSequences });
+        } catch(error) {
+            console.log(error);
+            return res.status(500).json({error: "Impossível obter fluxos"});
         }
     }
 
@@ -48,22 +89,16 @@ class FlowController {
             where: {
                 idFlow
             },
-            order: [
-                ['order', 'ASC']
-            ]
         });
 
         if (flowStages.length === 0) {
             return res.status(401).json({ error: 'Este fluxo não tem sequências' });
         }
 
-        const orderedStages = flowStages.map((flowStage) => flowStage.idStage);
-        console.log('orderedStages = ', orderedStages);
-
         let sequences = [];
 
-        for (let i = 0; i < orderedStages.length - 1; i++) {
-            sequences.push([orderedStages[i], orderedStages[i + 1]]);
+        for (let i = 0; i < flowStages.length; i++) {
+            sequences.push([flowStages[i].idStageA, flowStages[i].idStageB]);
         }
 
         return res.status(200).json({
@@ -100,8 +135,6 @@ class FlowController {
                 }
             );
 
-            console.log('result = ', result);
-
             res.status(200).json({usersToNotify: result});
         } catch(error) {
             console.log(error);
@@ -110,7 +143,7 @@ class FlowController {
     }
 
     async store(req, res) {
-        const { name, idUnit, idStages, idUsersToNotify } = req.body;
+        const { name, idUnit, sequences, idUsersToNotify } = req.body;
         try {
 
             for (const idUser of idUsersToNotify) {
@@ -123,45 +156,38 @@ class FlowController {
                 }
             }
 
-            if (!(idStages.length >= 2)) {
+            if (sequences.length < 1) {
                 return res
                     .status(401)
                     .json({ error: 'Necessário pelo menos duas etapas!' });
 
             } else {
+                for (const sequence of sequences) {
+                    const idStageA = sequence[0];
+                    const idStageB = sequence[1];
+
+                    if (idStageA == idStageB) {
+                        return res.status(401).json({error: "Sequências devem ter início e fim diferentes"});
+                    }
+
+                    const stageA = await Stage.findByPk(idStageA);
+                    if (!stageA) {
+                        return res.status(401).json({error: `Não existe a etapa com identificador '${idStageA}'`});
+                    }
+                    const stageB = await Stage.findByPk(idStageB);
+                    if (!stageB) {
+                        return res.status(401).json({error: `Não existe a etapa com identificador '${idStageB}'`});
+                    }
+                }
                 const flow = await Flow.create({ name, idUnit });
                 const idFlow  = flow.idFlow;
 
-                for (const idStage of idStages) {
-                    const foundStage = await Stage.findByPk(idStage);
-
-                    if (foundStage) {
-                        const flowStageWithLastOrder = await FlowStage.findAll({
-                            where: {
-                                idFlow: idFlow
-                            },
-                            order: [
-                                ['order', 'DESC']
-                            ],
-                            limit: 1
-                        });
-
-                        let order = 0
-                        if (flowStageWithLastOrder.length != 0) {
-                            order = flowStageWithLastOrder[0].order + 1;
-                        }
-
-                        const flowStage = await FlowStage.create({
-                            idStage: foundStage.idStage,
-                            idFlow,
-                            order
-                        });
-                    } else {
-                        await flow.destroy();
-                        return res
-                            .status(401)
-                            .json({ error: 'As etapas precisam ser válidas' });
-                    }
+                for (const sequence of sequences) {
+                    const flowStage = await FlowStage.create({
+                        idFlow,
+                        idStageA: sequence[0],
+                        idStageB: sequence[1]
+                    });
                 }
 
                 for (const idUser of idUsersToNotify) {
@@ -175,7 +201,7 @@ class FlowController {
                     idFlow: idFlow,
                     name: flow.name,
                     idUnit: idUnit,
-                    idStages: idStages,
+                    sequences,
                     usersToNotify: idUsersToNotify
                 });
             }
@@ -221,22 +247,23 @@ class FlowController {
     }
 
     async deleteFlowStage(req, res) {
-        const {idFlow, idStage} = req.params;
+        const {idFlow, idStageA, idStageB} = req.params;
 
         const affectedRows = await FlowStage.destroy({
             where: {
                 idFlow,
-                idStage
+                idStageA,
+                idStageB
             }
         });
 
         if (affectedRows === 0) {
-            return res.status(401).json({ error: `Não há relacionameto entre o fluxo '${idFlow}' e a etapa '${idStage}'` });
+            return res.status(401).json({ error: `Não há relacionameto entre o fluxo '${idFlow}' e as etapas '${idStageA}' e '${idStageB}'` });
         }
 
         console.log('affectedRows', affectedRows);
 
-        return res.status(200).json({ message: `Desassociação entre fluxo '${idFlow}' e etapa '${idStage}' concluída` });
+        return res.status(200).json({ message: `Desassociação entre fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}' concluída` });
     }
 }
 

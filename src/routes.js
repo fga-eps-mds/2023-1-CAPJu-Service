@@ -83,6 +83,11 @@ routes.get(
 );
 
 routes.get(
+  "/flowsForFrontend",
+  FlowController.indexForFrontend
+);
+
+routes.get(
   "/flow/:id",
   FlowController.getById
 );
@@ -108,7 +113,7 @@ routes.delete(
 );
 
 routes.delete(
-  "/flow/:idFlow/:idStage",
+  "/flow/:idFlow/:idStageA/:idStageB",
   FlowController.deleteFlowStage
 );
 
