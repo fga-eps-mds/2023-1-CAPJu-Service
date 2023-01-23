@@ -223,22 +223,99 @@ class FlowController {
     }
 
     async update(req, res) {
-        const { idFlow, name } = req.body;
+        const { name, idFlow, sequences, idUsersToNotify } = req.body;
 
-        const flow = await Flow.findByPk(idFlow);
 
-        if (!flow) {
-            return res
-                .status(401)
-                .json({ error: 'Esse fluxo não existe!' });
-        } else {
+        try {
+            const flow = await Flow.findByPk(idFlow);
 
-            flow.set({ name });
+            if (!flow) {
+                return res
+                    .status(401)
+                    .json({ error: 'Esse fluxo não existe!' });
+            } else {
 
-            await flow.save();
+                flow.set({ name });
 
-            return res.json(flow);
+                await flow.save();
+                const flowStage = await FlowStage.destroy({
+                    where: { idFlow: idFlow }
+                });
+
+                console.log('flowStage = ',flowStage);
+
+                const flowUser = await FlowUser.destroy({
+                    where: { idFlow: idFlow }
+                });
+
+                console.log('flowUser = ', flowUser)
+                for (const idUser of idUsersToNotify) {
+                    const user = await User.findByPk(idUser);
+    
+                    if (!user) {
+                        return res
+                        .status(401)
+                        .json({ error: `Usuário '${idUser}' não existe` });
+                    }
+                }
+    
+                if (sequences.length < 1) {
+                    return res
+                        .status(401)
+                        .json({ error: 'Necessário pelo menos duas etapas!' });
+    
+                } else {
+                    for (const sequence of sequences) {
+                        const idStageA = sequence.from;
+                        const idStageB = sequence.to;
+    
+                        if (idStageA == idStageB) {
+                            return res.status(401).json({error: "Sequências devem ter início e fim diferentes"});
+                        }
+    
+                        const stageA = await Stage.findByPk(idStageA);
+                        if (!stageA) {
+                            return res.status(401).json({error: `Não existe a etapa com identificador '${idStageA}'`});
+                        }
+                        const stageB = await Stage.findByPk(idStageB);
+                        if (!stageB) {
+                            return res.status(401).json({error: `Não existe a etapa com identificador '${idStageB}'`});
+                        }
+                    }
+                    const idFlow  = flow.idFlow;
+    
+                    for (const sequence of sequences) {
+                        const flowStage = await FlowStage.create({
+                            idFlow,
+                            idStageA: sequence.to,
+                            idStageB: sequence.from,
+                            commentary: sequence.commentary
+                        });
+                    }
+    
+                    for (const idUser of idUsersToNotify) {
+                        const flowUser = await FlowUser.create({
+                            cpf: idUser,
+                            idFlow
+                        });
+                    }
+    
+                    return res.status(200).json({
+                        idFlow: idFlow,
+                        name: flow.name,
+                        sequences,
+                        usersToNotify: idUsersToNotify
+                    });
+                }
+                
+            }
+
+        }  catch (error) {
+            console.log(error);
+            return res.status(500).json({error: "Impossível criar fluxo"});
         }
+
+        
     }
 
     async delete(req, res) {
