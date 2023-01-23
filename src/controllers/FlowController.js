@@ -32,10 +32,17 @@ class FlowController {
                 });
 
                 let sequences = [];
+                let stages = [];
 
                 if (flowStages.length > 0) {
                     for (let i = 0; i < flowStages.length; i++) {
-                        sequences.push([flowStages[i].idStageA, flowStages[i].idStageB]);
+                        sequences.push({from: flowStages[i].idStageA, commentary: flowStages[i].commentary, to: flowStages[i].idStageB});
+                        if (!stages.includes(flowStages[i].idStageA)) {
+                            stages.push(flowStages[i].idStageA);
+                        }
+                        if (!stages.includes(flowStages[i].idStageB)) {
+                            stages.push(flowStages[i].idStageB);
+                        }
                     }
                 }
 
@@ -43,6 +50,7 @@ class FlowController {
                     idFlow: flow.idFlow,
                     name: flow.name,
                     idUnit: flow.idUnit,
+                    stages,
                     sequences,
                 };
 
@@ -98,7 +106,7 @@ class FlowController {
         let sequences = [];
 
         for (let i = 0; i < flowStages.length; i++) {
-            sequences.push([flowStages[i].idStageA, flowStages[i].idStageB]);
+            sequences.push({from: flowStages[i].idStageA, to: flowStages[i].idStageB});
         }
 
         return res.status(200).json({
@@ -163,8 +171,9 @@ class FlowController {
 
             } else {
                 for (const sequence of sequences) {
-                    const idStageA = sequence[0];
-                    const idStageB = sequence[1];
+                    const idStageA = sequence.from;
+                    const idStageB = sequence.to;
+                    const {commentary} = sequence;
 
                     if (idStageA == idStageB) {
                         return res.status(401).json({error: "Sequências devem ter início e fim diferentes"});
@@ -185,8 +194,9 @@ class FlowController {
                 for (const sequence of sequences) {
                     const flowStage = await FlowStage.create({
                         idFlow,
-                        idStageA: sequence[0],
-                        idStageB: sequence[1]
+                        idStageA: sequence.to,
+                        idStageB: sequence.from,
+                        commentary: sequence.commentary
                     });
                 }
 
