@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('stage', { 
+    await queryInterface.createTable('stage', {
       idStage: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -33,6 +33,12 @@ module.exports = {
         allowNull: false
       }
     });
+    await queryInterface.sequelize.query(
+      "ALTER TABLE stage \
+      ADD CONSTRAINT \"stage_name_idUnit_uk\" \
+      UNIQUE(\"idUnit\", name)",
+      { type: Sequelize.QueryTypes.RAW }
+    );
   },
 
   async down (queryInterface, Sequelize) {
