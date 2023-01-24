@@ -38,15 +38,15 @@ routes.post(
   ProcessController.store
 );
 routes.put(
-  "/updateProcess/:id",
+  "/updateProcess",
   protect,
-  authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
+  authRole([ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ADMINISTRADOR]),
   ProcessController.updateProcess
 );
 routes.delete(
-  "/deleteProcess/:registro",
+  "/deleteProcess/:record",
   protect,
-  authRole([ROLE.DIRETOR, ROLE.SERVIDOR]),
+  authRole([ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ADMINISTRADOR]),
   ProcessController.deleteProcess
 );
 routes.put("/processNextStage/", protect, ProcessController.nextStage);

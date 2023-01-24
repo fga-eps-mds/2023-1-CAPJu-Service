@@ -1,13 +1,14 @@
 import FlowProcess from "../models/FlowProcess.js";
+import FlowStage from "../models/FlowStage.js";
 import Priority from "../models/Priority.js";
 import Process from "../models/Process.js";
 import Flow from "../models/Flow.js";
-import {
+/*import {
   ProcessValidator,
   ProcessEditValidator,
   ProcessNewObservationValidator,
   NextStageValidator,
-} from "../validators/Process.js";
+} from "../validators/Process.js";*/
 
 class ProcessController {
 
@@ -18,9 +19,9 @@ class ProcessController {
     if (!processes) {
         return res
           .status(401)
-          .json({ error: 'Não existe processos' });
+          .json({ error: 'Não há processos' });
       } else {
-          return res.json(role);
+          return res.status(200).json({ processes: processes });
       }
   }
 
@@ -41,53 +42,29 @@ class ProcessController {
   async store(req, res) {
     try {
       const { record, nickname, idStage, finalised, effectiveDate, priority,description, idFlow } =
-        req.body;
+      req.body;
       let priorityProcess;
       const flow = await Flow.findByPk(idFlow);
-      if(flow){
-        if(priority){
-          priorityProcess = await Priority.create({description});
-          const { idPriority } = priorityProcess;
-
-          console.log("=======================")
-          console.log(priorityProcess);
-          console.log("=======================")
-
-          const process = await Process.create({
-            record,
-            idUnit, 
-            nickname, 
-            idStage, 
-            effectiveDate,
-            idPriority,
-          });
-        } else {
-          const process = await Process.create({
-            record,
-            idUnit, 
-            nickname, 
-            idStage, 
-            effectiveDate,
-            idPriority: 20
-          });
-        }
-        
+      if (flow){
+        const process = await Process.create({
+          record,
+          idUnit: flow.idUnit,
+          nickname,
+          idStage,
+          effectiveDate,
+          idPriority: priority
+        });
         const { idProcess } = process;
-  
         try {
           if(flow){
-            console.log("=======================")
-            console.log(idFlow);
-            console.log("=======================")
-          const flowProcess = await FlowProcess.create({idFlow, record, idProcess, finalised: false});
-          return res.status(200).json({message:"Caiu aqui!"});
-          
-        }
-        } catch(err) {
-          console.log(err);
+            const flowProcess = await FlowProcess.create({idFlow, record, finalised: false});
+            return res.status(200).json({message:"Caiu aqui!"});
+          }
+        } catch(error) {
+          console.log(error);
           return res.status(500).json(error);
         }
-      } 
+      }
       return res.status(200).json({process});
     } catch (error) {
       console.log(error);
@@ -121,10 +98,38 @@ class ProcessController {
 
   async updateProcess(req, res) {
     try {
-      await ProcessEditValidator.validateAsync(req.body);
-      const process = await Process.updateOne({ _id: req.params.id }, req.body);
+      //await ProcessEditValidator.validateAsync(req.body);
+      const {idFlow, nickname, record} = req.body;
+      const process = await Process.findByPk(record);
 
-      return res.status(200).json(process);
+      const flowStages = await FlowStage.findAll({
+        where: {idFlow}
+      });
+
+      if (flowStages.length === 0) {
+        return res.status(404).json({error: "Não há etapas neste fluxo"});
+      }
+
+      if (!process) {
+        return res.status(401).json({error: "Não há este processo"});
+      }
+
+      process.set({ nickname, idStage: flowStages[0].idStageA });
+
+      await process.save();
+
+      const flowProcesses = await FlowProcess.findAll({
+        where: {
+          record: process.record
+        }
+      });
+
+      for (const fp of flowProcesses) {
+        fp.set({ idFlow: idFlow });
+        fp.save();
+      }
+
+      return res.status(200).json({process, flows: flowProcesses});
     } catch (error) {
       console.log(error);
       return res.status(500).json(error);
@@ -133,16 +138,17 @@ class ProcessController {
 
   async deleteProcess(req, res) {
     try {
-      const result = await Process.deleteOne({ registro: req.params.registro });
+      await FlowProcess.destroy({ where: {record: req.params.record }});
+      const result = await Process.destroy({ where: {record: req.params.record} });
 
-      if (result.deletedCount === 0) {
-        throw new Error(`Não há registro ${req.params.registro}!`);
+      if (result === 0) {
+        return res.status(404).json({error: `Não há registro ${req.params.record}!`});
       }
 
-      res.json(result);
+      return res.status(200).json({message : "OK" });
     } catch (error) {
       console.log(error);
-      return res.status(500).json(error);
+      return res.status(500).json({error, message: "Impossível apagar"});
     }
   }
 
