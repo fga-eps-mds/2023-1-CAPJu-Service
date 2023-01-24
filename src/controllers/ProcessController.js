@@ -3,6 +3,8 @@ import FlowStage from "../models/FlowStage.js";
 import Priority from "../models/Priority.js";
 import Process from "../models/Process.js";
 import Flow from "../models/Flow.js";
+import Database from '../database/index.js';
+import { QueryTypes } from 'sequelize';
 /*import {
   ProcessValidator,
   ProcessEditValidator,
@@ -13,7 +15,6 @@ import Flow from "../models/Flow.js";
 class ProcessController {
 
   async index(req, res) {
-  
     const processes = await Process.findAll();
 
     if (!processes) {
@@ -81,7 +82,21 @@ class ProcessController {
       fluxoId: req.params.flowId,
       unity: req.user.unity,
     };
-    return findProcess(res, search);
+
+    try {
+      const {idFlow} = req.params;
+
+      const processes = await Database.connection.query(
+        "SELECT * FROM \"flowProcess\" JOIN \"process\" ON \"flowProcess\".record = process.record WHERE \"flowProcess\".\"idFlow\" = ?",
+        {replacements: [idFlow],
+        type: QueryTypes.SELECT}
+      );
+
+      return res.status(200).json({ processes: processes });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({error, message: "Erro ao buscar processos"});
+    }
   }
 
   async getOneProcess(req, res) {

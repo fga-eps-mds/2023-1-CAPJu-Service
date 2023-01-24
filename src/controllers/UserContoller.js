@@ -36,6 +36,7 @@ class UserController {
                     cpf: user.cpf,
                     fullName: user.fullName,
                     email: user.email,
+                    idUnit: user.idUnit,
                     token: generateToken(user.cpf),
                     expiresIn,
                 });

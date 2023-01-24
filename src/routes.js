@@ -24,9 +24,9 @@ routes.get(
   ProcessController.index
 );
 routes.get(
-  "/processes/:flowId",
+  "/processes/:idFlow",
   protect,
-  authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
+  authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO, ROLE.ADMINISTRADOR]),
   ProcessController.processesInFlow
 );
 routes.get(

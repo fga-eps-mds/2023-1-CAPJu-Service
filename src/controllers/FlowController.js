@@ -307,7 +307,6 @@ class FlowController {
                         usersToNotify: idUsersToNotify
                     });
                 }
-                
             }
 
         }  catch (error) {
@@ -315,21 +314,21 @@ class FlowController {
             return res.status(500).json({error: "Impossível criar fluxo"});
         }
 
-        
     }
 
     async delete(req, res) {
-        const { idFlow } = req.params;
-
-        const flow = await Flow.findByPk(idFlow);
-
-        if (!flow) {
-            return res
-                .status(401)
-                .json({ error: 'Esse fluxo não existe!' });
-        } else {
-            await flow.destroy();
-            return res.json(flow);
+        try {
+            const { idFlow } = req.params;
+            await FlowStage.destroy({where: {idFlow}});
+            const rows = await Flow.destroy({where: {idFlow}});
+            if (rows > 0) {
+                return res.status(200).json({message: "Apagado com sucesso"});
+            } else {
+                return res.status(404).json({message: "Fluxo não encontrado"});
+            }
+        } catch(error) {
+            console.log(error);
+            return res.status(500).json({error, message: "Impossível apagar"});
         }
     }
 
