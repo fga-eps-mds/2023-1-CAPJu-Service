@@ -33,7 +33,7 @@ class StageController {
         const { name, idUnit, duration } = req.body;
         try {
             const stage = await Stage.create({
-                name,
+		name: name.toLowerCase(),
                 idUnit,
                 duration
             });
@@ -56,7 +56,7 @@ class StageController {
               .json({ error: 'Esse fluxo não existe!' });
           } else {
 
-            stage.set({ name });
+            stage.set({ name: name.toLowerCase() });
 
               await stage.save();
 

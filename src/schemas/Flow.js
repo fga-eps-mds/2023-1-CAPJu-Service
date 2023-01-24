@@ -8,6 +8,7 @@ const FlowSchema = new Schema(
     sequences: Array,
     deleted: Boolean,
     unity: String,
+    users: Array,
   },
   {
     timestamps: true,
