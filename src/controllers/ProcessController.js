@@ -40,7 +40,7 @@ class ProcessController {
 
   async store(req, res) {
     try {
-      const { record, idUnit, nickname, idStage, effectiveDate, priority,description, idFlow } =
+      const { record, nickname, idStage, finalised, effectiveDate, priority,description, idFlow } =
         req.body;
       let priorityProcess;
       const flow = await Flow.findByPk(idFlow);
