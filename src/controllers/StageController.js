@@ -6,8 +6,8 @@ class StageController {
   async createStage(req, res) {
     try {
       const { name, time } = await StageValidator.validateAsync(req.body);
-      const exist = await Stage.find({ name, time, deleted: false });
-      console.log(exist);
+      const exist = await Stage.find({ name: name.toLowerCase(), deleted: false });
+
       if(Object.keys(exist).length === 0){
         const stage = await Stage.create({
           name,

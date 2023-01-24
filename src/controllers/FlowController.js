@@ -5,7 +5,7 @@ import { FlowValidator, FlowEditValidator } from "../validators/Flow.js";
 class FlowController {
   async createFlow(req, res) {
     try {
-      const { name, stages, sequences } = await FlowValidator.validateAsync(
+      const { name, stages, sequences, users } = await FlowValidator.validateAsync(
         req.body
       );
 
@@ -25,13 +25,12 @@ class FlowController {
         name,
         stages,
         sequences,
+        users,
         deleted: false,
         unity: req.user.unity,
       });
-
       return res.status(200).json(flow);
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -43,7 +42,6 @@ class FlowController {
         Flows,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -67,7 +65,6 @@ class FlowController {
 
       return res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -79,7 +76,6 @@ class FlowController {
       const result = await Flow.updateOne({ _id: body._id }, body);
       res.status(200).json(result);
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -89,7 +85,6 @@ class FlowController {
       const result = await Flow.findOne({ _id: req.params.id });
       res.status(200).json(result);
     } catch (error) {
-      console.error(error);
       return res.status(500).json(error);
     }
   }
