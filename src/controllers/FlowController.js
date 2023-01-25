@@ -6,7 +6,7 @@ import FlowUser from '../models/FlowUser.js';
 import { QueryTypes } from 'sequelize';
 import Database from '../database/index.js';
 
-async function getMailContents() {
+export async function getMailContents() {
     try {
         const mailContents = await Database.connection.query(
             "select \
@@ -301,28 +301,28 @@ class FlowController {
                 console.log('flowUser = ', flowUser)
                 for (const idUser of idUsersToNotify) {
                     const user = await User.findByPk(idUser);
-    
+
                     if (!user) {
                         return res
                         .status(401)
                         .json({ error: `Usuário '${idUser}' não existe` });
                     }
                 }
-    
+
                 if (sequences.length < 1) {
                     return res
                         .status(401)
                         .json({ error: 'Necessário pelo menos duas etapas!' });
-    
+
                 } else {
                     for (const sequence of sequences) {
                         const idStageA = sequence.from;
                         const idStageB = sequence.to;
-    
+
                         if (idStageA == idStageB) {
                             return res.status(401).json({error: "Sequências devem ter início e fim diferentes"});
                         }
-    
+
                         const stageA = await Stage.findByPk(idStageA);
                         if (!stageA) {
                             return res.status(401).json({error: `Não existe a etapa com identificador '${idStageA}'`});
@@ -333,7 +333,7 @@ class FlowController {
                         }
                     }
                     const idFlow  = flow.idFlow;
-    
+
                     for (const sequence of sequences) {
                         const flowStage = await FlowStage.create({
                             idFlow,
@@ -342,14 +342,14 @@ class FlowController {
                             commentary: sequence.commentary
                         });
                     }
-    
+
                     for (const idUser of idUsersToNotify) {
                         const flowUser = await FlowUser.create({
                             cpf: idUser,
                             idFlow
                         });
                     }
-    
+
                     return res.status(200).json({
                         idFlow: idFlow,
                         name: flow.name,
