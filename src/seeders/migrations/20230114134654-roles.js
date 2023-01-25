@@ -8,24 +8,24 @@ module.exports = {
        [
          {
           name: 'Estagiário',
-          accessLevel: 1,
+          accessLevel: 4,
           createdAt: new Date(),
           updatedAt: new Date()
          },
          {
            name: 'Servidor',
-           accessLevel: 2,
+           accessLevel: 3,
           createdAt: new Date(),
           updatedAt: new Date()
          },
          {
            name: 'Juiz',
-           accessLevel: 3,
+           accessLevel: 2,
           createdAt: new Date(),
           updatedAt: new Date()
          },{
            name: 'Diretor',
-           accessLevel: 4,
+           accessLevel: 1,
           createdAt: new Date(),
           updatedAt: new Date()
          },
