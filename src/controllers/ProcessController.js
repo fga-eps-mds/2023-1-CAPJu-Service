@@ -42,16 +42,20 @@ class ProcessController {
 
   async store(req, res) {
     try {
-      const { record, nickname, idStage, finalised, effectiveDate, priority,description, idFlow } =
+      const { record, nickname, finalised, effectiveDate, priority,description, idFlow } =
       req.body;
       let priorityProcess;
       const flow = await Flow.findByPk(idFlow);
+      const flowStages = await FlowStage.findAll({
+        where: { idFlow }
+      });
+      
       if (flow){
         const process = await Process.create({
           record,
           idUnit: flow.idUnit,
           nickname,
-          idStage,
+          idStage: flowStages[0].idStageA,
           effectiveDate,
           idPriority: priority
         });
@@ -59,7 +63,7 @@ class ProcessController {
         try {
           if(flow){
             const flowProcess = await FlowProcess.create({idFlow, record, finalised: false});
-            return res.status(200).json({message:"Caiu aqui!"});
+            return res.status(200).json({message:"Criado com sucesso!", flowProcess});
           }
         } catch(error) {
           console.log(error);
