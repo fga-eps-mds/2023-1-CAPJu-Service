@@ -1,5 +1,4 @@
 import app from "./app.js";
-import mongoose from "mongoose";
 import { config } from "dotenv";
 import https from 'https';
 import fs from 'fs';
