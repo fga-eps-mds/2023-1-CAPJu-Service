@@ -67,10 +67,10 @@ routes.put("/processNewObservation/", protect, ProcessController.newObservation)
 // );
 
 //Rotas de Fluxos
-routes.get(
-  "/getMailContents",
-  FlowController.getMailContentsEndpoint
-);
+// routes.get(
+//   "/getMailContents",
+//   FlowController.getMailContentsEndpoint
+// );
 
 routes.post(
   "/newFlow",
