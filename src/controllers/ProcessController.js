@@ -12,6 +12,24 @@ import { QueryTypes } from 'sequelize';
   NextStageValidator,
 } from "../validators/Process.js";*/
 
+const isRecordValid = (record) => {
+	const regex = /^\d{20}$/;
+	return regex.test(record);
+};
+
+const recordFilter = (record) => {
+	const regex = /[^\d]/g;
+	return record.replace(regex, '');
+};
+
+const validateRecord = (record) => {
+  const filtered = recordFilter(record);
+	return {
+    filtered,
+    valid: isRecordValid(filtered)
+	};
+};
+
 class ProcessController {
 
   async index(req, res) {
@@ -90,8 +108,21 @@ class ProcessController {
 
   async store(req, res) {
     try {
-      const { record, nickname, finalised, effectiveDate, priority,description, idFlow } =
-      req.body;
+      let {
+        nickname, finalised, effectiveDate, priority,description, idFlow
+      } = req.body;
+
+      const recordStatus = validateRecord(req.body.record);
+
+      if (!recordStatus.valid) {
+        return res.status(400).json({
+          error: "Registro fora do padrão CNJ",
+          message: `Registro '${req.body?.record}' está fora do padrão CNJ`
+        });
+      }
+
+      const record = recordStatus.filtered;
+
       let priorityProcess;
       const flow = await Flow.findByPk(idFlow);
       const flowStages = await FlowStage.findAll({
@@ -172,7 +203,19 @@ class ProcessController {
   async updateProcess(req, res) {
     try {
       //await ProcessEditValidator.validateAsync(req.body);
-      const {idFlow, nickname, record} = req.body;
+      const {idFlow, nickname} = req.body;
+
+      const recordStatus = validateRecord(req.body.record);
+
+      if (!recordStatus.valid) {
+        return res.status(400).json({
+          error: "Registro fora do padrão CNJ",
+          message: `Registro '${req.body?.record}' está fora do padrão CNJ`
+        });
+      }
+
+      const record = recordStatus.filtered;
+
       const process = await Process.findByPk(record);
 
       const flowStages = await FlowStage.findAll({
