@@ -123,14 +123,22 @@ class FlowController {
     async getById(req, res) {
         const idFlow = req.params.id;
 
-        const flow = await Flow.findByPk(idFlow);
+        try {
+            const flow = await Flow.findByPk(idFlow);
 
-        if (!flow) {
-            return res
-                .status(401)
-                .json({ error: 'Esse fluxo não existe' });
-        } else {
-            return res.json(flow);
+            if (!flow) {
+                return res
+                    .status(401)
+                    .json({ error: 'Esse fluxo não existe' });
+            } else {
+                return res.json(flow);
+            }
+        } catch(error) {
+            console.log(error);
+            return res.status(500).json({
+                error,
+                message: `Erro ao buscar processo ${idFlow}`
+            });
         }
     }
 
