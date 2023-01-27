@@ -2,7 +2,19 @@ import * as nodemailer from "nodemailer";
 import path from "path";
 import Database from "../database/index.js";
 import { QueryTypes } from "sequelize";
-import moment from "moment";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const senha = process.env.CAPJU_EMAIL_PASSWORD;
+
+function dataAtualFormatada(data) {
+  data = new Date(data);
+  var dia = data.getDate().toString().padStart(2, "0");
+  var mes = (data.getMonth() + 1).toString().padStart(2, "0");
+  var ano = data.getFullYear();
+  return dia + "/" + mes + "/" + ano;
+}
 
 export async function getMailContents() {
   try {
@@ -36,7 +48,6 @@ export async function getMailContents() {
         type: QueryTypes.SELECT,
       }
     );
-
     return mailContents;
   } catch (error) {
     console.log(error);
@@ -62,7 +73,9 @@ class EmailController {
       });
 
       let uniqueObjects = json.filter(
-        (obj, index, self) => index === self.findIndex((t) => t.process_record === obj.process_record)
+        (obj, index, self) =>
+          index ===
+          self.findIndex((t) => t.process_record === obj.process_record)
       );
 
       var EmailFilter = emails.filter((este, i) => emails.indexOf(este) === i);
@@ -73,7 +86,7 @@ class EmailController {
         secure: false,
         auth: {
           user: "capju.eps.mds@gmail.com",
-          pass: "gcoroacnwfmcfbus",
+          pass: senha,
         },
         tls: {
           rejectUnauthorized: false,
@@ -81,7 +94,7 @@ class EmailController {
       });
 
       const __dirname = path.resolve();
-
+      EmailFilter = [EmailFilter, ..."capju.eps.mds@gmail.com"]
       const message = {
         from: "capju.eps.mds@gmail.com",
         to: EmailFilter,
@@ -166,7 +179,7 @@ class EmailController {
                     <td>${fluxo.flow}</td>
                     <td>${fluxo.process_record}</td>
                     <td>${fluxo.stage}</td>
-                    <td>${moment(fluxo.start_date).format("DD/MM/YYYY")}</td>
+                    <td>${dataAtualFormatada("2023-01-15T17:21:23.519Z")}</td>
                     <td>${fluxo.stage_duration}</td>
                     <td>${fluxo.delay_days}</td>
                   </tr>
@@ -205,7 +218,6 @@ class EmailController {
       transport.sendMail(message, (err) => {
         if (err) {
           console.log("Error occurred. " + err.message);
-          return process.exit(1);
         }
         console.log("Message sent!");
       });
