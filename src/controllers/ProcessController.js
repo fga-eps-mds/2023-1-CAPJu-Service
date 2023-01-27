@@ -65,18 +65,26 @@ class ProcessController {
   async getById(req, res) {
     const idProcess = req.params.id;
 
-    const process = await Process.findByPk(idProcess);
+    try {
+      const process = await Process.findByPk(idProcess);
 
-    if (!process) {
-        return res
-          .status(404)
-          .json({
-            error: 'Esse processo não existe!',
-            message: 'Esse processo não existe!'
-          });
-      } else {
-          return res.json(process);
-      }
+      if (!process) {
+          return res
+            .status(404)
+            .json({
+              error: 'Esse processo não existe!',
+              message: 'Esse processo não existe!'
+            });
+        } else {
+            return res.json(process);
+        }
+    } catch(error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: `Erro ao procurar processo ${idProcess}`
+      });
+    }
   }
 
 
