@@ -62,6 +62,35 @@ class FlowController {
         }
     }
 
+    async indexByRecord(req, res) {
+        const {record} = req.params;
+
+        try {
+            const flowProcesses = await FlowProcess.findAll({
+                where: {
+                    record
+                }
+            });
+
+            if (flowProcesses.length > 0) {
+                return res.status(200).json({
+                    flowProcesses
+                });
+            }
+
+            return res.status(404).json({
+                error: "Não há fluxos com esse processo",
+                message: `Não há fluxos com o processo '${record}'`
+            });
+        } catch(error) {
+            console.log(error);
+            return res.status(500).json({
+                error,
+                message: `Erro ao buscar fluxos do processo ${record}`
+            });
+        }
+    }
+
     async getMailContentsEndpoint(req, res) {
         const contents = await getMailContents();
         if (contents.error) {
@@ -138,6 +167,57 @@ class FlowController {
             return res.status(500).json({
                 error,
                 message: `Erro ao buscar processo ${idFlow}`
+            });
+        }
+    }
+
+    async getByIdForFrontend(req, res) {
+        const { idFlow } = req.params;
+        try {
+            const flow = await Flow.findByPk(idFlow);
+            const flowStages = await FlowStage.findAll({
+                where: {
+                    idFlow: flow.idFlow
+                }
+            });
+
+            let sequences = [];
+            let stages = [];
+
+            if (flowStages.length > 0) {
+                for (const flowStage of flowStages) {
+                    sequences.push({
+                        from: flowStage.idStageA,
+                        commentary: flowStage.commentary,
+                        to: flowStage.idStageB
+                    });
+                    if (!stages.includes(flowStage.idStageA)) {
+                        stages.push(flowStage.idStageA);
+                    }
+                    if (!stages.includes(flowStage.idStageB)) {
+                        stages.push(flowStage.idStageB);
+                    }
+                }
+            }
+
+            const flowSequence = {
+                idFlow: flow.idFlow,
+                name: flow.name,
+                idUnit: flow.idUnit,
+                stages,
+                sequences,
+            };
+
+            console.log('flowSequence', flowSequence);
+
+            console.log('flow', flow);
+
+            return res.status(200).json({ Flow: flowSequence });
+        } catch(error) {
+            console.log(error);
+            return res.status(500).json({
+                error,
+                message: `Impossível obter fluxo ${idFlow}`
             });
         }
     }

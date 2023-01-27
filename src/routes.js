@@ -32,6 +32,7 @@ routes.get(
   "/getOneProcess/:id",
   ProcessController.getById
 );
+
 routes.post(
   "/newProcess",
   ProcessController.store
@@ -87,8 +88,18 @@ routes.get(
 );
 
 routes.get(
+  "/flows/process/:record",
+  FlowController.indexByRecord
+);
+
+routes.get(
   "/flowsForFrontend",
   FlowController.indexForFrontend
+);
+
+routes.get(
+  "/flowForFrontend/:idFlow",
+  FlowController.getByIdForFrontend
 );
 
 routes.get(
