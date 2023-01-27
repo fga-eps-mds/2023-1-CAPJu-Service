@@ -26,6 +26,42 @@ class ProcessController {
       }
   }
 
+  async getPriorities(req, res) {
+
+    try{
+
+      const priorities = await Priority.findAll({ where : {
+        idPriority: [1,2,3,4,5,6,7,8] 
+      }});
+        
+      if(!priorities) {
+        return res
+        .status(404)
+        .json({ error: "Não foi encontrado prioridades"});
+        
+      } else {
+        return res.status(200).json({ priorities: priorities})
+      }
+      } catch (error) {
+        console.log(error)
+      }
+  }
+
+  async getPriorityProcess(req, res) {
+
+    const priorityProcesses = await Process.findAll({ where : {
+      idPriority: [1,2,3,4,5,6,7,8] 
+    }});
+
+    if (!priorityProcesses) {
+        return res
+          .status(404)
+          .json({ error: 'Não há processos com prioridade legal' });
+      } else {
+          return res.status(200).json({ processes: priorityProcesses });
+      }
+  }
+
   async getById(req, res) {
     const idProcess = req.params.id;
 
@@ -40,9 +76,10 @@ class ProcessController {
       }
 }
 
+
   async store(req, res) {
     try {
-      const { record, nickname, idStage, finalised, effectiveDate, priority,description, idFlow } =
+      const { record, nickname, idStage, effectiveDate, priority, idFlow } =
       req.body;
       let priorityProcess;
       const flow = await Flow.findByPk(idFlow);
