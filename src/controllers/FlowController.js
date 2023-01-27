@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import FlowUser from "../models/FlowUser.js";
 import { QueryTypes } from "sequelize";
 import Database from "../database/index.js";
+import { queryUsersNotificate } from "../utils/queryUsersNotificate.js";
 
 class FlowController {
   async index(req, res) {
@@ -128,11 +129,7 @@ class FlowController {
 
     try {
       const result = await Database.connection.query(
-        'SELECT \
-                "flowUser"."idFlow", "flowUser".cpf, users."fullName", users.email, users."idUnit" \
-                FROM "flowUser" \
-                JOIN users ON "flowUser".cpf = users.cpf \
-                WHERE "flowUser"."idFlow" = ?',
+        queryUsersNotificate,
         {
           replacements: [idFlow],
           type: QueryTypes.SELECT,
