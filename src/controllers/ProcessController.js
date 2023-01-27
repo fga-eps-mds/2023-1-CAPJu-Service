@@ -226,6 +226,72 @@ class ProcessController {
   }
 
   async nextStage(req, res) {
+    const { record, from, to, idFlow } = req.body;
+
+    if (isNaN(parseInt(to)) || isNaN(parseInt(to)) || isNan(parseInt(idFlow))) {
+      return res.status(400).json({
+        error: "Identificadores inválidos",
+        message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`
+      });
+    }
+
+    try {
+      const flowStages = await FlowStage.findAll({
+        where: {
+          idFlow,
+          idStageA: from,
+          idStageB: to
+        }
+      });
+      let canAdvance = false;
+      if (flowStages?.length > 0) {
+        for (const flowStage of flowStages) {
+          if (flowStage.idStageA === from && flowStage.idStageB === to) {
+            canAdvance = true;
+            break;
+          }
+        }
+      }
+
+      if (!canAdvance) {
+        return res.status(409).json({
+          error: "Transição impossível",
+          message: `Não há a transição da etapa '${to}' para '${from}' no fluxo '${idFlow}'`
+        });
+      }
+      const process = await Process.update(
+        {
+          idStage: to,
+          effectiveDate: new Date()
+        },
+        {
+          where: {
+            record,
+            idStage: from
+          }
+        }
+      );
+      console.log(process[0]);
+      if (process[0] > 0) {
+        return res.status(200).json({
+          message: "Etapa avançada com sucesso"
+        });
+      }
+
+      return res.status(409).json({
+        error: "Impossível avançar etapa",
+        message: `Impossível avançar processo '${record}' para etapa '${to}`
+      });
+    } catch(error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: `Erro ao avançar processo '${record}' para etapa '${to}`
+      });
+    }
+  }
+
+  /*async nextStage(req, res) {
     try {
       const body = await NextStageValidator.validateAsync(req.body);
       const { stageIdTo, stageIdFrom, observation } = body;
@@ -260,7 +326,7 @@ class ProcessController {
       console.log(error);
       return res.status(500).json(error);
     }
-  }
+  }*/
 
   async newObservation(req, res) {
     const { record, originStage, destinationStage, commentary } = req.body;
