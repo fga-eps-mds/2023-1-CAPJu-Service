@@ -3,6 +3,7 @@ import Stage from '../models/Stage.js';
 import FlowStage from '../models/FlowStage.js';
 import User from '../models/User.js';
 import FlowUser from '../models/FlowUser.js';
+import FlowProcess from '../models/FlowProcess.js';
 import { QueryTypes } from 'sequelize';
 import Database from '../database/index.js';
 
@@ -156,7 +157,7 @@ class FlowController {
         let sequences = [];
 
         for (let i = 0; i < flowStages.length; i++) {
-            sequences.push({from: flowStages[i].idStageA, to: flowStages[i].idStageB});
+            sequences.push({from: flowStages[i].idStageA, commentary: flowStages[i].commentary, to: flowStages[i].idStageB});
         }
 
         return res.status(200).json({
@@ -244,8 +245,8 @@ class FlowController {
                 for (const sequence of sequences) {
                     const flowStage = await FlowStage.create({
                         idFlow,
-                        idStageA: sequence.to,
-                        idStageB: sequence.from,
+                        idStageA: sequence.from,
+                        idStageB: sequence.to,
                         commentary: sequence.commentary
                     });
                 }
@@ -337,8 +338,8 @@ class FlowController {
                     for (const sequence of sequences) {
                         const flowStage = await FlowStage.create({
                             idFlow,
-                            idStageA: sequence.to,
-                            idStageB: sequence.from,
+                            idStageA: sequence.from,
+                            idStageB: sequence.to,
                             commentary: sequence.commentary
                         });
                     }
@@ -369,7 +370,15 @@ class FlowController {
     async delete(req, res) {
         try {
             const { idFlow } = req.params;
+            const processes = await FlowProcess.findAll({where: {idFlow}});
+            if (processes.length > 0) {
+              return res.status(409).json({
+                error: "Há processos no fluxo",
+                message: `Há ${processes.length} processos no fluxo`
+              });
+            }
             await FlowStage.destroy({where: {idFlow}});
+            await FlowUser.destroy({where: {idFlow}});
             const rows = await Flow.destroy({where: {idFlow}});
             if (rows > 0) {
                 return res.status(200).json({message: "Apagado com sucesso"});
