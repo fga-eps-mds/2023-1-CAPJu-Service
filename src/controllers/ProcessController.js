@@ -228,7 +228,7 @@ class ProcessController {
   async nextStage(req, res) {
     const { record, from, to, idFlow } = req.body;
 
-    if (isNaN(parseInt(to)) || isNaN(parseInt(to)) || isNan(parseInt(idFlow))) {
+    if (isNaN(parseInt(to)) || isNaN(parseInt(to)) || isNaN(parseInt(idFlow))) {
       return res.status(400).json({
         error: "Identificadores inválidos",
         message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`
