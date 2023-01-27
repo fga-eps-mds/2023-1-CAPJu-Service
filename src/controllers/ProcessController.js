@@ -31,14 +31,14 @@ class ProcessController {
     try{
 
       const priorities = await Priority.findAll({ where : {
-        idPriority: [1,2,3,4,5,6,7,8] 
+        idPriority: [1,2,3,4,5,6,7,8]
       }});
-        
+
       if(!priorities) {
         return res
         .status(404)
         .json({ error: "Não foi encontrado prioridades"});
-        
+
       } else {
         return res.status(200).json({ priorities: priorities})
       }
@@ -50,7 +50,7 @@ class ProcessController {
   async getPriorityProcess(req, res) {
 
     const priorityProcesses = await Process.findAll({ where : {
-      idPriority: [1,2,3,4,5,6,7,8] 
+      idPriority: [1,2,3,4,5,6,7,8]
     }});
 
     if (!priorityProcesses) {
@@ -77,7 +77,7 @@ class ProcessController {
       } else {
           return res.json(process);
       }
-}
+  }
 
 
   async store(req, res) {
@@ -117,15 +117,15 @@ class ProcessController {
     }
   }
 
-  async allProcesses(req, res) {
+  /*async allProcesses(req, res) {
     return findProcess(res, { unity: req.user.unity });
-  }
+  }*/
 
   async processesInFlow(req, res) {
-    const search = {
+    /*const search = {
       fluxoId: req.params.flowId,
       unity: req.user.unity,
-    };
+    };*/
 
     try {
       const {idFlow} = req.params;
@@ -136,8 +136,10 @@ class ProcessController {
         JOIN \"process\" ON \
         \"flowProcess\".record = process.record \
         WHERE \"flowProcess\".\"idFlow\" = ?",
-        {replacements: [idFlow],
-        type: QueryTypes.SELECT}
+        {
+          replacements: [idFlow],
+          type: QueryTypes.SELECT
+        }
       );
 
       return res.status(200).json({ processes: processes });
