@@ -134,13 +134,8 @@ class FlowController {
                     sequences,
                 };
 
-                console.log('flowSequence', flowSequence);
-
                 flowsWithSequences.push(flowSequence);
             };
-
-            console.log('flows', flows);
-            console.log('flowsWithSequences', flowsWithSequences);
 
             return res.status(200).json({ Flows: flowsWithSequences });
         } catch(error) {
@@ -207,10 +202,6 @@ class FlowController {
                 stages,
                 sequences,
             };
-
-            console.log('flowSequence', flowSequence);
-
-            console.log('flow', flow);
 
             return res.status(200).json({ Flow: flowSequence });
         } catch(error) {
@@ -381,13 +372,10 @@ class FlowController {
                     where: { idFlow: idFlow }
                 });
 
-                console.log('flowStage = ',flowStage);
-
                 const flowUser = await FlowUser.destroy({
                     where: { idFlow: idFlow }
                 });
 
-                console.log('flowUser = ', flowUser)
                 for (const idUser of idUsersToNotify) {
                     const user = await User.findByPk(idUser);
 
@@ -493,8 +481,6 @@ class FlowController {
         if (affectedRows === 0) {
             return res.status(401).json({ error: `Não há relacionameto entre o fluxo '${idFlow}' e as etapas '${idStageA}' e '${idStageB}'` });
         }
-
-        console.log('affectedRows', affectedRows);
 
         return res.status(200).json({ message: `Desassociação entre fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}' concluída` });
     }
