@@ -19,9 +19,6 @@ cron.schedule("0 0 0 * * *", () => {
   EmailController.sendEmail();
 });
 
-cron.schedule("*/10 * * * * *", () => {
-  EmailController.sendEmail();
-});
 app.use("/api/v1/docs", swaggerUI.serve, swaggerUI.setup(swaggerFile));
 
 export default app;
