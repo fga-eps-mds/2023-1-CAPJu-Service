@@ -27,7 +27,10 @@ class UserController {
             // Check for user cpf
             const user = await User.findByPk(cpfFilter(cpf));
             if (!user) {
-                return res.status(401).json({ message: "o usuário não existe" });
+                return res.status(401).json({
+                    error: "Usuário inexistente",
+                    message: "Usuário inexistente"
+                });
             }
             if (user.password === password) {
                 let expiresIn = new Date();
@@ -38,15 +41,19 @@ class UserController {
                     email: user.email,
                     idUnit: user.idUnit,
                     token: generateToken(user.cpf),
+                    idRole: user.idRole,
                     expiresIn,
                 });
                 return res.status(200).json(user);
             } else {
-		    return res.status(401).json({message: "Senha ou usuário incorretos"});
-	    }
+		        return res.status(401).json({
+                    error: "Impossível autenticar",
+                    message: "Senha ou usuário incorretos"
+                });
+	        }
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ message: "erro inesperado" });
+            return res.status(500).json({ error, message: "erro inesperado" });
         }
     }
 
