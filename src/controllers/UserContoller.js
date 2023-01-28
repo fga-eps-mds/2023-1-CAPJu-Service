@@ -9,7 +9,7 @@ const generateToken = (id) => {
         });
 };
 class UserController {
-  async index(req, res) {
+  /*async index(req, res) {
     try {
       const usersRaw = await User.findAll();
       const users = usersRaw.map((user) => {
@@ -30,7 +30,7 @@ class UserController {
           message: 'Erro ao buscar usuários'
         });
       } else {
-        return res.status(200).json({users: users});
+        return res.status(200).json(users);
       }
     } catch(error) {
       console.log(error);
@@ -39,7 +39,7 @@ class UserController {
         message: "Erro ao buscar usuários"
       });
     }
-  }
+  }*/
 
     async login(req, res) {
         try {
@@ -77,7 +77,7 @@ class UserController {
         }
     }
 
-    async getById(req, res) {
+    /*async getById(req, res) {
         const { cpf } = req.body;
 
       try {
@@ -103,7 +103,7 @@ class UserController {
           error,
           message: "Erro ao buscar usuário"});
       }
-    }
+    }*/
 
     async getByIdParam(req, res) {
         const cpf = req.params.id;
@@ -148,14 +148,10 @@ class UserController {
             idRole: user.idRole
           };
         });
-        return res.status(200).json({
-            user: users
-          });
+        return res.status(200).json(users);
       } else {
           let users = await User.findAll();
-          return res.status(200).json({
-            user: users
-          });
+          return res.status(200).json(users);
       }
     } catch (error) {
       console.log(error);

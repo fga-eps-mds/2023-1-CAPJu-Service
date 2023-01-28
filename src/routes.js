@@ -246,14 +246,14 @@ routes.post(
   UserContoller.store
 );
 
-routes.get(
+/*routes.get(
   "/users",
   UserContoller.index
 );
 routes.get(
   "/user",
   UserContoller.getById
-);
+);*/
 
 routes.get(
   "/user/:id",
