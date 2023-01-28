@@ -137,7 +137,7 @@ class FlowController {
                 flowsWithSequences.push(flowSequence);
             };
 
-            return res.status(200).json({ Flows: flowsWithSequences });
+            return res.status(200).json(flowsWithSequences);
         } catch(error) {
             console.log(error);
             return res.status(500).json({error: "Impossível obter fluxos"});
@@ -203,7 +203,7 @@ class FlowController {
                 sequences,
             };
 
-            return res.status(200).json({ Flow: flowSequence });
+            return res.status(200).json(flowSequence);
         } catch(error) {
             console.log(error);
             return res.status(500).json({

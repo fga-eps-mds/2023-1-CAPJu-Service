@@ -83,28 +83,18 @@ routes.get(
 );
 
 routes.get(
-  "/flows",
-  FlowController.index
-);
-
-routes.get(
   "/flows/process/:record",
   FlowController.indexByRecord
 );
 
 routes.get(
-  "/flowsForFrontend",
+  "/flows",
   FlowController.indexForFrontend
 );
 
 routes.get(
-  "/flowForFrontend/:idFlow",
+  "/flow/:idFlow",
   FlowController.getByIdForFrontend
-);
-
-routes.get(
-  "/flow/:id",
-  FlowController.getById
 );
 
 routes.get(
