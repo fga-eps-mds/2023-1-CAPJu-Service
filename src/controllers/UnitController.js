@@ -91,7 +91,7 @@ class UnitController {
                 {error: "Não há administradores para essa unidade"}
             );
         } else {
-            return res.status(200).json({admins: users});
+            return res.status(200).json(users);
         }
     }
 
