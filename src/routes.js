@@ -260,15 +260,15 @@ routes.get(
   UserContoller.getByIdParam
 );
 
-routes.put(
+/*routes.put(
   "/updateUser",
   UserContoller.update
-);
+);*/
 
-routes.delete(
+/*routes.delete(
   "/deleteUser",
   UserContoller.delete
-);
+);*/
 
 routes.delete(
   "/deleteUser/:id",

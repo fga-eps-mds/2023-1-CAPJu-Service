@@ -9,17 +9,37 @@ const generateToken = (id) => {
         });
 };
 class UserController {
-    async index(req, res) {
-        const users = await User.findAll();
+  async index(req, res) {
+    try {
+      const usersRaw = await User.findAll();
+      const users = usersRaw.map((user) => {
+        return {
+          cpf: user.cpf,
+          fullName: user.fullName,
+          email: user.email,
+          accepted: user.accepted,
+          idUnit: user.idUnit,
+          idRole: user.idRole
+        }
+      });
 
-        if (!users) {
-            return res
-              .status(401)
-              .json({ error: 'Não há usuários cadastrados' });
-          } else {
-              return res.json({users: users});
-          }
+      if (!users) {
+        return res
+        .status(500)
+        .json({
+          message: 'Erro ao buscar usuários'
+        });
+      } else {
+        return res.status(200).json({users: users});
+      }
+    } catch(error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: "Erro ao buscar usuários"
+      });
     }
+  }
 
     async login(req, res) {
         try {
@@ -60,48 +80,89 @@ class UserController {
     async getById(req, res) {
         const { cpf } = req.body;
 
-        const user = await User.findByPk(cpf);
+      try {
+        const userRaw = await User.findByPk(cpf);
+        const user = {
+          cpf: userRaw.cpf,
+          fullName: userRaw.fullName,
+          email: userRaw.email,
+          accepted: userRaw.accepted,
+          idUnit: userRaw.idUnit,
+          idRole: userRaw.idRole
+        };
 
         if (!user) {
             return res
-              .status(401)
+              .status(404)
               .json({ error: 'Usuário não existe' });
           } else {
-              return res.json(user);
+              return res.status(200).json(user);
           }
+      } catch (error) {
+        return res.status(500).json({
+          error,
+          message: "Erro ao buscar usuário"});
+      }
     }
 
     async getByIdParam(req, res) {
         const cpf = req.params.id;
-        const user = await User.findByPk(cpf);
+      try {
+        const userRaw = await User.findByPk(cpf);
+
+      const user = {
+          cpf: userRaw.cpf,
+          fullName: userRaw.fullName,
+          email: userRaw.email,
+          accepted: userRaw.accepted,
+          idUnit: userRaw.idUnit,
+          idRole: userRaw.idRole
+        };
 
         if (!user) {
             return res
-              .status(401)
+              .status(404)
               .json({ error: 'Usuário não existe' });
           } else {
               return res.json(user);
           }
+      } catch(error) {
+        return res.status(500).json({
+          error,
+          message: "Erro ao buscar usuário"});
+      }
     }
+
   async allUser(req, res) {
     try {
-      let accepted, user;
       if (req.query.accepted) {
-        //accepted = req.query.accepted === true;
-        accepted = req.query.accepted;
-        user = await User.findAll({where: { accepted: accepted }});
+        const accepted = req.query.accepted;
+        let users = await User.findAll({where: { accepted: accepted }});
+        users.map((user) => {
+          return {
+            cpf: user.cpf,
+            fullName: user.fullName,
+            email: user.email,
+            accepted: user.accepted,
+            idUnit: user.idUnit,
+            idRole: user.idRole
+          };
+        });
         return res.status(200).json({
-            user: user
+            user: users
           });
       } else {
-          user = await User.findAll();
+          let users = await User.findAll();
           return res.status(200).json({
-            user: user
+            user: users
           });
       }
     } catch (error) {
       console.log(error);
-      return res.status(500).json(error);
+      return res.status(500).json({
+        error,
+        message: "Erro ao listar usuários aceitos ou não"
+      });
     }
   }
 
@@ -113,7 +174,6 @@ class UserController {
                 fullName,
                 cpf: cpfFilter(cpf),
                 email,
-                password,
                 accepted: false,
                 idUnit,
                 idRole
@@ -125,7 +185,7 @@ class UserController {
         }
     }
 
-    async update(req, res) {
+    /*async update(req, res) {
         const { fullName, cpf, email } = req.body;
 
         const user = await User.findByPk(cpf);
@@ -140,9 +200,11 @@ class UserController {
 
               await user.save();
 
-              return res.json(user);
+              return res.status(200).json({
+                message: "Email atualizado"
+              });
           }
-      }
+      }*/
 
     async updateUser(req, res) {
         try {
@@ -151,17 +213,22 @@ class UserController {
             const newEmail = req.body.email;
 
             if (!user) {
-                return res.status(401).json({
+                return res.status(404).json({
                     error: "Usuário não existe"
                 });
             } else {
                 user.set({email: newEmail});
                 await user.save();
-                return res.status(200).json(user);
+                return res.status(200).json({
+                  message: "Email atualizado com sucesso"
+                });
             }
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ message: "Usuário não atualizado!" });
+            return res.status(500).json({
+              error,
+              message: "Impossível atualizar email"
+            });
         }
     }
 
@@ -171,13 +238,15 @@ class UserController {
             const user = await User.findByPk(cpf);
 
             if (!user) {
-                return res.status(401).json({
+                return res.status(404).json({
                     error: "Usuário não existe"
                 });
             } else {
                 user.set({idRole: idRole});
                 await user.save();
-                return res.status(200).json(user);
+                return res.status(200).json({
+                  message: "Papel atualizado com sucesso"
+                });
             }
         } catch (error) {
             console.log(error);
@@ -192,7 +261,7 @@ class UserController {
             const user = await User.findByPk(cpf);
             if (!user) {
                 return res
-                .status(401)
+                .status(404)
                 .json({ message: "Nenhum usuário foi encontrado" });
             }
 
@@ -207,35 +276,49 @@ class UserController {
             }
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ message: "Erro a atualizar usuário " });
+            return res.status(500).json({
+              error,
+              message: "Erro a atualizar usuário "
+            });
         }
     }
 
-      async delete(req, res) {
+      /*async delete(req, res) {
         const { cpf } = req.body;
         const user = await User.findByPk(cpf);
 
         if (!user) {
             return res
-              .status(401)
+              .status(404)
               .json({ error: 'Usuário não existe!' });
           } else {
               await user.destroy();
-              return res.status(200).json(user);
+              return res.status(200).json({
+                message: "Usuário apagado com sucesso"
+              });
           }
-      }
+      }*/
     async deleteByParam(req, res) {
         const cpf = req.params.id;
+      try {
         const user = await User.findByPk(cpf);
 
         if (!user) {
             return res
-              .status(401)
+              .status(404)
               .json({ error: 'Usuário não existe!' });
           } else {
               await user.destroy();
-              return res.status(200).json(user);
+              return res.status(200).json({
+                message: "Usuário apagado com sucesso"
+              });
           }
+      } catch (error) {
+        return res.status(500).json({
+          error,
+          message: "Erro ao apagar usuário"
+        });
+      }
       }
 
     async acceptRequest(req, res) {
@@ -244,15 +327,20 @@ class UserController {
             const user = await User.findByPk(cpf);
 
             if (!user) {
-                res.status(401).json({error: "Usuário não existe"});
+                res.status(404).json({error: "Usuário não existe"});
             } else {
                 user.set({accepted: true});
                 await user.save();
-                return res.status(200).send(user);
+                return res.status(200).json({
+                  message: "Usuário aceito com sucesso"
+                });
             }
         } catch (error) {
             console.log("error", error);
-            return res.status(500);
+            return res.status(500).json({
+              error,
+              message: "Falha ao aceitar usuário"
+            });
         }
     }
 
@@ -262,14 +350,19 @@ class UserController {
             const user = await User.findByPk(cpf);
 
             if (!user) {
-                res.status(401).json({error: "Usuário não existe"});
+                res.status(404).json({error: "Usuário não existe"});
             } else {
                 await user.destroy();
-                return res.status(200).send(user);
+                return res.status(200).json({
+                  message: "Usuário não aceito foi excluído"
+                });
             }
         } catch (error) {
             console.log("error", error);
-            return res.status(500).json(error);
+            return res.status(500).json({
+              error,
+              message: "Erro ao negar pedido do usuário"
+            });
         }
     }
 }
