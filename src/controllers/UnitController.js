@@ -11,7 +11,7 @@ class UnitController {
               .status(401)
               .json({ error: 'Não Existe unidades' });
           } else {
-              return res.json({units: units});
+              return res.json(units);
           }
     }
 
