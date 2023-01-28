@@ -89,12 +89,12 @@ routes.get(
 
 routes.get(
   "/flows",
-  FlowController.indexForFrontend
+  FlowController.index
 );
 
 routes.get(
   "/flow/:idFlow",
-  FlowController.getByIdForFrontend
+  FlowController.getById
 );
 
 routes.get(

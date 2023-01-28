@@ -49,19 +49,6 @@ export async function getMailContents() {
     }
 }
 class FlowController {
-
-    async index(req, res) {
-        const flows = await Flow.findAll();
-
-        if (!flows) {
-            return res
-                .status(401)
-                .json({ error: 'Não Existem fluxos' });
-        } else {
-            return res.json({Flows: flows});
-        }
-    }
-
     async indexByRecord(req, res) {
         const {record} = req.params;
 
@@ -100,7 +87,7 @@ class FlowController {
         }
     }
 
-    async indexForFrontend(req, res) {
+    async index(req, res) {
         try {
             const flows = await Flow.findAll();
             let flowsWithSequences = [];
@@ -145,28 +132,6 @@ class FlowController {
     }
 
     async getById(req, res) {
-        const idFlow = req.params.id;
-
-        try {
-            const flow = await Flow.findByPk(idFlow);
-
-            if (!flow) {
-                return res
-                    .status(401)
-                    .json({ error: 'Esse fluxo não existe' });
-            } else {
-                return res.json(flow);
-            }
-        } catch(error) {
-            console.log(error);
-            return res.status(500).json({
-                error,
-                message: `Erro ao buscar processo ${idFlow}`
-            });
-        }
-    }
-
-    async getByIdForFrontend(req, res) {
         const { idFlow } = req.params;
         try {
             const flow = await Flow.findByPk(idFlow);
