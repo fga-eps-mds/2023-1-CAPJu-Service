@@ -5,12 +5,6 @@ import Process from "../models/Process.js";
 import Flow from "../models/Flow.js";
 import Database from '../database/index.js';
 import { QueryTypes } from 'sequelize';
-/*import {
-  ProcessValidator,
-  ProcessEditValidator,
-  ProcessNewObservationValidator,
-  NextStageValidator,
-} from "../validators/Process.js";*/
 
 const isRecordValid = (record) => {
 	const regex = /^\d{20}$/;
@@ -40,7 +34,7 @@ class ProcessController {
           .status(404)
           .json({ error: 'Não há processos' });
       } else {
-          return res.status(200).json({ processes: processes });
+          return res.status(200).json(processes);
       }
   }
 
@@ -76,7 +70,7 @@ class ProcessController {
           .status(404)
           .json({ error: 'Não há processos com prioridade legal' });
       } else {
-          return res.status(200).json({ processes: priorityProcesses });
+          return res.status(200).json(priorityProcesses);
       }
   }
 
@@ -181,28 +175,15 @@ class ProcessController {
         }
       );
 
-      return res.status(200).json({ processes: processes });
+      return res.status(200).json(processes);
     } catch (error) {
       console.log(error);
       return res.status(500).json({error, message: "Erro ao buscar processos"});
     }
   }
 
-  /*async getOneProcess(req, res) {
-    try {
-      const processes = await Process.findOne({
-        _id: req.params.id,
-      });
-      return res.status(200).json({processes});
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json(error);
-    }
-  }*/
-
   async updateProcess(req, res) {
     try {
-      //await ProcessEditValidator.validateAsync(req.body);
       const {idFlow, nickname} = req.body;
 
       const recordStatus = validateRecord(req.body.record);
@@ -334,43 +315,6 @@ class ProcessController {
     }
   }
 
-  /*async nextStage(req, res) {
-    try {
-      const body = await NextStageValidator.validateAsync(req.body);
-      const { stageIdTo, stageIdFrom, observation } = body;
-      const search = { _id: body.processId };
-      const process = await Process.findOne(search);
-
-      let foundStage = process.etapas.find((etapa) =>
-        etapa.stageIdTo == body.stageIdTo
-      );
-
-      if (foundStage === undefined) {
-        process.etapas.push({
-          stageIdTo: stageIdTo,
-          stageIdFrom: stageIdFrom,
-          observation: observation,
-          createdAt: new Date(),
-        });
-      }  else {
-        process.etapas.forEach((process) => {
-          if (process.stageIdTo == stageIdTo)
-            process.observation = observation;
-        })
-      }
-
-      const result = await Process.updateOne(search, {
-        etapaAtual: body.stageIdTo,
-        etapas: process.etapas,
-      });
-
-      res.status(200).json(result);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json(error);
-    }
-  }*/
-
   async newObservation(req, res) {
     const { record, originStage, destinationStage, commentary } = req.body;
 
@@ -420,42 +364,6 @@ class ProcessController {
       });
     }
   }
-
-  /*async newObservation(req, res) {
-    try {
-      const body = await ProcessNewObservationValidator.validateAsync(req.body);
-      const { observation, originStage, destinationStage, processId } = body;
-      const search = { _id: processId };
-      const process = await Process.findOne(search);
-
-      let foundStage = process.etapas.find((etapa) =>
-        etapa.stageIdTo === destinationStage
-      );
-
-      if (foundStage === undefined) {
-        process.etapas.push({
-          createdAt: new Date(),
-          stageIdTo: destinationStage,
-          stageIdFrom: originStage,
-          observation,
-        })
-      } else {
-        process.etapas.forEach((process) => {
-          if (process.stageIdTo == destinationStage)
-            process.observation = observation;
-        })
-      }
-
-      const result = await Process.updateOne(search, {
-        etapas: process.etapas,
-      });
-
-      res.status(200).json(result);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json(error);
-    }
-  }*/
 }
 
 export default new ProcessController();
