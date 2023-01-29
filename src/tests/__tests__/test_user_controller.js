@@ -6,12 +6,12 @@ import Unit from '../../models/Unit.js';
 
 describe('user endpoints', () => {
   beforeEach(async () => {
-    console.log("Preparing test...");
+    // console.log("Preparing test...");
     const database = new Database();
     await database.migrate();
     await database.seed();
     injectDB(database);
-    console.log("Test prepared");
+    // console.log("Test prepared");
   });
 
   test('new user', async () => {

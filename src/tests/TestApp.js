@@ -24,7 +24,7 @@ function injectDB(db) {
   database = db;
 
   database.checkConnection()
-    .then(() => console.log("Connected to DB"))
+    // .then(() => console.log("Connected to DB"))
     .catch((error) => console.log(error));
 }
 
