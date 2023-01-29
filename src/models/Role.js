@@ -6,10 +6,17 @@ class Role extends Model {
             idRole: {
                 type: DataTypes.INTEGER,
                 primaryKey: true,
-                autoIncrement: true
+                autoIncrement: true,
+                allowNull: false
             },
-            name: DataTypes.STRING,
-            accessLevel: DataTypes.SMALLINT,
+            name: {
+                type: DataTypes.STRING,
+                allownull: false
+            },
+            accessLevel: {
+                type: DataTypes.SMALLINT,
+                allowNull: false
+            },
         }, {
             sequelize,
             tableName: 'role'
@@ -21,12 +28,12 @@ class Role extends Model {
             foreignKey: 'cpf',
             as: 'users'
         })
-    
+
     }
 }
 
 
-  
+
 
 
 export default Role;

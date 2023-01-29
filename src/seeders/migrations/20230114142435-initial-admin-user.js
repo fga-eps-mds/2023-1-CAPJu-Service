@@ -7,10 +7,10 @@ module.exports = {
        'users',
        [
          {
-           cpf: '03472718129',
+           cpf: '12345678901',
            fullName: 'Usuário Administrador Inicial',
            email: 'email@email.com',
-           password: 'admin-admin',
+           password: '123Teste',
            idUnit: 1,
            accepted: true,
            idRole: 5,
@@ -21,7 +21,7 @@ module.exports = {
            cpf: '12345678909',
            fullName: 'Usuário Não Aceito Inicial',
            email: 'email@email.com',
-           password: 'admin-admin',
+           password: '123Testen',
            idUnit: 1,
            accepted: false,
            idRole: 1,

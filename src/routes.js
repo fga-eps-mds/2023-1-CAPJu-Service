@@ -2,7 +2,6 @@ import { Router } from "express";
 import FlowController from "./controllers/FlowController.js";
 import ProcessController from "./controllers/ProcessController.js";
 import StageController from "./controllers/StageController.js";
-import UnityController from "./controllers/UnityController.js";
 import UnitController from "./controllers/UnitController.js";
 import RoleController from "./controllers/RoleController.js";
 import UserContoller from "./controllers/UserContoller.js";
@@ -33,6 +32,7 @@ routes.get(
   "/getOneProcess/:id",
   ProcessController.getById
 );
+
 routes.post(
   "/newProcess",
   ProcessController.store
@@ -78,17 +78,17 @@ routes.get(
 );
 
 routes.get(
+  "/flows/process/:record",
+  FlowController.indexByRecord
+);
+
+routes.get(
   "/flows",
   FlowController.index
 );
 
 routes.get(
-  "/flowsForFrontend",
-  FlowController.indexForFrontend
-);
-
-routes.get(
-  "/flow/:id",
+  "/flow/:idFlow",
   FlowController.getById
 );
 
@@ -145,19 +145,19 @@ routes.delete(
 
 
 //Rotas de Etapas
-routes.get("/unitys", UnityController.allUnitys);
-routes.get(
-  "/unityAdmins/:unity",
-  protect,
-  authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
-  UnityController.unityAdmins
-);
-routes.post(
-  "/newUnity",
-  protect,
-  authRole([ROLE.DIRETOR]),
-  UnityController.createUnity
-);
+// routes.get("/unitys", UnityController.allUnitys);
+// routes.get(
+//   "/unityAdmins/:unity",
+//   protect,
+//   authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
+//   UnityController.unityAdmins
+// );
+// routes.post(
+//   "/newUnity",
+//   protect,
+//   authRole([ROLE.DIRETOR]),
+//   UnityController.createUnity
+// );
 
 //  Rotas de units
 routes.post(
@@ -241,40 +241,40 @@ routes.post(
   UserContoller.store
 );
 
-routes.get(
+/*routes.get(
   "/users",
   UserContoller.index
 );
 routes.get(
   "/user",
   UserContoller.getById
-);
+);*/
 
 routes.get(
   "/user/:id",
   UserContoller.getByIdParam
 );
 
-routes.put(
+/*routes.put(
   "/updateUser",
   UserContoller.update
-);
+);*/
 
-routes.delete(
+/*routes.delete(
   "/deleteUser",
   UserContoller.delete
-);
+);*/
 
 routes.delete(
   "/deleteUser/:id",
   UserContoller.deleteByParam
 );
 
-routes.post(
-  "/deleteUnity",
-  protect,
-  authRole([ROLE.DIRETOR]),
-  UnityController.deleteUnity
-);
+// routes.post(
+//   "/deleteUnity",
+//   protect,
+//   authRole([ROLE.DIRETOR]),
+//   UnityController.deleteUnity
+// );
 
 export default routes;

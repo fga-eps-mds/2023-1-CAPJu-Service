@@ -8,21 +8,26 @@ class FlowStage extends Model {
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
+          allowNull: false
         },
         idStageA: {
           type: DataTypes.INTEGER,
           foreignKey: true,
+          allownull: false
         },
         idStageB: {
           type: DataTypes.INTEGER,
           foreignKey: true,
+          allowNull: false
         },
         idFlow: {
             type: DataTypes.INTEGER,
             foreignKey: true,
+            allowNull: false
         },
         commentary: {
-            type: DataTypes.STRING(100)
+            type: DataTypes.STRING(100),
+            allowNull: true
         }
       },
       {

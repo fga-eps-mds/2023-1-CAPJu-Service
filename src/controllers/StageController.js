@@ -11,7 +11,7 @@ class StageController {
               .status(401)
               .json({ error: 'Não Existem fluxos' });
           } else {
-              return res.json({Stages: stages});
+              return res.json(stages);
           }
     }
 

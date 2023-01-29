@@ -30,7 +30,9 @@ const models = [
 ];
 
 // use sequelize-cli defaults
-const getEnvironmentType = () => {return process.env.NODE_ENV || 'development'};
+const getDatabaseEnvironmentType = () => {
+  return process.env.NODE_ENV || 'development'
+};
 
 class Database {
   constructor() {
@@ -38,8 +40,8 @@ class Database {
   }
 
   init() {
-    console.log("environmentType = '" + getEnvironmentType() + "'");
-    this.connection = new Sequelize(config[getEnvironmentType()]);
+    console.log("environmentType = '" + getDatabaseEnvironmentType() + "'");
+    this.connection = new Sequelize(config[getDatabaseEnvironmentType()]);
 
     Flow.init(this.connection);
     FlowProcess.init(this.connection);
