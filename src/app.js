@@ -19,10 +19,6 @@ cron.schedule("0 0 0 * * *", () => {
   Emailer.sendEmail();
 });
 
-cron.schedule("*/10 * * * * *", () => {
-  Emailer.sendEmail();
-});
-
 app.use("/api/v1/docs", swaggerUI.serve, swaggerUI.setup(swaggerFile));
 
 Database.connection.authenticate()
