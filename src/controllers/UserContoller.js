@@ -110,21 +110,20 @@ class UserController {
       try {
         const userRaw = await User.findByPk(cpf);
 
-      const user = {
-          cpf: userRaw.cpf,
-          fullName: userRaw.fullName,
-          email: userRaw.email,
-          accepted: userRaw.accepted,
-          idUnit: userRaw.idUnit,
-          idRole: userRaw.idRole
-        };
-
-        if (!user) {
+        if (!userRaw) {
             return res
               .status(404)
               .json({ error: 'Usuário não existe' });
           } else {
-              return res.json(user);
+              const user = {
+                  cpf: userRaw.cpf,
+                  fullName: userRaw.fullName,
+                  email: userRaw.email,
+                  accepted: userRaw.accepted,
+                  idUnit: userRaw.idUnit,
+                  idRole: userRaw.idRole
+              };
+              return res.status(200).json(user);
           }
       } catch(error) {
         return res.status(500).json({

@@ -6,12 +6,10 @@ import Unit from '../../models/Unit.js';
 
 describe('user endpoints', () => {
   beforeEach(async () => {
-    // console.log("Preparing test...");
     const database = new Database();
     await database.migrate();
     await database.seed();
     injectDB(database);
-    // console.log("Test prepared");
   });
 
   test('new user', async () => {
@@ -62,11 +60,11 @@ describe('user endpoints', () => {
       expect(testUserResponse.status).toBe(200);
     }
 
-    const response = await supertest(app).get("/users");
+    const response = await supertest(app).get("/allUser");
     expect(response.status).toBe(200);
 
-    // Include the administrator user in the count
-    expect(response.body.length).toBe(testUsers.length + 1);
+    // Include the administrator and unaccepted users in the count
+    expect(response.body.length).toBe(testUsers.length + 2);
     for (const testUser of testUsers) {
       expect(response.body.map((o) =>
         {
@@ -87,6 +85,15 @@ describe('user endpoints', () => {
       cpf: "07859382903",
       email: "aaa@bb.com",
       password: "apw123456",
+      accepted: false,
+      idUnit: 1,
+      idRole: 2
+    };
+    const expectedTestUser = {
+      fullName: "Nome Nome",
+      cpf: "07859382903",
+      email: "aaa@bb.com",
+      accepted: false,
       idUnit: 1,
       idRole: 2
     };
@@ -94,18 +101,18 @@ describe('user endpoints', () => {
     const newUserResponse = await supertest(app).post("/newUser").send(testUser);
     expect(newUserResponse.status).toBe(200);
 
-    const response = await supertest(app).get("/user").send({"cpf": testUser.cpf});
+    const response = await supertest(app).get(`/user/${testUser.cpf}`);
     expect(response.status).toBe(200);
-    expect(response.body).toEqual(expect.objectContaining(testUser));
+    expect(expectedTestUser).toEqual(response.body);
   });
 
   test('try reading inexistent user', async () => {
-    const response = await supertest(app).get("/user").send({"cpf": '44061969510'});
-    expect(response.status).toBe(401);
+    const response = await supertest(app).get("/user/44061969510");
+    expect(response.status).toBe(404);
     expect(response.body).toEqual(expect.anything());
   });
 
-  test('new user and edit fullName', async () => {
+  test('new user and edit email', async () => {
     const testUser = {
       fullName: "Nomen Nomes",
       cpf: "86891382424",
@@ -118,55 +125,80 @@ describe('user endpoints', () => {
     const newUserResponse = await supertest(app).post("/newUser").send(testUser);
     expect(newUserResponse.status).toBe(200);
 
-    const newName = "Nomena Nomeno";
+    const expectedEmail = "aaaa@bbb.com.br";
 
     const expectedUser = {
-      "cpf": testUser.cpf,
-      "email": testUser.email,
-      "fullName": newName
+      cpf: testUser.cpf,
+      email: expectedEmail,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole
     };
 
-    const response = await supertest(app).put("/updateUser").send(expectedUser);
+    const updateResponse = await supertest(app).put(`/updateUser/${testUser.cpf}`).send({
+      email: expectedEmail
+    });
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.body).toEqual(expect.anything());
+
+    const response = await supertest(app).get(`/user/${testUser.cpf}`);
     expect(response.status).toBe(200);
+    expect(expectedUser).toEqual(response.body);
     expect(response.body).toEqual(expect.objectContaining(expectedUser));
   });
 
-  test('try editing inexistent user', async () => {
+  test('new user and edit password and login', async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "aaa@bb.com",
+      password: "spw123456",
+      idUnit: 1,
+      idRole: 3
+    };
+
+    const newUserResponse = await supertest(app).post("/newUser").send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const expectedPassword = "321TesteA";
+
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole
+    };
+
+    const updateResponse = await supertest(app).post(`/updateUserPassword/${testUser.cpf}`).send({
+      oldPassword: testUser.password,
+      newPassword: expectedPassword
+    });
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.body).toEqual({ message: "Usuário atualizado com sucesso!" });
+
+    const response = await supertest(app).post('/login').send({
+      cpf: expectedUser.cpf,
+      password: expectedPassword
+    });;
+    expect(response.status).toBe(200);
+    expect(response.body.cpf).toEqual(expectedUser.cpf);
+  });
+
+  test('try editing email of inexistent user', async () => {
     const expectedUser = {
       "cpf": '55490433353',
       "email": 'email@email.com.mx',
       "fullName": 'Asdfgo Iopqwerty'
     };
 
-    const response = await supertest(app).put("/updateUser").send(expectedUser);
-    expect(response.status).toBe(401);
-    expect(response.body).toEqual(expect.anything());
-  });
-
-  test('new user and edit email', async () => {
-    const testUser = {
-      fullName: "Nomenn Nomess",
-      cpf: "73822307327",
-      email: "aaaa@bb.com",
-      password: "sfw123456",
-      idUnit: 1,
-      idRole: 4
-    };
-
-    const newUserResponse = await supertest(app).post("/newUser").send(testUser);
-    expect(newUserResponse.status).toBe(200);
-
-    const newEmail = "novo.email@servidor.com.br";
-
-    const expectedUser = {
-      "cpf": testUser.cpf,
-      "email": newEmail,
-      "fullName": testUser.fullName
-    };
-
-    const response = await supertest(app).put("/updateUser").send(expectedUser);
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(expect.objectContaining(expectedUser));
+    const response = await supertest(app).put(`/updateUser/${expectedUser.cpf}`).send({
+      email: "abc@cba.edf.co"
+    });
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({error: "Usuário não existe"});
   });
 
   test('new user and delete it', async () => {
@@ -178,16 +210,24 @@ describe('user endpoints', () => {
       idUnit: 1,
       idRole: 5
     };
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole
+    };
 
     const newUserResponse = await supertest(app).post("/newUser").send(testUser);
     expect(newUserResponse.status).toBe(200);
 
-    const response = await supertest(app).delete("/deleteUser").send({"cpf": testUser.cpf});
+    const response = await supertest(app).delete(`/deleteUser/${testUser.cpf}`);
     expect(response.status).toBe(200);
-    expect(response.body).toEqual(expect.objectContaining(testUser));
+    expect(response.body).toEqual({message: "Usuário apagado com sucesso"});
 
-    const checkUserResponse = await supertest(app).get("/user").send({"cpf": testUser.cpf});
-    expect(checkUserResponse.status).toBe(401);
-    expect(checkUserResponse.body).toEqual(expect.anything());
+    const checkUserResponse = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(checkUserResponse.status).toBe(404);
+    expect(checkUserResponse.body).toEqual({ error: 'Usuário não existe' });
   });
 });
