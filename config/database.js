@@ -16,9 +16,14 @@ export default  {
 		port: PORT
 	},
 	test: {
-		database: "db",
-		dialect: "sqlite",
-		storage: "test-db.sqlite3"
+		dialect: "postgres",
+		username: process.env.POSTGRES_USER,
+		password: process.env.POSTGRES_PASSWORD,
+		// database: "test",
+		// host: HOST,
+		database: process.env.POSTGRES_DATABASE,
+		host: "0.0.0.0",
+		port: PORT
     },
     production: {
 		dialect: "postgres",
