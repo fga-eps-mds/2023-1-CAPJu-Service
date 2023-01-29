@@ -170,6 +170,7 @@ class UserController {
                 fullName,
                 cpf: cpfFilter(cpf),
                 email,
+                password,
                 accepted: false,
                 idUnit,
                 idRole
@@ -177,7 +178,7 @@ class UserController {
             return res.json(user);
         } catch(error) {
             console.log(error);
-            return res.status(error).json(error);
+            return res.status(500).json({error, message: "Erro ao criar usuário"});
         }
     }
 
