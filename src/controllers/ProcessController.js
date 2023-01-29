@@ -80,7 +80,7 @@ class ProcessController {
         .json({ error: "Não foi encontrado prioridades"});
 
       } else {
-        return res.status(200).json({ priorities: priorities})
+        return res.status(200).json(priorities)
       }
       } catch (error) {
         console.log(error)
