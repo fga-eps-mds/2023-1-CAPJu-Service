@@ -101,7 +101,7 @@ class Database {
       },
       context: queryInterface,
       storage: sequelizeStorage,
-      logger: console
+      logger: null
     });
 
     // console.log('Sequelize', Sequelize);
@@ -112,7 +112,7 @@ class Database {
     //console.log('pendingM', await umzug.pending());
 
     const migrations = await umzug.up();
-    console.log('migrations', migrations);
+    //console.log('migrations', migrations);
   }
 
   async seed() {
@@ -150,7 +150,7 @@ class Database {
       },
       context: queryInterface,
       storage: sequelizeStorage,
-      logger: console
+      logger: null
     });
     //console.log('umzugS', umzug);
 
@@ -159,7 +159,7 @@ class Database {
     //console.log('pendingS', await umzug.pending());
 
     const seeds = await umzug.up();
-    console.log('seeds', seeds);
+    //console.log('seeds', seeds);
   }
 }
 
