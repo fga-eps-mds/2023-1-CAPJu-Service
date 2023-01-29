@@ -27,15 +27,43 @@ const validateRecord = (record) => {
 class ProcessController {
 
   async index(req, res) {
-    const processes = await Process.findAll();
+    try {
+      let processes = await Process.findAll();
 
-    if (!processes) {
+      if (!processes) {
         return res
-          .status(404)
-          .json({ error: 'Não há processos' });
+        .status(404)
+        .json({ error: 'Não há processos' });
       } else {
-          return res.status(200).json(processes);
+        let processesWithFlows = [];
+        for (const process of processes) {
+          const flowProcesses = await FlowProcess.findAll({
+            where: {
+              record: process.record
+            }
+          });
+          const flowProcessesIdFlows = flowProcesses.map((flowProcess) => {
+            return flowProcess.idFlow;
+          });
+
+          processesWithFlows.push({
+            record: process.record,
+            nickname: process.nickname,
+            effectiveDate: process.effectiveDate,
+            idUnit: process.idUnit,
+            idStage: process.idStage,
+            idPriority: process.idPriority,
+            idFlows: flowProcessesIdFlows
+          });
+        }
+        return res.status(200).json(processesWithFlows);
       }
+    } catch (error) {
+      return res.status(500).json({
+        error,
+        message: "Erro ao buscar processos"
+      });
+    }
   }
 
   async getPriorities(req, res) {
