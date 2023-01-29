@@ -7,15 +7,18 @@ class FlowUser extends Model {
 				idFlowUser: {
 					type: DataTypes.INTEGER,
 					primaryKey: true,
-					autoIncrement: true
+					autoIncrement: true,
+					allowNull: false
 				},
 				cpf: {
 					type: DataTypes.STRING(11),
-					foreignKey: true
+					foreignKey: true,
+					allowNull: false
 				},
 				idFlow: {
 					type: DataTypes.INTEGER,
-					foreignKey: true
+					foreignKey: true,
+					allowNull: false
 				}
 			},
 			{
