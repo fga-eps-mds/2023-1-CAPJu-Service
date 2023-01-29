@@ -1,16 +1,15 @@
-import Database from '../../database/index.js';
-const { execSync } = require("child_process");
+import { Database } from '../TestDatabase.js';
 import Unit from '../../models/Unit.js';
 import User from '../../models/User.js';
 import Role from '../../models/Role.js';
 
 describe('initial database', () => {
-	beforeEach(() => {
-		console.log("Preparing test...");
-		execSync("yarn test-shred");
-		execSync("yarn test-migration");
-		execSync("yarn test-seed");
-		console.log("Test prepared");
+  beforeEach(async () => {
+    console.log("Preparing test...");
+    const database = new Database();
+    await database.migrate();
+    await database.seed();
+    console.log("Test prepared");
 	});
 
 	test('unit exists', async () => {
@@ -25,7 +24,7 @@ describe('initial database', () => {
 	});
 
 	test('user exists', async () => {
-		const expectedCpf = '03472718129';
+		const expectedCpf = '012345678901';
 		const foundUser = await User.findByPk(expectedCpf);
 		expect(foundUser.cpf).toBe(expectedCpf);
 		expect(foundUser.idRole).toBe(5);

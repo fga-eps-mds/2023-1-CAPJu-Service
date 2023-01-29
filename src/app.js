@@ -18,11 +18,8 @@ app.use(
     swaggerUI.setup(swaggerFile),
 );
 
-try {
-    await Database.connection.authenticate();
-    console.log("Connected to DB!");
-} catch(error) {
-    console.log(error);
-}
+Database.connection.authenticate()
+    .then(() => console.log("Connected to DB"))
+    .catch((error) => console.log(error));
 
 export default app;

@@ -37,6 +37,7 @@ routes.get(
   "/getOneProcess/:id",
   ProcessController.getById
 );
+
 routes.post(
   "/newProcess",
   ProcessController.store
@@ -87,17 +88,17 @@ routes.get(
 );
 
 routes.get(
+  "/flows/process/:record",
+  FlowController.indexByRecord
+);
+
+routes.get(
   "/flows",
   FlowController.index
 );
 
 routes.get(
-  "/flowsForFrontend",
-  FlowController.indexForFrontend
-);
-
-routes.get(
-  "/flow/:id",
+  "/flow/:idFlow",
   FlowController.getById
 );
 
@@ -250,29 +251,29 @@ routes.post(
   UserContoller.store
 );
 
-routes.get(
+/*routes.get(
   "/users",
   UserContoller.index
 );
 routes.get(
   "/user",
   UserContoller.getById
-);
+);*/
 
 routes.get(
   "/user/:id",
   UserContoller.getByIdParam
 );
 
-routes.put(
+/*routes.put(
   "/updateUser",
   UserContoller.update
-);
+);*/
 
-routes.delete(
+/*routes.delete(
   "/deleteUser",
   UserContoller.delete
-);
+);*/
 
 routes.delete(
   "/deleteUser/:id",

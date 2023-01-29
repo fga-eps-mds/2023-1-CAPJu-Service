@@ -49,16 +49,32 @@ export async function getMailContents() {
     }
 }
 class FlowController {
+    async indexByRecord(req, res) {
+        const {record} = req.params;
 
-    async index(req, res) {
-        const flows = await Flow.findAll();
+        try {
+            const flowProcesses = await FlowProcess.findAll({
+                where: {
+                    record
+                }
+            });
 
-        if (!flows) {
-            return res
-                .status(401)
-                .json({ error: 'Não Existem fluxos' });
-        } else {
-            return res.json({Flows: flows});
+            if (flowProcesses.length > 0) {
+                return res.status(200).json(
+                    flowProcesses
+                );
+            }
+
+            return res.status(404).json({
+                error: "Não há fluxos com esse processo",
+                message: `Não há fluxos com o processo '${record}'`
+            });
+        } catch(error) {
+            console.log(error);
+            return res.status(500).json({
+                error,
+                message: `Erro ao buscar fluxos do processo ${record}`
+            });
         }
     }
 
@@ -71,7 +87,7 @@ class FlowController {
         }
     }
 
-    async indexForFrontend(req, res) {
+    async index(req, res) {
         try {
             const flows = await Flow.findAll();
             let flowsWithSequences = [];
@@ -105,15 +121,10 @@ class FlowController {
                     sequences,
                 };
 
-                console.log('flowSequence', flowSequence);
-
                 flowsWithSequences.push(flowSequence);
             };
 
-            console.log('flows', flows);
-            console.log('flowsWithSequences', flowsWithSequences);
-
-            return res.status(200).json({ Flows: flowsWithSequences });
+            return res.status(200).json(flowsWithSequences);
         } catch(error) {
             console.log(error);
             return res.status(500).json({error: "Impossível obter fluxos"});
@@ -121,16 +132,49 @@ class FlowController {
     }
 
     async getById(req, res) {
-        const idFlow = req.params.id;
+        const { idFlow } = req.params;
+        try {
+            const flow = await Flow.findByPk(idFlow);
+            const flowStages = await FlowStage.findAll({
+                where: {
+                    idFlow: flow.idFlow
+                }
+            });
 
-        const flow = await Flow.findByPk(idFlow);
+            let sequences = [];
+            let stages = [];
 
-        if (!flow) {
-            return res
-                .status(401)
-                .json({ error: 'Esse fluxo não existe' });
-        } else {
-            return res.json(flow);
+            if (flowStages.length > 0) {
+                for (const flowStage of flowStages) {
+                    sequences.push({
+                        from: flowStage.idStageA,
+                        commentary: flowStage.commentary,
+                        to: flowStage.idStageB
+                    });
+                    if (!stages.includes(flowStage.idStageA)) {
+                        stages.push(flowStage.idStageA);
+                    }
+                    if (!stages.includes(flowStage.idStageB)) {
+                        stages.push(flowStage.idStageB);
+                    }
+                }
+            }
+
+            const flowSequence = {
+                idFlow: flow.idFlow,
+                name: flow.name,
+                idUnit: flow.idUnit,
+                stages,
+                sequences,
+            };
+
+            return res.status(200).json(flowSequence);
+        } catch(error) {
+            console.log(error);
+            return res.status(500).json({
+                error,
+                message: `Impossível obter fluxo ${idFlow}`
+            });
         }
     }
 
@@ -293,13 +337,10 @@ class FlowController {
                     where: { idFlow: idFlow }
                 });
 
-                console.log('flowStage = ',flowStage);
-
                 const flowUser = await FlowUser.destroy({
                     where: { idFlow: idFlow }
                 });
 
-                console.log('flowUser = ', flowUser)
                 for (const idUser of idUsersToNotify) {
                     const user = await User.findByPk(idUser);
 
@@ -405,8 +446,6 @@ class FlowController {
         if (affectedRows === 0) {
             return res.status(401).json({ error: `Não há relacionameto entre o fluxo '${idFlow}' e as etapas '${idStageA}' e '${idStageB}'` });
         }
-
-        console.log('affectedRows', affectedRows);
 
         return res.status(200).json({ message: `Desassociação entre fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}' concluída` });
     }
