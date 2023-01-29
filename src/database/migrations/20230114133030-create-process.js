@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('process', { 
+    await queryInterface.createTable('process', {
       record: {
         type: Sequelize.STRING(20),
         primaryKey: true,
@@ -11,7 +11,7 @@ module.exports = {
       },
       nickname: {
         type: Sequelize.STRING(50),
-        allowNull: false,
+        allowNull: true,
       },
       effectiveDate: {
         type: Sequelize.DATE,
@@ -25,12 +25,13 @@ module.exports = {
       },
       idStage: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: { model: 'stage', key: 'idStage' },
         onDelete: 'RESTRICT'
       },
       idPriority: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull: false,
         references: { model: 'priority', key: 'idPriority' },
         onDelete: 'RESTRICT'
       },

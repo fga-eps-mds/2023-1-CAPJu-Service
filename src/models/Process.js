@@ -11,7 +11,7 @@ class Process extends Model {
         },
         nickname: {
           type: DataTypes.STRING(50),
-          allowNull: false,
+          allowNull: true,
         },
         effectiveDate: {
           type: DataTypes.DATE,
@@ -19,17 +19,18 @@ class Process extends Model {
         },
         idUnit: {
           type: DataTypes.INTEGER,
-          allowNull: false,
           foreignKey: true,
+          allowNull: false
         },
         idStage: {
           type: DataTypes.INTEGER,
-          foreignKey: true,
+          foreignKey: false,
+          allowNull: false
         },
         idPriority: {
           type: DataTypes.INTEGER,
-          allowNull: false,
           foreignKey: true,
+          allowNull: false,
         }
       },
       {

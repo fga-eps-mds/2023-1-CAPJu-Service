@@ -8,11 +8,13 @@ class Flow extends Model {
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
+          allowNull: false
         },
         name: DataTypes.STRING(100),
         idUnit: {
           type: DataTypes.INTEGER,
           foreignKey: true,
+          allowNull: false
         },
       },
       {

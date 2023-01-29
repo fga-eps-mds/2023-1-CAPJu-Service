@@ -8,6 +8,7 @@ class Stage extends Model {
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
+          allownull: false
         },
         name: DataTypes.STRING(100),
         duration: {
@@ -17,6 +18,7 @@ class Stage extends Model {
         idUnit: {
           type: DataTypes.INTEGER,
           foreignKey: true,
+          allowNull: false
         },
       },
       {
