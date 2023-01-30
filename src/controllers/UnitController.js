@@ -15,20 +15,6 @@ class UnitController {
           }
     }
 
-    async getById(req, res) {
-        const idUnit = req.params.id;
-
-        const unit = await Unit.findByPk(idUnit);
-
-        if (!unit) {
-            return res
-              .status(401)
-              .json({ error: 'Essa unidade não existe' });
-          } else {
-              return res.json(unit);
-          }
-    }
-
     async store(req, res) {
         const { name } = req.body;
         try {
@@ -43,29 +29,29 @@ class UnitController {
     }
 
     async update(req, res) {
-        const {  idUnit, name } = req.body; 
-    
+        const {  idUnit, name } = req.body;
+
         const unit = await Unit.findByPk(idUnit);
-    
+
         if (!unit) {
             return res
               .status(401)
               .json({ error: 'Essa unidade não existe!' });
           } else {
-            
+
             unit.set({ name, idUnit });
-            
+
               await unit.save();
-    
+
               return res.json(unit);
-          } 
+          }
       }
-    
+
       async delete(req, res) {
-        const { idUnit } = req.body; 
-    
+        const { idUnit } = req.body;
+
         const unit = await Unit.findByPk(idUnit);
-    
+
         if (!unit) {
             return res
               .status(401)
@@ -75,7 +61,7 @@ class UnitController {
               return res.json(unit);
           }
       }
-    
+
     async getAdminsByUnitId(req, res) {
         const idUnit = req.params.id;
 
