@@ -29,17 +29,17 @@ class UnitController {
     }
 
     async update(req, res) {
-        const {  idUnit, name } = req.body;
+        const { idUnit, name } = req.body;
 
         const unit = await Unit.findByPk(idUnit);
 
         if (!unit) {
             return res
-              .status(401)
+              .status(404)
               .json({ error: 'Essa unidade não existe!' });
           } else {
 
-            unit.set({ name, idUnit });
+            unit.set({ name });
 
               await unit.save();
 
