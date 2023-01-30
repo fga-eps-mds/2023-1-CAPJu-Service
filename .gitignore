@@ -5,10 +5,11 @@ npm-debug.log*
 
 # Dependency directories
 node_modules
+package-lock.json
 
 # Optional npm cache directory
 .npm
-
+.zshrc
 # Auto-Generated Jest MongoDB config
 globalConfig.json
 
@@ -19,3 +20,10 @@ globalConfig.json
 #environment variables
 /src/.env
 .env
+
+# database
+data
+test-db.sqlite3
+
+# vim swap files
+*.swp

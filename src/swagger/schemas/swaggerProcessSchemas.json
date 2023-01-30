@@ -1,0 +1,19 @@
+{
+    "Unit":{
+        "type":"object",
+        "properties":{
+            "idUnit":{
+                "type":"integer"
+            },
+            "name":{
+                "type":"string"
+            },
+            "updatedAt": {
+                "type":"string"
+            },
+            "createdAt": {
+                "type":"string"
+            }
+        }
+    }
+}
