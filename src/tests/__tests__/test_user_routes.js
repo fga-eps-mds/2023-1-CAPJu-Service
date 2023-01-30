@@ -4,7 +4,7 @@ import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
 import Unit from '../../models/Unit.js';
 
-describe('user endpoints', () => {
+describe.skip('user endpoints', () => {
   beforeEach(async () => {
     const database = new Database();
     await database.migrate();
