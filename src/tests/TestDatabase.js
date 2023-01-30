@@ -31,7 +31,8 @@ class Database {
   constructor() {
     this.connection = new Sequelize({
       dialect: 'sqlite',
-      storage: ':memory:'
+      storage: ':memory:',
+      logging: null
     });
 
     Flow.init(this.connection);
