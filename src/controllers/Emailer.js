@@ -1,15 +1,15 @@
 import * as nodemailer from "nodemailer";
 import path from "path";
-import Database from "./database/index.js";
+import Database from "../database/index.js";
 import { QueryTypes } from "sequelize";
 import dotenv from "dotenv";
-import { queryMailContents } from "./utils/queryMailContents.js";
+import { queryMailContents } from "../utils/queryMailContents.js";
 
 dotenv.config();
 
 const senha = process.env.CAPJU_EMAIL_PASSWORD;
 
-function dataAtualFormatada(data) {
+export function dataAtualFormatada(data) {
   data = new Date(data);
   var dia = data.getDate().toString().padStart(2, "0");
   var mes = (data.getMonth() + 1).toString().padStart(2, "0");
@@ -32,48 +32,47 @@ export async function getMailContents() {
   }
 }
 
-class Emailer {
-  async sendEmail() {
-    const emails = [];
-    let process = [];
+export async function sendEmail() {
+  const emails = [];
+  let process = [];
 
-    let json;
+  let json;
 
-    (async () => {
-      json = await getMailContents();
+  (async () => {
+    json = await getMailContents();
 
+    json.forEach((item) => {
+      emails.push(item.email);
+    });
+
+    let emailFilter = emails.filter((email, idx) => emails.indexOf(email) === idx);
+
+    for (let i = 0; i < emailFilter.length; i++) {
       json.forEach((item) => {
-        emails.push(item.email);
+        if (emailFilter[i] === item.email) {
+          process.push(item);
+        }
+      }); // FIM FOREACH
+      const transport = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: "capju.eps.mds@gmail.com",
+          pass: senha,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
       });
 
-      var EmailFilter = emails.filter((este, i) => emails.indexOf(este) === i);
-
-      for (let i = 0; i < EmailFilter.length; i++) {
-        json.forEach((item) => {
-          if (EmailFilter[i] === item.email) {
-            process.push(item);
-          }
-        }); // FIM FOREACH
-        const transport = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 587,
-          secure: false,
-          auth: {
-            user: "capju.eps.mds@gmail.com",
-            pass: senha,
-          },
-          tls: {
-            rejectUnauthorized: false,
-          },
-        });
-
-        const __dirname = path.resolve();
-        const message = {
-          from: "capju.eps.mds@gmail.com",
-          to: EmailFilter[i],
-          subject: "CAPJU - relatório de processos atrasados",
-          text: "Olá, esse é um e-mail automático para informar os processos atrasados.",
-          html: `
+      const __dirname = path.resolve();
+      const message = {
+        from: "capju.eps.mds@gmail.com",
+        to: emailFilter[i],
+        subject: "CAPJU - relatório de processos atrasados",
+        text: "Olá, esse é um e-mail automático para informar os processos atrasados.",
+        html: `
               <!DOCTYPE html>
               <html lang="en">
           <head>
@@ -169,38 +168,32 @@ class Emailer {
             </div>
           </body>
         </html>`,
-          attachments: [
-            {
-              filename: "capju.png",
-              path: __dirname + "/src/assets/capju.png",
-              cid: "capju",
-            },
-            {
-              filename: "justica_federal.png",
-              path: __dirname + "/src/assets/justica_federal.png",
-              cid: "justica_federal",
-            },
-            {
-              filename: "UnB.png",
-              path: __dirname + "/src/assets/UnB.png",
-              cid: "UnB",
-            },
-          ],
-        };
-        try {
-          transport.sendMail(message, (err) => {
-            if (err) {
-              console.log("Error occurred. " + err.message);
-            }
-            console.log("Message sent!");
-          });
-          process = [];
-        } catch (err) {
-          console.log("Falha ao enviar e-mail");
-        }
+        attachments: [
+          {
+            filename: "capju.png",
+            path: __dirname + "/src/assets/capju.png",
+            cid: "capju",
+          },
+          {
+            filename: "justica_federal.png",
+            path: __dirname + "/src/assets/justica_federal.png",
+            cid: "justica_federal",
+          },
+          {
+            filename: "UnB.png",
+            path: __dirname + "/src/assets/UnB.png",
+            cid: "UnB",
+          },
+        ],
+      };
+      try {
+        transport.sendMail(message);
+        process = [];
+      } catch (err) {
+        console.log("Error occurred. " + err.message);
+        return false;
       }
-    })();
-  }
+    }
+  })();
+  return true;
 }
-
-export default new Emailer();
