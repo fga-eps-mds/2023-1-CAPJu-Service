@@ -1,5 +1,6 @@
 import Unit from '../models/Unit.js';
 import User from '../models/User.js';
+import { ROLE } from '../schemas/role.js';
 
 class UnitController {
 
@@ -9,9 +10,9 @@ class UnitController {
         if (!units) {
             return res
               .status(401)
-              .json({ error: 'Não Existe unidades' });
+              .json({ message: 'Não Existe unidades' });
           } else {
-              return res.json(units);
+              return res.status(200).json(units);
           }
     }
 
@@ -24,7 +25,10 @@ class UnitController {
             return res.json(unit);
         } catch(error) {
             console.log(error);
-            return res.status(error).json(error);
+            return res.status(500).json({
+                error,
+                message: "Erro ao criar unidade"
+            });
         }
     }
 
@@ -36,14 +40,14 @@ class UnitController {
         if (!unit) {
             return res
               .status(404)
-              .json({ error: 'Essa unidade não existe!' });
+              .json({ message: 'Essa unidade não existe!' });
           } else {
 
             unit.set({ name });
 
               await unit.save();
 
-              return res.json(unit);
+              return res.status(200).json(unit);
           }
       }
 
@@ -58,7 +62,7 @@ class UnitController {
               .json({ error: 'Essa unidade não existe!' });
           } else {
               await unit.destroy();
-              return res.json(unit);
+              return res.status(200).json(unit);
           }
       }
 
@@ -89,27 +93,37 @@ class UnitController {
                 where:
                 {
                     cpf: cpf,
-                    idUnit: idUnit
+                    idUnit: idUnit,
+                    accepted: true
                 }
             }
         );
 
         if (!user) {
-            return res.status(401).json(
+            return res.status(404).json(
                 {
-                    error: "Usuário não existe nesta unidade"
+                    message: "Usuário aceito não existe nesta unidade"
                 }
             );
         } else {
             try {
-                user.set({idRole: 5});
+                user.set({idRole: ROLE.ADMINISTRADOR});
                 await user.save();
-                return res.status(200).json(user);
+                const userNoPassword = {
+                  cpf: user.cpf,
+                  fullName: user.fullName,
+                  email: user.email,
+                  accepted: user.accepted,
+                  idUnit: user.idUnit,
+                  idRole: user.idRole
+                };
+                return res.status(200).json(userNoPassword);
             } catch (error) {
                 console.log(error);
                 return res.status(500).json(
                     {
-                        error: "Erro ao configurar usuário como administrador"
+                        error,
+                        message: "Erro ao configurar usuário como administrador"
                     }
                 );
             }
