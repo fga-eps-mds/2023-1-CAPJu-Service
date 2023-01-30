@@ -25,7 +25,7 @@ class StageController {
               .status(401)
               .json({ error: 'Esse fluxo não existe' });
           } else {
-              return res.json(stage);
+              return res.status(200).json(stage);
           }
     }
 
