@@ -20,6 +20,11 @@ class UserController {
                     message: "Usuário inexistente"
                 });
             }
+            if (!user.accepted) {
+                return res.status(401).json({
+                    message: "Usuário não aceito"
+                });
+            }
             if (user.password === password) {
                 let expiresIn = new Date();
                 expiresIn.setDate(expiresIn.getDate() + 3);
@@ -32,7 +37,6 @@ class UserController {
                     idRole: user.idRole,
                     expiresIn,
                 });
-                return res.status(200).json(user);
             } else {
 		        return res.status(401).json({
                     error: "Impossível autenticar",

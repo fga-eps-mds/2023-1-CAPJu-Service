@@ -228,6 +228,10 @@ describe('user endpoints', () => {
       idRole: testUser.idRole
     };
 
+    const acceptResponse = await supertest(app).post(`/acceptRequest/${testUser.cpf}`);
+    expect(acceptResponse.status).toBe(200);
+    expect(acceptResponse.body).toEqual({ message: "Usuário aceito com sucesso" });
+
     const updateResponse = await supertest(app).post(`/updateUserPassword/${testUser.cpf}`).send({
       oldPassword: testUser.password,
       newPassword: expectedPassword
@@ -238,12 +242,12 @@ describe('user endpoints', () => {
     const response = await supertest(app).post('/login').send({
       cpf: expectedUser.cpf,
       password: expectedPassword
-    });;
+    });
     expect(response.status).toBe(200);
     expect(response.body.cpf).toEqual(expectedUser.cpf);
   });
 
-  test('new user and edit role and login', async () => {
+  test('new user and edit role', async () => {
     const testUser = {
       fullName: "Nomen Nomes",
       cpf: "86891382424",
@@ -326,9 +330,45 @@ describe('user endpoints', () => {
     const response = await supertest(app).post('/login').send({
       cpf: expectedUser.cpf,
       password: testUser.password
-    });;
+    });
     expect(response.status).toBe(200);
     expect(response.body.cpf).toEqual(expectedUser.cpf);
+  });
+
+  test('new user tries to login', async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "aaa@bb.com",
+      password: "spw123456",
+      idUnit: 1,
+      idRole: 3
+    };
+
+    const newUserResponse = await supertest(app).post("/newUser").send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole
+    };
+
+    const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(userResponse.status).toBe(200);
+    expect(expectedUser).toEqual(userResponse.body);
+
+    const response = await supertest(app).post('/login').send({
+      cpf: expectedUser.cpf,
+      password: testUser.password
+    });
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({
+      message: "Usuário não aceito"
+    });
   });
 
   test('new user and delete it', async () => {
