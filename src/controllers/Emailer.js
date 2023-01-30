@@ -43,6 +43,10 @@ export async function sendEmail() {
       console.log("Não há processos atrasados");
       return;
     }
+    if(!senha){
+      console.log('Não há senha');
+      return;
+    }
 
     json.forEach((item) => {
       emails.push(item.email);
