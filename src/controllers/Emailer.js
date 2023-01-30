@@ -32,7 +32,7 @@ export async function getMailContents() {
   }
 }
 
-export async function sendEmail() {
+export function sendEmail() {
   const emails = [];
   let process = [];
 
