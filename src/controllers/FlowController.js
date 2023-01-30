@@ -7,47 +7,6 @@ import FlowProcess from '../models/FlowProcess.js';
 import { QueryTypes } from 'sequelize';
 import Database from '../database/index.js';
 
-export async function getMailContents() {
-    try {
-        const mailContents = await Database.connection.query(
-            "select \
-            f.\"idFlow\" as id_flow, \
-            f.\"name\" as flow, \
-            p.record as process_record, \
-            p.nickname as process, \
-            s.\"idStage\" as id_stage, \
-            s.\"name\" as stage, \
-            p.\"effectiveDate\" as start_date, \
-            s.duration as stage_duration, \
-            u.email as email, \
-            extract(day from (current_timestamp - p.\"effectiveDate\")) - cast(s.duration as integer) as delay_days \
-            from \
-                users u \
-            join \"flowUser\" fu on \
-                fu.cpf = u.cpf \
-            join \"flowProcess\" fp on \
-                fp.\"idFlow\" = fu.\"idFlow\" \
-            join process p on \
-                p.record = fp.record \
-            join stage s on \
-                s.\"idStage\" = p.\"idStage\" \
-            join flow f on \
-                f.\"idFlow\" = fp.\"idFlow\" \
-            where \
-                extract(day from (current_timestamp - p.\"effectiveDate\")) > cast(s.duration as integer)",
-            {
-                type: QueryTypes.SELECT
-            }
-        );
-        return mailContents;
-    } catch(error) {
-        console.log(error);
-        return {
-            error,
-            message: "Erro ao obter conteúdo dos emails"
-        };
-    }
-}
 class FlowController {
     async indexByRecord(req, res) {
         const {record} = req.params;
@@ -75,15 +34,6 @@ class FlowController {
                 error,
                 message: `Erro ao buscar fluxos do processo ${record}`
             });
-        }
-    }
-
-    async getMailContentsEndpoint(req, res) {
-        const contents = await getMailContents();
-        if (contents.error) {
-            return res.status(500).json(contents);
-        } else {
-            return res.status(200).json(contents);
         }
     }
 
@@ -122,7 +72,7 @@ class FlowController {
                 };
 
                 flowsWithSequences.push(flowSequence);
-            };
+            }
 
             return res.status(200).json(flowsWithSequences);
         } catch(error) {

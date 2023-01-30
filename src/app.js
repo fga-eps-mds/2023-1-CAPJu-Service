@@ -1,9 +1,11 @@
-import swaggerUI from 'swagger-ui-express';
+import swaggerUI from "swagger-ui-express";
 import express from "express";
 import cors from "cors";
 import routes from "./routes.js";
 import Database from "./database/index.js";
 import swaggerFile from "./swagger/swaggerFile.js";
+import cron from "node-cron";
+import * as Emailer from "./controllers/Emailer.js";
 
 const app = express();
 
@@ -12,11 +14,12 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(routes);
-app.use(
-    '/api/v1/docs',
-    swaggerUI.serve,
-    swaggerUI.setup(swaggerFile),
-);
+
+cron.schedule("0 0 0 * * *", () => {
+  Emailer.sendEmail();
+});
+
+app.use("/api/v1/docs", swaggerUI.serve, swaggerUI.setup(swaggerFile));
 
 Database.connection.authenticate()
     .then(() => console.log("Connected to DB"))
