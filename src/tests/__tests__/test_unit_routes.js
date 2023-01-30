@@ -3,6 +3,7 @@ import 'sequelize';
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
 import Unit from '../../models/Unit.js';
+import { ROLE } from '../../schemas/role.js';
 
 describe('unit endpoints', () => {
   beforeEach(async () => {
@@ -81,5 +82,38 @@ describe('unit endpoints', () => {
     });
     expect(updateUnitResponse.status).toBe(200);
     expect(updateUnitResponse.body).toEqual(expect.objectContaining(expectedUnit));
+  });
+
+  test('create user and accept and add it as administrator of the default unit', async () => {
+    const testUser = {
+      fullName: "Francisco Duarte Lopes",
+      cpf: "75706593256",
+      email: "francisco.dl@gmail.com",
+      password: "fdl123456",
+      idUnit: 1,
+      idRole: 1
+    };
+
+    const expectedTestUser = {
+      fullName: testUser.fullName,
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: true,
+      idUnit: testUser.idUnit,
+      idRole: ROLE.ADMINISTRADOR
+    };
+    const testUserResponse = await supertest(app).post("/newUser").send(testUser);
+    expect(testUserResponse.status).toBe(200);
+
+    const acceptResponse = await supertest(app).post(`/acceptRequest/${testUser.cpf}`);
+    expect(acceptResponse.status).toBe(200);
+    expect(acceptResponse.body).toEqual({ message: "Usuário aceito com sucesso" });
+
+    const setUserResponse = await supertest(app).put("/setUnitAdmin").send({
+      idUnit: testUser.idUnit,
+      cpf: testUser.cpf
+    });
+    expect(setUserResponse.status).toBe(200);
+    expect(setUserResponse.body).toEqual(expect.objectContaining(expectedTestUser));
   });
 });
