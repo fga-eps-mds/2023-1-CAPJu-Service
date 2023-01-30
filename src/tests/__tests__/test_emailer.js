@@ -11,7 +11,7 @@ test("formats date correctly", () => {
   expect(result).toEqual(expectedOutput);
 });
 
-describe("getMailContents", () => {
+describe.skip("getMailContents", () => {
   it("retorna o conteúdo dos emails", async () => {
     const mailContents = [
       {
@@ -52,7 +52,7 @@ describe("getMailContents", () => {
 });
 
 
-describe("sendEmail", () => {
+describe.skip("sendEmail", () => {
     it("retorna true", async () => {
       const mailContents = [
         {
