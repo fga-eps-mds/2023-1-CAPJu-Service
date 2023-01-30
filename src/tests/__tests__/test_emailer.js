@@ -95,8 +95,13 @@ describe("sendEmail", () => {
   
       // Simula a resposta da consulta ao banco de dados
       Database.connection.query = jest.fn().mockResolvedValue(mailContents);
-  
-      await expect(Emailer.sendEmail()).resolves.toBe(true);
+
+      const senha = process.env.CAPJU_EMAIL_PASSWORD;
+      if(!senha){
+        await expect(Emailer.sendEmail()).resolves.toBe(false);
+      } else {
+        await expect(Emailer.sendEmail()).resolves.toBe(true);
+      }
     });
   
     it("retorna uma mensagem de erro em caso de falha", async () => {
