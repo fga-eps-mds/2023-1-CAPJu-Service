@@ -319,9 +319,9 @@ describe('user endpoints', () => {
       idRole: testUser.idRole
     };
 
-    const updateResponse = await supertest(app).post(`/acceptRequest/${testUser.cpf}`);
-    expect(updateResponse.status).toBe(200);
-    expect(updateResponse.body).toEqual({ message: "Usuário aceito com sucesso" });
+    const acceptResponse = await supertest(app).post(`/acceptRequest/${testUser.cpf}`);
+    expect(acceptResponse.status).toBe(200);
+    expect(acceptResponse.body).toEqual({ message: "Usuário aceito com sucesso" });
 
     const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
     expect(userResponse.status).toBe(200);
