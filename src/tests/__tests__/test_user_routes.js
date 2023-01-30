@@ -187,6 +187,42 @@ describe('user endpoints', () => {
     expect(response.body.cpf).toEqual(expectedUser.cpf);
   });
 
+  test('new user and edit role and login', async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "aaa@bb.com",
+      password: "spw123456",
+      idUnit: 1,
+      idRole: 3
+    };
+
+    const newUserResponse = await supertest(app).post("/newUser").send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const expectedRole = 4;
+
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: expectedRole
+    };
+
+    const updateResponse = await supertest(app).put(`/updateUserRole`).send({
+      cpf: testUser.cpf,
+      idRole: expectedRole
+    });
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.body).toEqual({ message: "Papel atualizado com sucesso" });
+
+    const response = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(response.status).toBe(200);
+    expect(expectedUser).toEqual(response.body);
+  });
+
   test('try editing email of inexistent user', async () => {
     const expectedUser = {
       "cpf": '55490433353',
