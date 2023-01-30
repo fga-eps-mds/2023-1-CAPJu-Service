@@ -63,4 +63,23 @@ describe('unit endpoints', () => {
     expect(unitsResponse.body.length).toBe(1);
     expect(unitsResponse.body).toEqual(expect.arrayContaining([expect.objectContaining(initialUnit)]));
   });
+
+  test('update initial unit', async () => {
+    const initialUnit = {
+      idUnit: 1,
+      name: "FGA"
+    };
+    const expectedName = "Gama";
+    const expectedUnit = {
+      idUnit: initialUnit.idUnit,
+      name: expectedName
+    }
+
+    const updateUnitResponse = await supertest(app).put("/updateUnit").send({
+      idUnit: initialUnit.idUnit,
+      name: expectedName
+    });
+    expect(updateUnitResponse.status).toBe(200);
+    expect(updateUnitResponse.body).toEqual(expect.objectContaining(expectedUnit));
+  });
 });
