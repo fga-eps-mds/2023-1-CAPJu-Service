@@ -44,15 +44,9 @@ describe('role endpoints', () => {
     const response = await supertest(app).get("/role");
     expect(response.status).toBe(200);
 
-    for (const role of allRoles) {
-        expect(response.body.map((role) =>
-          {
-            return role;
-          }
-        )).toEqual(
-            allRoles.map(roleTest => role.idRole === roleTest.idRole)
-        );
-      }
+    expect(response.body).toEqual(expect.arrayContaining(allRoles.map((role) => {
+        return expect.objectContaining(role);
+      })));
   });
 
     test('new role and check by id', async () => {
@@ -117,6 +111,4 @@ describe('role endpoints', () => {
     expect(response.status).toBe(200);
     expect(response.body.idRole).toEqual(newRoleResponse.body.idRole);
   });
-  
-
 });
