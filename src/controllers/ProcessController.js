@@ -53,7 +53,7 @@ class ProcessController {
             idUnit: process.idUnit,
             idStage: process.idStage,
             idPriority: process.idPriority,
-            idFlows: flowProcessesIdFlows
+            idFlow: flowProcessesIdFlows
           });
         }
         return res.status(200).json(processesWithFlows);
@@ -131,7 +131,7 @@ class ProcessController {
   async store(req, res) {
     try {
       let {
-        nickname, finalised, effectiveDate, priority,description, idFlow
+        nickname, effectiveDate, priority, idFlow
       } = req.body;
 
       const recordStatus = validateRecord(req.body.record);
@@ -145,7 +145,6 @@ class ProcessController {
 
       const record = recordStatus.filtered;
 
-      let priorityProcess;
       const flow = await Flow.findByPk(idFlow);
       const flowStages = await FlowStage.findAll({
         where: { idFlow }
@@ -212,8 +211,8 @@ class ProcessController {
 
   async updateProcess(req, res) {
     try {
-      const {idFlow, nickname} = req.body;
-
+      const {idFlow, nickname, priority} = req.body;
+      
       const recordStatus = validateRecord(req.body.record);
 
       if (!recordStatus.valid) {
@@ -239,7 +238,7 @@ class ProcessController {
         return res.status(404).json({error: "Não há este processo"});
       }
 
-      process.set({ nickname, idStage: flowStages[0].idStageA });
+      process.set({ nickname, idStage: flowStages[0].idStageA, idPriority: priority});
 
       await process.save();
 

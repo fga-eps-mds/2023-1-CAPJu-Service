@@ -17,6 +17,11 @@ routes.get('/', (req, res) => {
   });
 });
 
+routes.get(
+  "/priorities",
+  ProcessController.getPriorities
+)
+
 //Rotas de processos
 routes.get(
   "/processes",
