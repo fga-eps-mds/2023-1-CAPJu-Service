@@ -41,7 +41,11 @@ export async function sendEmail() {
 
     if (json.length == 0) {
       console.log("Não há processos atrasados");
-      return;
+      return true;
+    }
+    if(!senha){
+      console.log('Não há senha');
+      return false;
     }
 
     json.forEach((item) => {

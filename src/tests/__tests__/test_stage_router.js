@@ -32,37 +32,6 @@ describe('stage endpoints', () => {
     expect(response.body.name).toBe(testStage.name);
   });
 
-    test('new stage and edit name', async () => {
-        const testUnit = {
-            name: "Unidade Teste"
-          }
-    
-        const newUnitResponse = await supertest(app).post("/newUnit").send(testUnit);
-        expect(newUnitResponse.status).toBe(200);
-    
-        const testStage = {
-            name: "etapa teste",
-            duration: 1,
-            idUnit: newUnitResponse.body.idUnit,
-          };
-    
-        const response = await supertest(app).post("/newStage").send(testStage);
-        expect(response.status).toBe(200);
-
-        const expectStage = {
-            name: "etapa mudada",
-            duration: 1,
-            idUnit: newUnitResponse.body.idUnit,
-        };
-
-    const updateResponse = await supertest(app).put(`/stage`).send({
-        idUnit: newUnitResponse.body.idUnit,
-        name: "etapa mudada"
-    });
-    expect(updateResponse.status).toBe(200);
-    expect(updateResponse.body.name).toEqual(expectStage.name);
-  });
-
     test('new stage and delete it', async () => {
         const testUnit = {
             name: "Unidade Teste"

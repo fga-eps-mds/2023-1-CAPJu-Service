@@ -58,20 +58,6 @@ routes.put("/processNextStage/", protect, ProcessController.nextStage);
 routes.put("/processNewObservation/", protect, ProcessController.newObservation);
 
 //Rotas de Fluxos
-// routes.get(
-//   "/flows",
-//   protect,
-//   authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
-//   FlowController.allFlows
-// );
-// routes.get(
-//   "/flows/:id",
-//   protect,
-//   authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR]),
-//   FlowController.getFlow
-// );
-
-//Rotas de Fluxos
 routes.post(
   "/newFlow",
   FlowController.store
@@ -138,31 +124,10 @@ routes.get(
   StageController.getById
 );
 
-routes.put(
-  "/stage",
-  StageController.update
-);
-
 routes.delete(
   "/deleteStage/:id",
   StageController.delete
 );
-
-
-//Rotas de Etapas
-// routes.get("/unitys", UnityController.allUnitys);
-// routes.get(
-//   "/unityAdmins/:unity",
-//   protect,
-//   authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO]),
-//   UnityController.unityAdmins
-// );
-// routes.post(
-//   "/newUnity",
-//   protect,
-//   authRole([ROLE.DIRETOR]),
-//   UnityController.createUnity
-// );
 
 //  Rotas de units
 routes.post(
@@ -246,40 +211,14 @@ routes.post(
   UserContoller.store
 );
 
-/*routes.get(
-  "/users",
-  UserContoller.index
-);
-routes.get(
-  "/user",
-  UserContoller.getById
-);*/
-
 routes.get(
   "/user/:id",
   UserContoller.getByIdParam
 );
 
-/*routes.put(
-  "/updateUser",
-  UserContoller.update
-);*/
-
-/*routes.delete(
-  "/deleteUser",
-  UserContoller.delete
-);*/
-
 routes.delete(
   "/deleteUser/:id",
   UserContoller.deleteByParam
 );
-
-// routes.post(
-//   "/deleteUnity",
-//   protect,
-//   authRole([ROLE.DIRETOR]),
-//   UnityController.deleteUnity
-// );
 
 export default routes;
