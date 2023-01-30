@@ -32,13 +32,11 @@ export async function getMailContents() {
   }
 }
 
-export function sendEmail() {
+export async function sendEmail() {
   const emails = [];
   let process = [];
 
   let json;
-
-  (async () => {
     json = await getMailContents();
 
     if (json.length == 0) {
@@ -201,6 +199,5 @@ export function sendEmail() {
         return false;
       }
     }
-  })();
   return true;
 }
