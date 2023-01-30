@@ -45,25 +45,6 @@ class StageController {
         }
     }
 
-    async update(req, res) {
-        const { idStage, name } = req.body;
-
-        const stage = await Stage.findByPk(idStage);
-
-        if (!stage) {
-            return res
-              .status(401)
-              .json({ error: 'Esse fluxo não existe!' });
-          } else {
-
-            stage.set({ name: name.toLowerCase() });
-
-              await stage.save();
-
-              return res.json(stage);
-          }
-      }
-
       async delete(req, res) {
         const idStage = req.params.id;
 
