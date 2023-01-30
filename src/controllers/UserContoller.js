@@ -75,9 +75,19 @@ class UserController {
   async allUser(req, res) {
     try {
       if (req.query.accepted) {
-        const accepted = req.query.accepted;
-        let users = await User.findAll({where: { accepted: accepted }});
-        users.map((user) => {
+        const { accepted } = req.query;
+        let users;
+        if (accepted === "true") {
+          users = await User.findAll({where: { accepted: true }});
+        } else if (accepted === "false") {
+          users = await User.findAll({where: { accepted: false }});
+        } else {
+          return res.status(400).json({
+            message: "Parâmetro accepted deve ser 'true' ou 'false'"
+          });
+        }
+
+        users = users.map((user) => {
           return {
             cpf: user.cpf,
             fullName: user.fullName,
@@ -89,9 +99,20 @@ class UserController {
         });
         return res.status(200).json(users);
       } else {
-          let users = await User.findAll();
-          return res.status(200).json(users);
-      }
+        let users = await User.findAll();
+        users = users.map((user) => {
+        return {
+          cpf: user.cpf,
+          fullName: user.fullName,
+          email: user.email,
+          accepted: user.accepted,
+          idUnit: user.idUnit,
+          idRole: user.idRole
+        };
+
+      });
+      return res.status(200).json(users);
+    }
     } catch (error) {
       console.log(error);
       return res.status(500).json({

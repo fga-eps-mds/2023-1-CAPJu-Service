@@ -55,6 +55,14 @@ describe('user endpoints', () => {
       }
     ];
 
+    const expectedTestUsers = testUsers.map((testUser) => {
+      const { password, ...testUserNoPassword } = testUser;
+      return {
+        ...testUserNoPassword,
+        accepted: false
+      };
+    });
+
     for (const testUser of testUsers) {
       const testUserResponse = await supertest(app).post("/newUser").send(testUser);
       expect(testUserResponse.status).toBe(200);
@@ -65,18 +73,66 @@ describe('user endpoints', () => {
 
     // Include the administrator and unaccepted users in the count
     expect(response.body.length).toBe(testUsers.length + 2);
+
+    expect(response.body).toEqual(expect.arrayContaining(expectedTestUsers.map((etu) => {
+      return expect.objectContaining(etu);
+    })));
+  });
+
+  test('new users and list existing accepted and unaccepted', async () => {
+    const testUsers = [
+      {
+        fullName: "Francisco Duarte Lopes",
+        cpf: "75706593256",
+        email: "francisco.dl@gmail.com",
+        password: "fdl123456",
+        idUnit: 1,
+        idRole: 1
+      },
+      {
+        fullName: "Antonio Pereira Soares",
+        cpf: "70102089213",
+        email: "antps@yahoo.com",
+        password: "ffl123456",
+        idUnit: 1,
+        idRole: 2
+      },
+      {
+        fullName: "Lucas Barbosa",
+        cpf: "05363418770",
+        email: "lbarb@gmail.com",
+        password: "fd78D23456",
+        idUnit: 1,
+        idRole: 3
+      }
+    ];
+
+    const adminUser = [{
+      cpf: '12345678901',
+      fullName: 'Usuário Administrador Inicial',
+      email: 'email@email.com',
+      idUnit: 1,
+      accepted: true,
+      idRole: 5,
+    }];
+
     for (const testUser of testUsers) {
-      expect(response.body.map((o) =>
-        {
-          o.cpf = o.cpf.toString();
-          return o;
-        }
-      )).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining(testUser)
-        ])
-      );
+      const testUserResponse = await supertest(app).post("/newUser").send(testUser);
+      expect(testUserResponse.status).toBe(200);
     }
+
+    const responseAccepted = await supertest(app).get("/allUser?accepted=true");
+    expect(responseAccepted.status).toBe(200);
+
+    // Only the administrator is accepted
+    expect(responseAccepted.body.length).toBe(1);
+    expect(responseAccepted.body).toEqual(expect.arrayContaining(adminUser));
+
+    const responseNotAccepted = await supertest(app).get("/allUser?accepted=false");
+    expect(responseAccepted.status).toBe(200);
+
+    // the three created above + initial unaccepted user
+    expect(responseNotAccepted.body.length).toBe(4);
   });
 
   test('new user and check by id', async () => {
