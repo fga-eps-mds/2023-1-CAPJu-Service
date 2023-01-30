@@ -274,6 +274,7 @@ describe('user endpoints', () => {
     expect(response.status).toBe(200);
     expect(response.body.cpf).toEqual(expectedUser.cpf);
   });
+
   test('new user and delete it', async () => {
     const testUser = {
       fullName: "Nomenni Nomesos",
@@ -298,6 +299,36 @@ describe('user endpoints', () => {
     const response = await supertest(app).delete(`/deleteUser/${testUser.cpf}`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual({message: "Usuário apagado com sucesso"});
+
+    const checkUserResponse = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(checkUserResponse.status).toBe(404);
+    expect(checkUserResponse.body).toEqual({ error: 'Usuário não existe' });
+  });
+
+  test('new user and deny the request', async () => {
+    const testUser = {
+      fullName: "Nomenni Nomesos",
+      cpf: "26585841212",
+      email: "ala@bb.com",
+      password: "sfwJ23456",
+      idUnit: 1,
+      idRole: 5
+    };
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole
+    };
+
+    const newUserResponse = await supertest(app).post("/newUser").send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const response = await supertest(app).delete(`/deleteRequest/${testUser.cpf}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({message: "Usuário não aceito foi excluído"});
 
     const checkUserResponse = await supertest(app).get(`/user/${testUser.cpf}`);
     expect(checkUserResponse.status).toBe(404);
