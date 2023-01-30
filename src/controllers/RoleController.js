@@ -39,7 +39,7 @@ class RoleController {
               .json({ error: 'Esse cargo não existe!' });
           } else {
             
-            role.set({ name, idFlow });
+            role.set({ name });
             
               await role.save();
     
