@@ -41,11 +41,18 @@ export async function sendEmail() {
   (async () => {
     json = await getMailContents();
 
+    if (json.length == 0) {
+      console.log("Não há processos atrasados");
+      return;
+    }
+
     json.forEach((item) => {
       emails.push(item.email);
     });
 
-    let emailFilter = emails.filter((email, idx) => emails.indexOf(email) === idx);
+    let emailFilter = emails.filter(
+      (email, idx) => emails.indexOf(email) === idx
+    );
 
     for (let i = 0; i < emailFilter.length; i++) {
       json.forEach((item) => {

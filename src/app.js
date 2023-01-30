@@ -5,7 +5,7 @@ import routes from "./routes.js";
 import Database from "./database/index.js";
 import swaggerFile from "./swagger/swaggerFile.js";
 import cron from "node-cron";
-import Emailer from "./Emailer.js";
+import * as Emailer from "./controllers/Emailer.js";
 
 const app = express();
 
