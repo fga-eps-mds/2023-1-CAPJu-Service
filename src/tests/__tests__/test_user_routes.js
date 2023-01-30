@@ -237,6 +237,43 @@ describe('user endpoints', () => {
     expect(response.body).toEqual({error: "Usuário não existe"});
   });
 
+  test('new user and accept and login', async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "aaa@bb.com",
+      password: "spw123456",
+      idUnit: 1,
+      idRole: 3
+    };
+
+    const newUserResponse = await supertest(app).post("/newUser").send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: true,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole
+    };
+
+    const updateResponse = await supertest(app).post(`/acceptRequest/${testUser.cpf}`);
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.body).toEqual({ message: "Usuário aceito com sucesso" });
+
+    const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(userResponse.status).toBe(200);
+    expect(expectedUser).toEqual(userResponse.body);
+
+    const response = await supertest(app).post('/login').send({
+      cpf: expectedUser.cpf,
+      password: testUser.password
+    });;
+    expect(response.status).toBe(200);
+    expect(response.body.cpf).toEqual(expectedUser.cpf);
+  });
   test('new user and delete it', async () => {
     const testUser = {
       fullName: "Nomenni Nomesos",
