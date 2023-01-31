@@ -6,13 +6,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Download dependencies
-        run: cd src && yarn && cd ..
+        run: yarn
       - name: Check code style
-        run: cd src && yarn prettier --check . && cd ..
+        run: yarn prettier --check src
       - name: Lint Analysis
-        run: cd src && yarn eslint . && cd ..
+        run: yarn eslint src
       - name: Tests
-        run: cd src && yarn test && cd ../
+        run: yarn test
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-22.04
