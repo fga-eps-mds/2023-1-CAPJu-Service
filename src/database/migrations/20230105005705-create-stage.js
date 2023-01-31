@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('stage', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("stage", {
       idStage: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -13,8 +13,8 @@ module.exports = {
       idUnit: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'unit', key: 'idUnit' },
-        onDelete: 'RESTRICT'
+        references: { model: "unit", key: "idUnit" },
+        onDelete: "RESTRICT",
       },
       name: {
         type: Sequelize.STRING(300),
@@ -22,18 +22,18 @@ module.exports = {
       },
       duration: {
         type: Sequelize.SMALLINT,
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
-    if (queryInterface.sequelize.getDialect() === 'sqlite') {
+    if (queryInterface.sequelize.getDialect() === "sqlite") {
       /* SQLite does not support the ADD CONSTRAINT variant of the ALTER TABLE
        * SQL-92 command. Fortunately, unique constraints are implemented in
        * SQLite using unique indexes, so a constraint can be added using the
@@ -51,15 +51,15 @@ module.exports = {
     } else {
       /* Assuming dialect = postgres */
       await queryInterface.sequelize.query(
-        "ALTER TABLE stage \
-        ADD CONSTRAINT \"stage_name_idUnit_uk\" \
-        UNIQUE(\"idUnit\", name)",
+        'ALTER TABLE stage \
+        ADD CONSTRAINT "stage_name_idUnit_uk" \
+        UNIQUE("idUnit", name)',
         { type: Sequelize.QueryTypes.RAW }
       );
     }
   },
 
-  async down (queryInterface, Sequelize) {
-     await queryInterface.dropTable('stage');
-  }
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable("stage");
+  },
 };

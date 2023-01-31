@@ -10,38 +10,32 @@ import { ROLE } from "./schemas/role.js";
 
 const routes = Router();
 
-routes.get('/', (req, res) => {
+routes.get("/", (req, res) => {
   res.json({
-    status: 'OK',
-    message: 'Up and running',
+    status: "OK",
+    message: "Up and running",
   });
 });
 
-routes.get(
-  "/priorities",
-  ProcessController.getPriorities
-)
+routes.get("/priorities", ProcessController.getPriorities);
 
 //Rotas de processos
-routes.get(
-  "/processes",
-  ProcessController.index
-);
+routes.get("/processes", ProcessController.index);
 routes.get(
   "/processes/:idFlow",
   protect,
-  authRole([ROLE.JUIZ, ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ESTAGIARIO, ROLE.ADMINISTRADOR]),
+  authRole([
+    ROLE.JUIZ,
+    ROLE.DIRETOR,
+    ROLE.SERVIDOR,
+    ROLE.ESTAGIARIO,
+    ROLE.ADMINISTRADOR,
+  ]),
   ProcessController.processesInFlow
 );
-routes.get(
-  "/getOneProcess/:id",
-  ProcessController.getById
-);
+routes.get("/getOneProcess/:id", ProcessController.getById);
 
-routes.post(
-  "/newProcess",
-  ProcessController.store
-);
+routes.post("/newProcess", ProcessController.store);
 routes.put(
   "/updateProcess",
   protect,
@@ -55,53 +49,30 @@ routes.delete(
   ProcessController.deleteProcess
 );
 routes.put("/processNextStage/", protect, ProcessController.nextStage);
-routes.put("/processNewObservation/", protect, ProcessController.newObservation);
+routes.put(
+  "/processNewObservation/",
+  protect,
+  ProcessController.newObservation
+);
 
 //Rotas de Fluxos
-routes.post(
-  "/newFlow",
-  FlowController.store
-);
+routes.post("/newFlow", FlowController.store);
 
-routes.get(
-  "/flow/:idFlow/usersToNotify",
-  FlowController.getUsersToNotify
-);
+routes.get("/flow/:idFlow/usersToNotify", FlowController.getUsersToNotify);
 
-routes.get(
-  "/flows/process/:record",
-  FlowController.indexByRecord
-);
+routes.get("/flows/process/:record", FlowController.indexByRecord);
 
-routes.get(
-  "/flows",
-  FlowController.index
-);
+routes.get("/flows", FlowController.index);
 
-routes.get(
-  "/flow/:idFlow",
-  FlowController.getById
-);
+routes.get("/flow/:idFlow", FlowController.getById);
 
-routes.get(
-  "/flowStages",
-  FlowController.getFlowStages
-);
+routes.get("/flowStages", FlowController.getFlowStages);
 
-routes.get(
-  "/flowSequences/:idFlow",
-  FlowController.getByIdWithSequence
-);
+routes.get("/flowSequences/:idFlow", FlowController.getByIdWithSequence);
 
-routes.put(
-  "/flow",
-  FlowController.update
-);
+routes.put("/flow", FlowController.update);
 
-routes.delete(
-  "/flow/:idFlow",
-  FlowController.delete
-);
+routes.delete("/flow/:idFlow", FlowController.delete);
 
 routes.delete(
   "/flow/:idFlow/:idStageA/:idStageB",
@@ -109,88 +80,49 @@ routes.delete(
 );
 
 //Rotas de Etapas
-routes.post(
-  "/newStage",
-  StageController.store
-);
+routes.post("/newStage", StageController.store);
 
-routes.get(
-  "/stages",
-  StageController.index
-);
+routes.get("/stages", StageController.index);
 
-routes.get(
-  "/stage/:id",
-  StageController.getById
-);
+routes.get("/stage/:id", StageController.getById);
 
-routes.delete(
-  "/deleteStage/:id",
-  StageController.delete
-);
+routes.delete("/deleteStage/:id", StageController.delete);
 
 //  Rotas de units
-routes.post(
-  "/newUnit",
-  UnitController.store
-);
+routes.post("/newUnit", UnitController.store);
 
 routes.get("/units", UnitController.index);
 
 routes.put("/setUnitAdmin", UnitController.setUnitAdmin);
 routes.put("/removeUnitAdmin", UnitController.removeUnitAdmin);
 
-routes.get(
-  "/unitAdmins/:id",
-  UnitController.getAdminsByUnitId
-);
+routes.get("/unitAdmins/:id", UnitController.getAdminsByUnitId);
 
-routes.put(
-  "/updateUnit",
-  UnitController.update
-);
+routes.put("/updateUnit", UnitController.update);
 
-routes.delete(
-  "/deleteUnit",
-  UnitController.delete
-);
+routes.delete("/deleteUnit", UnitController.delete);
 
 // rotas de Role
-routes.post(
-  "/newRole",
-  RoleController.store
-);
+routes.post("/newRole", RoleController.store);
 
 routes.get("/role", RoleController.index);
 
-routes.get(
-  "/roleAdmins/:id",
-  RoleController.getById
-);
+routes.get("/roleAdmins/:id", RoleController.getById);
 
-routes.put(
-  "/updateRole",
-  RoleController.update
-);
+routes.put("/updateRole", RoleController.update);
 
-routes.delete(
-  "/deleteRole",
-  RoleController.delete
-);
+routes.delete("/deleteRole", RoleController.delete);
 
 // Rotas de User
 // TODO: Mover para User
 routes.get(
-	"/allUser",
-	protect,
-	authRole([ROLE.ADMINISTRADOR, ROLE.DIRETOR, ROLE.SERVIDOR]),
-	UserContoller.allUser,
+  "/allUser",
+  protect,
+  authRole([ROLE.ADMINISTRADOR, ROLE.DIRETOR, ROLE.SERVIDOR]),
+  UserContoller.allUser
 );
 // TODO: Mover para User
-routes.post(
-  "/login",
-  UserContoller.login
-);
+routes.post("/login", UserContoller.login);
 
 // TODO: Mover para User
 routes.put("/updateUser/:id", UserContoller.updateUser);
@@ -203,22 +135,12 @@ routes.post("/acceptRequest/:id", protect, UserContoller.acceptRequest);
 // TODO: Mover para User
 routes.delete("/deleteRequest/:id", protect, UserContoller.deleteRequest);
 
-
 routes.put("/updateUserRole", UserContoller.updateRole);
 
-routes.post(
-  "/newUser",
-  UserContoller.store
-);
+routes.post("/newUser", UserContoller.store);
 
-routes.get(
-  "/user/:id",
-  UserContoller.getByIdParam
-);
+routes.get("/user/:id", UserContoller.getByIdParam);
 
-routes.delete(
-  "/deleteUser/:id",
-  UserContoller.deleteByParam
-);
+routes.delete("/deleteUser/:id", UserContoller.deleteByParam);
 
 export default routes;

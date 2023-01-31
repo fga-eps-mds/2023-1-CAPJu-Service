@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('process', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("process", {
       record: {
         type: Sequelize.STRING(20),
         primaryKey: true,
@@ -15,38 +15,38 @@ module.exports = {
       },
       effectiveDate: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       idUnit: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'unit', key: 'idUnit' },
-        onDelete: 'RESTRICT'
+        references: { model: "unit", key: "idUnit" },
+        onDelete: "RESTRICT",
       },
       idStage: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'stage', key: 'idStage' },
-        onDelete: 'RESTRICT'
+        references: { model: "stage", key: "idStage" },
+        onDelete: "RESTRICT",
       },
       idPriority: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'priority', key: 'idPriority' },
-        onDelete: 'RESTRICT'
+        references: { model: "priority", key: "idPriority" },
+        onDelete: "RESTRICT",
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('process');
-  }
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable("process");
+  },
 };

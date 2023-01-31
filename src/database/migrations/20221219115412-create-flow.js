@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('flow', { 
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("flow", {
       idFlow: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -13,8 +13,8 @@ module.exports = {
       idUnit: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'unit', key: 'idUnit' },
-        onDelete: 'RESTRICT'
+        references: { model: "unit", key: "idUnit" },
+        onDelete: "RESTRICT",
       },
       name: {
         type: Sequelize.STRING(100),
@@ -22,16 +22,16 @@ module.exports = {
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('flow');
-  }
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable("flow");
+  },
 };

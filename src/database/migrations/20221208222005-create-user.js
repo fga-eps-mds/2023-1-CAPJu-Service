@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("users", {
       cpf: {
         type: Sequelize.STRING(11),
         primaryKey: true,
@@ -15,41 +15,41 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING(300),
-        allowNull: false
+        allowNull: false,
       },
       password: {
         type: Sequelize.STRING(256),
-        allowNull: false
+        allowNull: false,
       },
-	    accepted: {
-            type: Sequelize.BOOLEAN,
-            allowNull: false
-        },
+      accepted: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+      },
 
       idUnit: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'unit', key: 'idUnit' },
-        onDelete: 'RESTRICT'
+        references: { model: "unit", key: "idUnit" },
+        onDelete: "RESTRICT",
       },
       idRole: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'role', key: 'idRole' },
-        onDelete: 'RESTRICT'
+        references: { model: "role", key: "idRole" },
+        onDelete: "RESTRICT",
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('users');
-  }
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable("users");
+  },
 };

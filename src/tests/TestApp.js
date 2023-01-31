@@ -1,4 +1,4 @@
-import swaggerUI from 'swagger-ui-express';
+import swaggerUI from "swagger-ui-express";
 import express from "express";
 import cors from "cors";
 import routes from "../routes.js";
@@ -12,18 +12,15 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(routes);
-app.use(
-  '/api/v1/docs',
-  swaggerUI.serve,
-  swaggerUI.setup(swaggerFile),
-);
+app.use("/api/v1/docs", swaggerUI.serve, swaggerUI.setup(swaggerFile));
 
 let database;
 
 function injectDB(db) {
   database = db;
 
-  database.checkConnection()
+  database
+    .checkConnection()
     // .then(() => console.log("Connected to DB"))
     .catch((error) => console.log(error));
 }

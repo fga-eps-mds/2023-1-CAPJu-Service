@@ -1,4 +1,4 @@
-import { Model , DataTypes } from 'sequelize';
+import { Model, DataTypes } from "sequelize";
 
 class Stage extends Model {
   static init(sequelize) {
@@ -8,22 +8,22 @@ class Stage extends Model {
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
-          allownull: false
+          allownull: false,
         },
         name: DataTypes.STRING(100),
         duration: {
           type: DataTypes.SMALLINT,
-          allowNull: false
+          allowNull: false,
         },
         idUnit: {
           type: DataTypes.INTEGER,
           foreignKey: true,
-          allowNull: false
+          allowNull: false,
         },
       },
       {
         sequelize,
-        tableName: 'stage'
+        tableName: "stage",
       }
     );
 
@@ -31,11 +31,14 @@ class Stage extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
-    this.belongsToMany(models.Flow, { foreignKey: 'idStage', through: 'idFlowStage', as: 'flow' });
-    this.hasMany(models.Process, { foreignKey: 'record', as: 'process' });
+    this.belongsTo(models.Unit, { foreignKey: "idUnit", as: "unit" });
+    this.belongsToMany(models.Flow, {
+      foreignKey: "idStage",
+      through: "idFlowStage",
+      as: "flow",
+    });
+    this.hasMany(models.Process, { foreignKey: "record", as: "process" });
   }
-
 }
 
 export default Stage;
