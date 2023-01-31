@@ -2,7 +2,7 @@ import User from '../models/User.js';
 import jwt from "jsonwebtoken";
 
 const cpfFilter = (cpf) => cpf.replace(/[^0-9]/g, '');
-const jwtToken = process.env.JWT_TOKEN || 'a';
+const jwtToken = process.env.JWT_SECRET || 'ABC';
 
 const generateToken = (id) => {
         return jwt.sign({ id },jwtToken, {
