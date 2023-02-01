@@ -5,7 +5,6 @@ import User from "../models/User.js";
 import FlowUser from "../models/FlowUser.js";
 import FlowProcess from "../models/FlowProcess.js";
 import { QueryTypes } from "sequelize";
-import Database from "../database/index.js";
 
 class FlowController {
   static #stagesSequencesFromFlowStages(flowStages) {
@@ -171,12 +170,14 @@ class FlowController {
     const { idFlow } = req.params;
 
     try {
-      const result = await Database.connection.query(
+      const result = await FlowUser.sequelize.query(
         'SELECT \
-                "flowUser"."idFlow", "flowUser".cpf, users."fullName", users.email, users."idUnit" \
-                FROM "flowUser" \
-                JOIN users ON "flowUser".cpf = users.cpf \
-                WHERE "flowUser"."idFlow" = ?',
+            "flowUser"."idFlow" AS "idFlow", "flowUser".cpf AS cpf, \
+            users."fullName" AS "fullName", users.email AS email, \
+            users."idUnit" AS "idUnit" \
+        FROM "flowUser" \
+        JOIN users ON "flowUser".cpf = users.cpf \
+        WHERE "flowUser"."idFlow" = ?',
         {
           replacements: [idFlow],
           type: QueryTypes.SELECT,
@@ -187,7 +188,8 @@ class FlowController {
     } catch (error) {
       console.log(error);
       res.status(500).json({
-        error: "Impossível obter usuários que devem ser notificados no fluxo",
+        error,
+        message: "Impossível obter usuários que devem ser notificados no fluxo",
       });
     }
   }
