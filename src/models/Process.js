@@ -1,8 +1,8 @@
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes } from "sequelize";
 
 class Process extends Model {
   static init(sequelize) {
-    super.init (
+    super.init(
       {
         record: {
           type: DataTypes.STRING(20),
@@ -15,27 +15,27 @@ class Process extends Model {
         },
         effectiveDate: {
           type: DataTypes.DATE,
-          allowNull: false
+          allowNull: false,
         },
         idUnit: {
           type: DataTypes.INTEGER,
           foreignKey: true,
-          allowNull: false
+          allowNull: false,
         },
         idStage: {
           type: DataTypes.INTEGER,
           foreignKey: false,
-          allowNull: false
+          allowNull: false,
         },
         idPriority: {
           type: DataTypes.INTEGER,
           foreignKey: true,
           allowNull: false,
-        }
+        },
       },
       {
         sequelize,
-        tableName: 'process'
+        tableName: "process",
       }
     );
 
@@ -43,10 +43,17 @@ class Process extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.Unit, { foreignKey: 'idUnit' , as: 'processUnit'});
-    this.belongsTo(models.Priority, { foreignKey: 'idPriority', as: 'processPriority' });
-    this.belongsTo(models.Stage, { foreignKey: 'idStage', as: 'processStage' });
-    this.belongsToMany(models.Flow, { foreignKey: 'record', through: 'idFlowProcess', as: 'process' });
+    this.belongsTo(models.Unit, { foreignKey: "idUnit", as: "processUnit" });
+    this.belongsTo(models.Priority, {
+      foreignKey: "idPriority",
+      as: "processPriority",
+    });
+    this.belongsTo(models.Stage, { foreignKey: "idStage", as: "processStage" });
+    this.belongsToMany(models.Flow, {
+      foreignKey: "record",
+      through: "idFlowProcess",
+      as: "process",
+    });
   }
 }
 

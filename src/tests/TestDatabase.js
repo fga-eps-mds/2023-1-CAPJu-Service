@@ -1,16 +1,16 @@
-import { Sequelize } from 'sequelize';
-import { Umzug, SequelizeStorage } from 'umzug';
+import { Sequelize } from "sequelize";
+import { Umzug, SequelizeStorage } from "umzug";
 
-import Flow from '../models/Flow.js';
-import FlowProcess from '../models/FlowProcess.js';
-import FlowStage from '../models/FlowStage.js';
-import Priority from '../models/Priority.js';
-import Process from '../models/Process.js';
-import Role from '../models/Role.js';
-import Stage from '../models/Stage.js';
-import Unit from '../models/Unit.js';
-import User from '../models/User.js';
-import FlowUser from '../models/FlowUser.js';
+import Flow from "../models/Flow.js";
+import FlowProcess from "../models/FlowProcess.js";
+import FlowStage from "../models/FlowStage.js";
+import Priority from "../models/Priority.js";
+import Process from "../models/Process.js";
+import Role from "../models/Role.js";
+import Stage from "../models/Stage.js";
+import Unit from "../models/Unit.js";
+import User from "../models/User.js";
+import FlowUser from "../models/FlowUser.js";
 
 class Database {
   models = [
@@ -23,16 +23,16 @@ class Database {
     Stage,
     Unit,
     User,
-    FlowUser
+    FlowUser,
   ];
 
   connection;
 
   constructor() {
     this.connection = new Sequelize({
-      dialect: 'sqlite',
-      storage: ':memory:',
-      logging: null
+      dialect: "sqlite",
+      storage: ":memory:",
+      logging: null,
     });
 
     Flow.init(this.connection);
@@ -90,19 +90,19 @@ class Database {
 
     const umzug = new Umzug({
       migrations: {
-        glob: 'src/database/migrations/*.js',
-        resolve: ({name, path, context}) => {
+        glob: "src/database/migrations/*.js",
+        resolve: ({ name, path, context }) => {
           const migration = require(path);
           return {
             name,
             up: async () => migration.up(context, Sequelize),
-            down: async () => migration.down(context, Sequelize)
+            down: async () => migration.down(context, Sequelize),
           };
-        }
+        },
       },
       context: queryInterface,
       storage: sequelizeStorage,
-      logger: null
+      logger: null,
     });
 
     // console.log('Sequelize', Sequelize);
@@ -139,19 +139,19 @@ class Database {
     });*/
     const umzug = new Umzug({
       migrations: {
-        glob: 'src/seeders/migrations/*.js',
-        resolve: ({name, path, context}) => {
+        glob: "src/seeders/migrations/*.js",
+        resolve: ({ name, path, context }) => {
           const migration = require(path);
           return {
             name,
             up: async () => migration.up(context, Sequelize),
-            down: async () => migration.down(context, Sequelize)
+            down: async () => migration.down(context, Sequelize),
           };
-        }
+        },
       },
       context: queryInterface,
       storage: sequelizeStorage,
-      logger: null
+      logger: null,
     });
     //console.log('umzugS', umzug);
 

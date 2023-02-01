@@ -1,4 +1,4 @@
-import { Model , DataTypes } from 'sequelize';
+import { Model, DataTypes } from "sequelize";
 
 class Priority extends Model {
   static init(sequelize) {
@@ -17,7 +17,7 @@ class Priority extends Model {
       },
       {
         sequelize,
-        tableName: 'priority'
+        tableName: "priority",
       }
     );
 
@@ -25,7 +25,7 @@ class Priority extends Model {
   }
 
   static associate(models) {
-    this.hasMany(models.Process, { foreignKey: 'record', as: 'process' });
+    this.hasMany(models.Process, { foreignKey: "record", as: "process" });
   }
 }
 

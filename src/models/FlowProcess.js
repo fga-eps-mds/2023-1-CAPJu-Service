@@ -1,4 +1,4 @@
-import { Model , DataTypes } from 'sequelize';
+import { Model, DataTypes } from "sequelize";
 
 class FlowProcess extends Model {
   static init(sequelize) {
@@ -23,11 +23,11 @@ class FlowProcess extends Model {
         finalised: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
-        }
+        },
       },
       {
         sequelize,
-        tableName: 'flowProcess'
+        tableName: "flowProcess",
       }
     );
 
@@ -35,10 +35,17 @@ class FlowProcess extends Model {
   }
 
   static associate(models) {
-    this.belongsToMany(models.Flow, { foreignKey: 'idFlow', through: 'idFlowStage', as: 'flow' });
-    this.belongsToMany(models.Process, { foreignKey: 'record', through: 'idFlowStage', as: 'process' });
+    this.belongsToMany(models.Flow, {
+      foreignKey: "idFlow",
+      through: "idFlowStage",
+      as: "flow",
+    });
+    this.belongsToMany(models.Process, {
+      foreignKey: "record",
+      through: "idFlowStage",
+      as: "process",
+    });
   }
-
 }
 
 export default FlowProcess;

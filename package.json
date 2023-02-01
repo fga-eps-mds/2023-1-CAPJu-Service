@@ -13,7 +13,8 @@
     "test-seed": "NODE_ENV=test sequelize db:seed:all",
     "shred": "sequelize db:migrate:undo:all",
     "test-shred": "NODE_ENV=test sequelize db:migrate:undo:all",
-    "prettier": "prettier src -w"
+    "prettify": "prettier --write src",
+    "check-format": "prettier --check src"
   },
   "license": "MIT",
   "dependencies": {

@@ -1,17 +1,17 @@
 import dotenv from "dotenv";
-import Sequelize from 'sequelize';
-import config from '../../config/database.js';
+import Sequelize from "sequelize";
+import config from "../../config/database.js";
 // const config = require('../../config/database.js');
-import Flow from '../models/Flow.js';
-import FlowProcess from '../models/FlowProcess.js';
-import FlowStage from '../models/FlowStage.js';
-import Priority from '../models/Priority.js';
-import Process from '../models/Process.js';
-import Role from '../models/Role.js';
-import Stage from '../models/Stage.js';
-import Unit from '../models/Unit.js';
-import User from '../models/User.js';
-import FlowUser from '../models/FlowUser.js';
+import Flow from "../models/Flow.js";
+import FlowProcess from "../models/FlowProcess.js";
+import FlowStage from "../models/FlowStage.js";
+import Priority from "../models/Priority.js";
+import Process from "../models/Process.js";
+import Role from "../models/Role.js";
+import Stage from "../models/Stage.js";
+import Unit from "../models/Unit.js";
+import User from "../models/User.js";
+import FlowUser from "../models/FlowUser.js";
 
 dotenv.config();
 
@@ -26,12 +26,12 @@ const models = [
   Stage,
   Unit,
   User,
-  FlowUser
+  FlowUser,
 ];
 
 // use sequelize-cli defaults
 const getDatabaseEnvironmentType = () => {
-  return process.env.NODE_ENV || 'development'
+  return process.env.NODE_ENV || "development";
 };
 
 class Database {

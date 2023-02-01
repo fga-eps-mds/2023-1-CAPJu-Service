@@ -1,44 +1,47 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-     await queryInterface.bulkInsert(
-       'role',
-       [
-         {
-          name: 'Estagiário',
+  async up(queryInterface, Sequelize) {
+    await queryInterface.bulkInsert(
+      "role",
+      [
+        {
+          name: "Estagiário",
           accessLevel: 4,
           createdAt: new Date(),
-          updatedAt: new Date()
-         },
-         {
-           name: 'Servidor',
-           accessLevel: 3,
+          updatedAt: new Date(),
+        },
+        {
+          name: "Servidor",
+          accessLevel: 3,
           createdAt: new Date(),
-          updatedAt: new Date()
-         },
-         {
-           name: 'Juiz',
-           accessLevel: 2,
+          updatedAt: new Date(),
+        },
+        {
+          name: "Juiz",
+          accessLevel: 2,
           createdAt: new Date(),
-          updatedAt: new Date()
-         },{
-           name: 'Diretor',
-           accessLevel: 1,
+          updatedAt: new Date(),
+        },
+        {
+          name: "Diretor",
+          accessLevel: 1,
           createdAt: new Date(),
-          updatedAt: new Date()
-         },
-         {
-           name: 'Administrador',
-           accessLevel: 5,
+          updatedAt: new Date(),
+        },
+        {
+          name: "Administrador",
+          accessLevel: 5,
           createdAt: new Date(),
-          updatedAt: new Date()
-         }
-       ], {});
+          updatedAt: new Date(),
+        },
+      ],
+      {}
+    );
   },
 
-  async down (queryInterface, Sequelize) {
-     await queryInterface.bulkDelete('role', null, {});
-  }
+  async down(queryInterface, Sequelize) {
+    await queryInterface.bulkDelete("role", null, {});
+  },
 };

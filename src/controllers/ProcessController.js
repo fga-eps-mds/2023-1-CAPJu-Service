@@ -3,44 +3,41 @@ import FlowStage from "../models/FlowStage.js";
 import Priority from "../models/Priority.js";
 import Process from "../models/Process.js";
 import Flow from "../models/Flow.js";
-import Database from '../database/index.js';
-import { QueryTypes } from 'sequelize';
+import Database from "../database/index.js";
+import { QueryTypes } from "sequelize";
 
 const isRecordValid = (record) => {
-	const regex = /^\d{20}$/;
-	return regex.test(record);
+  const regex = /^\d{20}$/;
+  return regex.test(record);
 };
 
 const recordFilter = (record) => {
-	const regex = /[^\d]/g;
-	return record.replace(regex, '');
+  const regex = /[^\d]/g;
+  return record.replace(regex, "");
 };
 
 const validateRecord = (record) => {
   const filtered = recordFilter(record);
-	return {
+  return {
     filtered,
-    valid: isRecordValid(filtered)
-	};
+    valid: isRecordValid(filtered),
+  };
 };
 
 class ProcessController {
-
   async index(req, res) {
     try {
       let processes = await Process.findAll();
 
       if (!processes) {
-        return res
-        .status(404)
-        .json({ error: 'Não há processos' });
+        return res.status(404).json({ error: "Não há processos" });
       } else {
         let processesWithFlows = [];
         for (const process of processes) {
           const flowProcesses = await FlowProcess.findAll({
             where: {
-              record: process.record
-            }
+              record: process.record,
+            },
           });
           const flowProcessesIdFlows = flowProcesses.map((flowProcess) => {
             return flowProcess.idFlow;
@@ -53,7 +50,7 @@ class ProcessController {
             idUnit: process.idUnit,
             idStage: process.idStage,
             idPriority: process.idPriority,
-            idFlow: flowProcessesIdFlows
+            idFlow: flowProcessesIdFlows,
           });
         }
         return res.status(200).json(processesWithFlows);
@@ -61,45 +58,45 @@ class ProcessController {
     } catch (error) {
       return res.status(500).json({
         error,
-        message: "Erro ao buscar processos"
+        message: "Erro ao buscar processos",
       });
     }
   }
 
   async getPriorities(req, res) {
+    try {
+      const priorities = await Priority.findAll({
+        where: {
+          idPriority: [1, 2, 3, 4, 5, 6, 7, 8],
+        },
+      });
 
-    try{
-
-      const priorities = await Priority.findAll({ where : {
-        idPriority: [1,2,3,4,5,6,7,8]
-      }});
-
-      if(!priorities) {
+      if (!priorities) {
         return res
-        .status(404)
-        .json({ error: "Não foi encontrado prioridades"});
-
+          .status(404)
+          .json({ error: "Não foi encontrado prioridades" });
       } else {
-        return res.status(200).json(priorities)
+        return res.status(200).json(priorities);
       }
-      } catch (error) {
-        console.log(error)
-      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getPriorityProcess(req, res) {
-
-    const priorityProcesses = await Process.findAll({ where : {
-      idPriority: [1,2,3,4,5,6,7,8]
-    }});
+    const priorityProcesses = await Process.findAll({
+      where: {
+        idPriority: [1, 2, 3, 4, 5, 6, 7, 8],
+      },
+    });
 
     if (!priorityProcesses) {
-        return res
-          .status(404)
-          .json({ error: 'Não há processos com prioridade legal' });
-      } else {
-          return res.status(200).json(priorityProcesses);
-      }
+      return res
+        .status(404)
+        .json({ error: "Não há processos com prioridade legal" });
+    } else {
+      return res.status(200).json(priorityProcesses);
+    }
   }
 
   async getById(req, res) {
@@ -109,37 +106,32 @@ class ProcessController {
       const process = await Process.findByPk(idProcess);
 
       if (!process) {
-          return res
-            .status(404)
-            .json({
-              error: 'Esse processo não existe!',
-              message: 'Esse processo não existe!'
-            });
-        } else {
-            return res.json(process);
-        }
-    } catch(error) {
+        return res.status(404).json({
+          error: "Esse processo não existe!",
+          message: "Esse processo não existe!",
+        });
+      } else {
+        return res.json(process);
+      }
+    } catch (error) {
       console.log(error);
       return res.status(500).json({
         error,
-        message: `Erro ao procurar processo ${idProcess}`
+        message: `Erro ao procurar processo ${idProcess}`,
       });
     }
   }
 
-
   async store(req, res) {
     try {
-      let {
-        nickname, effectiveDate, priority, idFlow
-      } = req.body;
+      let { nickname, effectiveDate, priority, idFlow } = req.body;
 
       const recordStatus = validateRecord(req.body.record);
 
       if (!recordStatus.valid) {
         return res.status(400).json({
           error: "Registro fora do padrão CNJ",
-          message: `Registro '${req.body?.record}' está fora do padrão CNJ`
+          message: `Registro '${req.body?.record}' está fora do padrão CNJ`,
         });
       }
 
@@ -147,30 +139,36 @@ class ProcessController {
 
       const flow = await Flow.findByPk(idFlow);
       const flowStages = await FlowStage.findAll({
-        where: { idFlow }
+        where: { idFlow },
       });
 
-      if (flow){
+      if (flow) {
         const process = await Process.create({
           record,
           idUnit: flow.idUnit,
           nickname,
           idStage: flowStages[0].idStageA,
           effectiveDate,
-          idPriority: priority
+          idPriority: priority,
         });
         const { idProcess } = process;
         try {
-          if(flow){
-            const flowProcess = await FlowProcess.create({idFlow, record, finalised: false});
-            return res.status(200).json({message:"Criado com sucesso!", flowProcess});
+          if (flow) {
+            const flowProcess = await FlowProcess.create({
+              idFlow,
+              record,
+              finalised: false,
+            });
+            return res
+              .status(200)
+              .json({ message: "Criado com sucesso!", flowProcess });
           }
-        } catch(error) {
+        } catch (error) {
           console.log(error);
           return res.status(500).json(error);
         }
       }
-      return res.status(200).json({process});
+      return res.status(200).json({ process });
     } catch (error) {
       console.log(error);
       return res.status(500).json(error);
@@ -188,37 +186,39 @@ class ProcessController {
     };*/
 
     try {
-      const {idFlow} = req.params;
+      const { idFlow } = req.params;
 
       const processes = await Database.connection.query(
-        "SELECT * FROM \
-        \"flowProcess\" \
-        JOIN \"process\" ON \
-        \"flowProcess\".record = process.record \
-        WHERE \"flowProcess\".\"idFlow\" = ?",
+        'SELECT * FROM \
+        "flowProcess" \
+        JOIN "process" ON \
+        "flowProcess".record = process.record \
+        WHERE "flowProcess"."idFlow" = ?',
         {
           replacements: [idFlow],
-          type: QueryTypes.SELECT
+          type: QueryTypes.SELECT,
         }
       );
 
       return res.status(200).json(processes);
     } catch (error) {
       console.log(error);
-      return res.status(500).json({error, message: "Erro ao buscar processos"});
+      return res
+        .status(500)
+        .json({ error, message: "Erro ao buscar processos" });
     }
   }
 
   async updateProcess(req, res) {
     try {
-      const {idFlow, nickname, priority} = req.body;
-      
+      const { idFlow, nickname, priority } = req.body;
+
       const recordStatus = validateRecord(req.body.record);
 
       if (!recordStatus.valid) {
         return res.status(400).json({
           error: "Registro fora do padrão CNJ",
-          message: `Registro '${req.body?.record}' está fora do padrão CNJ`
+          message: `Registro '${req.body?.record}' está fora do padrão CNJ`,
         });
       }
 
@@ -227,25 +227,29 @@ class ProcessController {
       const process = await Process.findByPk(record);
 
       const flowStages = await FlowStage.findAll({
-        where: {idFlow}
+        where: { idFlow },
       });
 
       if (flowStages.length === 0) {
-        return res.status(404).json({error: "Não há etapas neste fluxo"});
+        return res.status(404).json({ error: "Não há etapas neste fluxo" });
       }
 
       if (!process) {
-        return res.status(404).json({error: "Não há este processo"});
+        return res.status(404).json({ error: "Não há este processo" });
       }
 
-      process.set({ nickname, idStage: flowStages[0].idStageA, idPriority: priority});
+      process.set({
+        nickname,
+        idStage: flowStages[0].idStageA,
+        idPriority: priority,
+      });
 
       await process.save();
 
       const flowProcesses = await FlowProcess.findAll({
         where: {
-          record: process.record
-        }
+          record: process.record,
+        },
       });
 
       for (const fp of flowProcesses) {
@@ -253,7 +257,7 @@ class ProcessController {
         fp.save();
       }
 
-      return res.status(200).json({process, flows: flowProcesses});
+      return res.status(200).json({ process, flows: flowProcesses });
     } catch (error) {
       console.log(error);
       return res.status(500).json(error);
@@ -262,17 +266,21 @@ class ProcessController {
 
   async deleteProcess(req, res) {
     try {
-      await FlowProcess.destroy({ where: {record: req.params.record }});
-      const result = await Process.destroy({ where: {record: req.params.record} });
+      await FlowProcess.destroy({ where: { record: req.params.record } });
+      const result = await Process.destroy({
+        where: { record: req.params.record },
+      });
 
       if (result === 0) {
-        return res.status(404).json({error: `Não há registro ${req.params.record}!`});
+        return res
+          .status(404)
+          .json({ error: `Não há registro ${req.params.record}!` });
       }
 
-      return res.status(200).json({message : "OK" });
+      return res.status(200).json({ message: "OK" });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({error, message: "Impossível apagar"});
+      return res.status(500).json({ error, message: "Impossível apagar" });
     }
   }
 
@@ -282,7 +290,7 @@ class ProcessController {
     if (isNaN(parseInt(to)) || isNaN(parseInt(to)) || isNaN(parseInt(idFlow))) {
       return res.status(400).json({
         error: "Identificadores inválidos",
-        message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`
+        message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
       });
     }
 
@@ -291,8 +299,8 @@ class ProcessController {
         where: {
           idFlow,
           idStageA: from,
-          idStageB: to
-        }
+          idStageB: to,
+        },
       });
       let canAdvance = false;
       if (flowStages?.length > 0) {
@@ -307,37 +315,37 @@ class ProcessController {
       if (!canAdvance) {
         return res.status(409).json({
           error: "Transição impossível",
-          message: `Não há a transição da etapa '${to}' para '${from}' no fluxo '${idFlow}'`
+          message: `Não há a transição da etapa '${to}' para '${from}' no fluxo '${idFlow}'`,
         });
       }
       const process = await Process.update(
         {
           idStage: to,
-          effectiveDate: new Date()
+          effectiveDate: new Date(),
         },
         {
           where: {
             record,
-            idStage: from
-          }
+            idStage: from,
+          },
         }
       );
       console.log(process[0]);
       if (process[0] > 0) {
         return res.status(200).json({
-          message: "Etapa avançada com sucesso"
+          message: "Etapa avançada com sucesso",
         });
       }
 
       return res.status(409).json({
         error: "Impossível avançar etapa",
-        message: `Impossível avançar processo '${record}' para etapa '${to}`
+        message: `Impossível avançar processo '${record}' para etapa '${to}`,
       });
-    } catch(error) {
+    } catch (error) {
       console.log(error);
       return res.status(500).json({
         error,
-        message: `Erro ao avançar processo '${record}' para etapa '${to}`
+        message: `Erro ao avançar processo '${record}' para etapa '${to}`,
       });
     }
   }
@@ -347,25 +355,25 @@ class ProcessController {
 
     try {
       const updateResult = await Database.connection.query(
-        "update \
-          \"flowStage\" \
+        'update \
+          "flowStage" \
         set \
-          \"idStageA\" = ?, \
-          \"idStageB\" = ?, \
+          "idStageA" = ?, \
+          "idStageB" = ?, \
           commentary = ? \
         where \
-          \"idFlowStage\" in ( \
+          "idFlowStage" in ( \
         select \
-          fst.\"idFlowStage\" as \"idFlowStage\" \
+          fst."idFlowStage" as "idFlowStage" \
         from \
-          \"flowProcess\" fp \
-        join \"flowStage\" fst \
+          "flowProcess" fp \
+        join "flowStage" fst \
         on \
-          fst.\"idFlow\" = fp.\"idFlow\" \
+          fst."idFlow" = fp."idFlow" \
         where \
           fp.record = ? \
-          and fst.\"idStageA\" = ? \
-          and fst.\"idStageB\" = ?)",
+          and fst."idStageA" = ? \
+          and fst."idStageB" = ?)',
         {
           replacements: [
             originStage,
@@ -373,21 +381,21 @@ class ProcessController {
             commentary,
             record,
             originStage,
-            destinationStage
+            destinationStage,
           ],
-          type: QueryTypes.UPDATE
+          type: QueryTypes.UPDATE,
         }
       );
 
-      console.log('updateResult = ', updateResult);
+      console.log("updateResult = ", updateResult);
       return res.status(200).json({
-        message: "Comentário adicionado com sucesso"
+        message: "Comentário adicionado com sucesso",
       });
-    } catch(error) {
+    } catch (error) {
       console.log(error);
       return res.status(500).json({
         error,
-        message: "Falha ao adicionar comentário"
+        message: "Falha ao adicionar comentário",
       });
     }
   }

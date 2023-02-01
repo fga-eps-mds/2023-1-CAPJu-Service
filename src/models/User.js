@@ -1,4 +1,4 @@
-import { Model , DataTypes } from 'sequelize';
+import { Model, DataTypes } from "sequelize";
 // import bcrypt from 'bcryptjs';
 
 class User extends Model {
@@ -15,30 +15,30 @@ class User extends Model {
         },
         email: {
           type: DataTypes.STRING(300),
-          allowNull: false
+          allowNull: false,
         },
         password: {
           type: DataTypes.STRING(256),
-          allowNull: false
+          allowNull: false,
         },
         accepted: {
           type: DataTypes.BOOLEAN,
-          allowNull: false
+          allowNull: false,
         },
         idUnit: {
           type: DataTypes.INTEGER,
           foreignKey: true,
-          allowNull: false
+          allowNull: false,
         },
         idRole: {
           type: DataTypes.INTEGER,
           foreignKey: true,
-          allowNull: false
-        }
+          allowNull: false,
+        },
       },
       {
         sequelize,
-        tableName: 'users'
+        tableName: "users",
       }
     );
 
@@ -46,11 +46,14 @@ class User extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
-    this.belongsTo(models.Role, { foreignKey: 'idRole', as: 'role' });
-    this.belongsToMany(models.Flow, { foreignKey: 'cpf', through: 'idFlowUser', as: 'flow' });
+    this.belongsTo(models.Unit, { foreignKey: "idUnit", as: "unit" });
+    this.belongsTo(models.Role, { foreignKey: "idRole", as: "role" });
+    this.belongsToMany(models.Flow, {
+      foreignKey: "cpf",
+      through: "idFlowUser",
+      as: "flow",
+    });
   }
-
 }
 
 export default User;

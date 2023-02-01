@@ -4,8 +4,8 @@ import Database from "./database/index.js";
 
 config();
 
-const listener = app.listen(process.env.PORT || 3333,
-  () => console.log("Server running")
+const listener = app.listen(process.env.PORT || 3333, () =>
+  console.log("Server running")
 );
 
 async function failGracefully() {

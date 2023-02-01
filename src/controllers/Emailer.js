@@ -37,51 +37,51 @@ export async function sendEmail() {
   let process = [];
 
   let json;
-    json = await getMailContents();
+  json = await getMailContents();
 
-    if (json.length == 0) {
-      console.log("Não há processos atrasados");
-      return true;
-    }
-    if(!senha){
-      console.log('Não há senha');
-      return false;
-    }
+  if (json.length == 0) {
+    console.log("Não há processos atrasados");
+    return true;
+  }
+  if (!senha) {
+    console.log("Não há senha");
+    return false;
+  }
 
+  json.forEach((item) => {
+    emails.push(item.email);
+  });
+
+  let emailFilter = emails.filter(
+    (email, idx) => emails.indexOf(email) === idx
+  );
+
+  for (let i = 0; i < emailFilter.length; i++) {
     json.forEach((item) => {
-      emails.push(item.email);
+      if (emailFilter[i] === item.email) {
+        process.push(item);
+      }
+    }); // FIM FOREACH
+    const transport = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "capju.eps.mds@gmail.com",
+        pass: senha,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
 
-    let emailFilter = emails.filter(
-      (email, idx) => emails.indexOf(email) === idx
-    );
-
-    for (let i = 0; i < emailFilter.length; i++) {
-      json.forEach((item) => {
-        if (emailFilter[i] === item.email) {
-          process.push(item);
-        }
-      }); // FIM FOREACH
-      const transport = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-          user: "capju.eps.mds@gmail.com",
-          pass: senha,
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      });
-
-      const __dirname = path.resolve();
-      const message = {
-        from: "capju.eps.mds@gmail.com",
-        to: emailFilter[i],
-        subject: "CAPJU - relatório de processos atrasados",
-        text: "Olá, esse é um e-mail automático para informar os processos atrasados.",
-        html: `
+    const __dirname = path.resolve();
+    const message = {
+      from: "capju.eps.mds@gmail.com",
+      to: emailFilter[i],
+      subject: "CAPJU - relatório de processos atrasados",
+      text: "Olá, esse é um e-mail automático para informar os processos atrasados.",
+      html: `
               <!DOCTYPE html>
               <html lang="en">
           <head>
@@ -177,31 +177,31 @@ export async function sendEmail() {
             </div>
           </body>
         </html>`,
-        attachments: [
-          {
-            filename: "capju.png",
-            path: __dirname + "/src/assets/capju.png",
-            cid: "capju",
-          },
-          {
-            filename: "justica_federal.png",
-            path: __dirname + "/src/assets/justica_federal.png",
-            cid: "justica_federal",
-          },
-          {
-            filename: "UnB.png",
-            path: __dirname + "/src/assets/UnB.png",
-            cid: "UnB",
-          },
-        ],
-      };
-      try {
-        transport.sendMail(message);
-        process = [];
-      } catch (err) {
-        console.log("Error occurred. " + err.message);
-        return false;
-      }
+      attachments: [
+        {
+          filename: "capju.png",
+          path: __dirname + "/src/assets/capju.png",
+          cid: "capju",
+        },
+        {
+          filename: "justica_federal.png",
+          path: __dirname + "/src/assets/justica_federal.png",
+          cid: "justica_federal",
+        },
+        {
+          filename: "UnB.png",
+          path: __dirname + "/src/assets/UnB.png",
+          cid: "UnB",
+        },
+      ],
+    };
+    try {
+      transport.sendMail(message);
+      process = [];
+    } catch (err) {
+      console.log("Error occurred. " + err.message);
+      return false;
     }
+  }
   return true;
 }
