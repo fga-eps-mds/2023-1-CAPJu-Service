@@ -100,24 +100,8 @@ class FlowController {
         },
       });
 
-      let sequences = [];
-      let stages = [];
-
-      if (flowStages.length > 0) {
-        for (const flowStage of flowStages) {
-          sequences.push({
-            from: flowStage.idStageA,
-            commentary: flowStage.commentary,
-            to: flowStage.idStageB,
-          });
-          if (!stages.includes(flowStage.idStageA)) {
-            stages.push(flowStage.idStageA);
-          }
-          if (!stages.includes(flowStage.idStageB)) {
-            stages.push(flowStage.idStageB);
-          }
-        }
-      }
+      const { stages, sequences } =
+        FlowController.#stagesSequencesFromFlowStages(flowStages);
 
       const flowSequence = {
         idFlow: flow.idFlow,
