@@ -205,41 +205,41 @@ class FlowController {
     const { name, idUnit, sequences, idUsersToNotify } = req.body;
     try {
       for (const idUser of idUsersToNotify) {
-        const user = await User.findByPk(idUser);
+        const user = await User.findOne({
+          where: { cpf: idUser, idUnit }
+        });
 
         if (!user) {
           return res
-            .status(401)
-            .json({ error: `Usuário '${idUser}' não existe` });
+            .status(404)
+            .json({ message: `Usuário '${idUser}' não existe na unidade '${idUnit}'` });
         }
       }
 
       if (sequences.length < 1) {
         return res
-          .status(401)
-          .json({ error: "Necessário pelo menos duas etapas!" });
+          .status(400)
+          .json({ message: "Necessário pelo menos duas etapas!" });
       } else {
         for (const sequence of sequences) {
-          const idStageA = sequence.from;
-          const idStageB = sequence.to;
-          const { commentary } = sequence;
+          const {from: idStageA, to: idStageB} = sequence;
 
           if (idStageA == idStageB) {
             return res
-              .status(401)
-              .json({ error: "Sequências devem ter início e fim diferentes" });
+              .status(400)
+              .json({ message: "Sequências devem ter início e fim diferentes" });
           }
 
           const stageA = await Stage.findByPk(idStageA);
           if (!stageA) {
-            return res.status(401).json({
-              error: `Não existe a etapa com identificador '${idStageA}'`,
+            return res.status(404).json({
+              message: `Não existe a etapa com identificador '${idStageA}'`,
             });
           }
           const stageB = await Stage.findByPk(idStageB);
           if (!stageB) {
-            return res.status(401).json({
-              error: `Não existe a etapa com identificador '${idStageB}'`,
+            return res.status(404).json({
+              message: `Não existe a etapa com identificador '${idStageB}'`,
             });
           }
         }
@@ -247,7 +247,7 @@ class FlowController {
         const idFlow = flow.idFlow;
 
         for (const sequence of sequences) {
-          const flowStage = await FlowStage.create({
+          await FlowStage.create({
             idFlow,
             idStageA: sequence.from,
             idStageB: sequence.to,
@@ -256,7 +256,7 @@ class FlowController {
         }
 
         for (const idUser of idUsersToNotify) {
-          const flowUser = await FlowUser.create({
+          await FlowUser.create({
             cpf: idUser,
             idFlow,
           });
