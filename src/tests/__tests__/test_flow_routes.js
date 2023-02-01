@@ -115,5 +115,24 @@ describe("flow endpoints", () => {
         )
       )
     );
+
+    const usersToNotifyResponses = await Promise.all(
+      expectedTestFlows.map(
+        async ({ idFlow }) =>
+          await supertest(app).get(`/flow/${idFlow}/usersToNotify`)
+      )
+    );
+    usersToNotifyResponses.forEach((userToNotifyResponse) =>
+      expect(userToNotifyResponse.status).toBe(200)
+    );
+    expect(
+      usersToNotifyResponses.map(({ body }) =>
+        body.usersToNotify.map(({ cpf }) => cpf)
+      )
+    ).toEqual(
+      expect.arrayContaining(
+        testFlows.map((testFlow) => testFlow.idUsersToNotify)
+      )
+    );
   });
 });
