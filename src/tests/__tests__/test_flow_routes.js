@@ -11,25 +11,29 @@ describe("flow endpoints", () => {
     injectDB(database);
   });
 
-  test('two new flows', async () => {
+  test("two new flows", async () => {
     const testStages = [
       {
-      name: "st0",
-      duration: 1,
-      idUnit: 1
-    },{
-      name: "st1",
-      duration: 2,
-      idUnit: 1
-    }, {
-      name: "st2",
-      duration: 3,
-      idUnit: 1
-    }
+        name: "st0",
+        duration: 1,
+        idUnit: 1,
+      },
+      {
+        name: "st1",
+        duration: 2,
+        idUnit: 1,
+      },
+      {
+        name: "st2",
+        duration: 3,
+        idUnit: 1,
+      },
     ];
 
     for (const testStage of testStages) {
-      const newStageResponse = await supertest(app).post("/newStage").send(testStage);
+      const newStageResponse = await supertest(app)
+        .post("/newStage")
+        .send(testStage);
       expect(newStageResponse.status).toBe(200);
     }
 
@@ -41,26 +45,29 @@ describe("flow endpoints", () => {
           {
             from: 1,
             to: 2,
-            commentary: null
-          }
+            commentary: null,
+          },
         ],
-        idUsersToNotify: ['12345678901']
-      },{
+        idUsersToNotify: ["12345678901"],
+      },
+      {
         name: "flow1",
         idUnit: 1,
         sequences: [
           {
             from: 2,
             to: 3,
-            commentary: null
-          }
+            commentary: null,
+          },
         ],
-        idUsersToNotify: ['12345678901']
-      }
-    ]
+        idUsersToNotify: ["12345678901"],
+      },
+    ];
 
     for (const testFlow of testFlows) {
-      const newFlowResponse = await supertest(app).post("/newFlow").send(testFlow);
+      const newFlowResponse = await supertest(app)
+        .post("/newFlow")
+        .send(testFlow);
       expect(newFlowResponse.status).toBe(200);
     }
   });

@@ -206,13 +206,13 @@ class FlowController {
     try {
       for (const idUser of idUsersToNotify) {
         const user = await User.findOne({
-          where: { cpf: idUser, idUnit }
+          where: { cpf: idUser, idUnit },
         });
 
         if (!user) {
-          return res
-            .status(404)
-            .json({ message: `Usuário '${idUser}' não existe na unidade '${idUnit}'` });
+          return res.status(404).json({
+            message: `Usuário '${idUser}' não existe na unidade '${idUnit}'`,
+          });
         }
       }
 
@@ -222,12 +222,12 @@ class FlowController {
           .json({ message: "Necessário pelo menos duas etapas!" });
       } else {
         for (const sequence of sequences) {
-          const {from: idStageA, to: idStageB} = sequence;
+          const { from: idStageA, to: idStageB } = sequence;
 
           if (idStageA == idStageB) {
-            return res
-              .status(400)
-              .json({ message: "Sequências devem ter início e fim diferentes" });
+            return res.status(400).json({
+              message: "Sequências devem ter início e fim diferentes",
+            });
           }
 
           const stageA = await Stage.findByPk(idStageA);
