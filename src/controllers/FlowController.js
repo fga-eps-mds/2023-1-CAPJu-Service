@@ -8,6 +8,27 @@ import { QueryTypes } from "sequelize";
 import Database from "../database/index.js";
 
 class FlowController {
+  static #stagesSequencesFromFlowStages(flowStages) {
+    let sequences = [];
+    let stages = [];
+    if (flowStages.length > 0) {
+      for (const { idStageA: from, commentary, idStageB: to } of flowStages) {
+        sequences.push({
+          from,
+          commentary,
+          to,
+        });
+        if (!stages.includes(from)) {
+          stages.push(from);
+        }
+        if (!stages.includes(to)) {
+          stages.push(to);
+        }
+      }
+    }
+    return { stages, sequences };
+  }
+
   async indexByRecord(req, res) {
     const { record } = req.params;
 
@@ -46,24 +67,8 @@ class FlowController {
           },
         });
 
-        let sequences = [];
-        let stages = [];
-
-        if (flowStages.length > 0) {
-          for (let i = 0; i < flowStages.length; i++) {
-            sequences.push({
-              from: flowStages[i].idStageA,
-              commentary: flowStages[i].commentary,
-              to: flowStages[i].idStageB,
-            });
-            if (!stages.includes(flowStages[i].idStageA)) {
-              stages.push(flowStages[i].idStageA);
-            }
-            if (!stages.includes(flowStages[i].idStageB)) {
-              stages.push(flowStages[i].idStageB);
-            }
-          }
-        }
+        const { stages, sequences } =
+          FlowController.#stagesSequencesFromFlowStages(flowStages);
 
         const flowSequence = {
           idFlow: flow.idFlow,
@@ -79,7 +84,9 @@ class FlowController {
       return res.status(200).json(flowsWithSequences);
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ error: "Impossível obter fluxos" });
+      return res
+        .status(500)
+        .json({ error, message: "Impossível obter fluxos" });
     }
   }
 
