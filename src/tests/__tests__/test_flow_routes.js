@@ -99,5 +99,21 @@ describe("flow endpoints", () => {
         )
       )
     );
+
+    const flowResponses = await Promise.all(
+      expectedTestFlows.map(
+        async ({ idFlow }) => await supertest(app).get(`/flow/${idFlow}`)
+      )
+    );
+    flowResponses.forEach((flowResponse) =>
+      expect(flowResponse.status).toBe(200)
+    );
+    expect(flowResponses.map(({ body }) => body)).toEqual(
+      expect.arrayContaining(
+        expectedTestFlows.map((expectedTestFlow) =>
+          expect.objectContaining(expectedTestFlow)
+        )
+      )
+    );
   });
 });
