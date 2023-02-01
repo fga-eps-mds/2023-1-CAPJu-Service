@@ -35,7 +35,6 @@ export async function getMailContents() {
 export async function sendEmail() {
   const emails = [];
   let process = [];
-
   let json;
   json = await getMailContents();
 
