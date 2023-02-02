@@ -278,17 +278,19 @@ class FlowController {
       const flow = await Flow.findByPk(idFlow);
 
       if (!flow) {
-        return res.status(401).json({ error: "Esse fluxo não existe!" });
+        return res
+          .status(404)
+          .json({ message: `Fluxo '${idFlow} não existe!` });
       } else {
         flow.set({ name });
 
         await flow.save();
         const flowStage = await FlowStage.destroy({
-          where: { idFlow: idFlow },
+          where: { idFlow },
         });
 
         const flowUser = await FlowUser.destroy({
-          where: { idFlow: idFlow },
+          where: { idFlow },
         });
 
         for (const idUser of idUsersToNotify) {
@@ -296,36 +298,36 @@ class FlowController {
 
           if (!user) {
             return res
-              .status(401)
-              .json({ error: `Usuário '${idUser}' não existe` });
+              .status(404)
+              .json({ message: `Usuário '${idUser}' não existe` });
           }
         }
 
         if (sequences.length < 1) {
           return res
-            .status(401)
-            .json({ error: "Necessário pelo menos duas etapas!" });
+            .status(400)
+            .json({ message: "Necessário pelo menos duas etapas!" });
         } else {
           for (const sequence of sequences) {
             const idStageA = sequence.from;
             const idStageB = sequence.to;
 
             if (idStageA == idStageB) {
-              return res.status(401).json({
-                error: "Sequências devem ter início e fim diferentes",
+              return res.status(400).json({
+                message: "Sequências devem ter início e fim diferentes",
               });
             }
 
             const stageA = await Stage.findByPk(idStageA);
             if (!stageA) {
-              return res.status(401).json({
-                error: `Não existe a etapa com identificador '${idStageA}'`,
+              return res.status(404).json({
+                message: `Não existe a etapa com identificador '${idStageA}'`,
               });
             }
             const stageB = await Stage.findByPk(idStageB);
             if (!stageB) {
-              return res.status(401).json({
-                error: `Não existe a etapa com identificador '${idStageB}'`,
+              return res.status(404).json({
+                message: `Não existe a etapa com identificador '${idStageB}'`,
               });
             }
           }
@@ -357,7 +359,7 @@ class FlowController {
       }
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ error: "Impossível criar fluxo" });
+      return res.status(500).json({ error, message: "Impossível criar fluxo" });
     }
   }
 
