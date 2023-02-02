@@ -12,11 +12,7 @@ class FlowController {
     let stages = [];
     if (flowStages.length > 0) {
       for (const { idStageA: from, commentary, idStageB: to } of flowStages) {
-        sequences.push({
-          from,
-          commentary,
-          to,
-        });
+        sequences.push({ from, commentary, to });
         if (!stages.includes(from)) {
           stages.push(from);
         }
@@ -33,9 +29,7 @@ class FlowController {
 
     try {
       const flowProcesses = await FlowProcess.findAll({
-        where: {
-          record,
-        },
+        where: { record },
       });
 
       if (flowProcesses.length > 0) {
@@ -61,9 +55,7 @@ class FlowController {
       let flowsWithSequences = [];
       for (const flow of flows) {
         const flowStages = await FlowStage.findAll({
-          where: {
-            idFlow: flow.idFlow,
-          },
+          where: { idFlow: flow.idFlow },
         });
 
         const { stages, sequences } =
@@ -94,9 +86,7 @@ class FlowController {
     try {
       const flow = await Flow.findByPk(idFlow);
       const flowStages = await FlowStage.findAll({
-        where: {
-          idFlow: flow.idFlow,
-        },
+        where: { idFlow: flow.idFlow },
       });
 
       const { stages, sequences } =
@@ -130,9 +120,7 @@ class FlowController {
       }
 
       const flowStages = await FlowStage.findAll({
-        where: {
-          idFlow,
-        },
+        where: { idFlow },
       });
 
       if (flowStages.length === 0) {
