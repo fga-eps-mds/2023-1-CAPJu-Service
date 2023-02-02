@@ -162,13 +162,22 @@ class FlowController {
   }
 
   async getFlowStages(req, res) {
-    const flowStages = await FlowStage.findAll();
+    try {
+      const flowStages = await FlowStage.findAll();
 
-    if (!flowStages) {
-      return res.status(401).json({ error: "Não há fluxos ligados a etapas" });
+      if (!flowStages) {
+        return res
+          .status(404)
+          .json({ message: "Não há fluxos ligados a etapas" });
+      }
+
+      return res.status(200).json(flowStages);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: "Erro ao ler fluxos ligados a etapas" });
     }
-
-    return res.status(200).json(flowStages);
   }
 
   async getUsersToNotify(req, res) {
