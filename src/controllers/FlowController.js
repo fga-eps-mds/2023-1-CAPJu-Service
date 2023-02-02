@@ -123,37 +123,42 @@ class FlowController {
   async getByIdWithSequence(req, res) {
     const { idFlow } = req.params;
 
-    const flow = await Flow.findByPk(idFlow);
-    if (!flow) {
-      return res.status(401).json({ error: "Esse fluxo não existe" });
-    }
+    try {
+      const flow = await Flow.findByPk(idFlow);
+      if (!flow) {
+        return res.status(404).json({ message: `Fluxo ${idFlow} não existe` });
+      }
 
-    const flowStages = await FlowStage.findAll({
-      where: {
-        idFlow,
-      },
-    });
-
-    if (flowStages.length === 0) {
-      return res.status(401).json({ error: "Este fluxo não tem sequências" });
-    }
-
-    let sequences = [];
-
-    for (let i = 0; i < flowStages.length; i++) {
-      sequences.push({
-        from: flowStages[i].idStageA,
-        commentary: flowStages[i].commentary,
-        to: flowStages[i].idStageB,
+      const flowStages = await FlowStage.findAll({
+        where: {
+          idFlow,
+        },
       });
-    }
 
-    return res.status(200).json({
-      idFlow: flow.idFlow,
-      name: flow.name,
-      idUnit: flow.idUnit,
-      sequences: sequences,
-    });
+      if (flowStages.length === 0) {
+        return res
+          .status(404)
+          .json({ message: `Fluxo ${idFlow} não tem sequências` });
+      }
+
+      let sequences = [];
+
+      for (const { idStageA: from, commentary, idStageB: to } of flowStages) {
+        sequences.push({ from, commentary, to });
+      }
+
+      return res.status(200).json({
+        idFlow: flow.idFlow,
+        name: flow.name,
+        idUnit: flow.idUnit,
+        sequences: sequences,
+      });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: "Impossível ler sequências" });
+    }
   }
 
   async getFlowStages(req, res) {
