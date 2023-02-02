@@ -149,5 +149,21 @@ describe("flow endpoints", () => {
         )
       )
     );
+
+    const flowStageResponse = await supertest(app).get("/flowStages");
+    expect(flowStageResponse.status).toBe(200);
+    expect(
+      flowStageResponse.body.map(({ idStageA, commentary, idStageB }) => ({
+        idStageA,
+        commentary,
+        idStageB,
+      }))
+    ).toEqual(
+      expectedTestFlows
+        .flatMap(({ sequences }) => sequences)
+        .map(({ from: idStageA, commentary, to: idStageB }) =>
+          expect.objectContaining({ idStageA, commentary, idStageB })
+        )
+    );
   });
 });
