@@ -177,4 +177,128 @@ describe("flow endpoints", () => {
     expect(flowsByRecordResponse.status).toBe(404);
     expect(flowsByRecordResponse.body).toEqual(expectedFlowsByRecord);
   });
+
+  test("Create flow and delete a stage", async () => {
+    const testStages = [
+      {
+        name: "st0",
+        duration: 1,
+        idUnit: 1,
+      },
+      {
+        name: "st1",
+        duration: 2,
+        idUnit: 1,
+      },
+      {
+        name: "st2",
+        duration: 3,
+        idUnit: 1,
+      },
+      {
+        name: "st3",
+        duration: 4,
+        idUnit: 1,
+      },
+    ];
+
+    for (const testStage of testStages) {
+      const newStageResponse = await supertest(app)
+        .post("/newStage")
+        .send(testStage);
+      expect(newStageResponse.status).toBe(200);
+    }
+
+    const testFlows = [
+      {
+        name: "flow0",
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: null },
+          { from: 2, to: 3, commentary: null },
+          { from: 3, to: 4, commentary: null },
+        ],
+        idUsersToNotify: ["12345678901"],
+      },
+    ];
+
+    const expectedTestFlows = testFlows.map((testFlow, index) => {
+      let stages = [];
+      for (const { from, to } of testFlow.sequences) {
+        if (!stages.includes(from)) {
+          stages.push(from);
+        }
+        if (!stages.push(to)) {
+          stages.push(to);
+        }
+      }
+      return {
+        idFlow: index + 1,
+        name: testFlow.name,
+        idUnit: testFlow.idUnit,
+        sequences: testFlow.sequences,
+        stages,
+      };
+    });
+
+    for (const testFlow of testFlows) {
+      const newFlowResponse = await supertest(app)
+        .post("/newFlow")
+        .send(testFlow);
+      expect(newFlowResponse.status).toBe(200);
+    }
+
+    const flowsResponse = await supertest(app).get("/flows");
+    expect(flowsResponse.status).toBe(200);
+    expect(flowsResponse.body).toEqual(
+      expect.arrayContaining(
+        expectedTestFlows.map((expectedTestFlow) =>
+          expect.objectContaining(expectedTestFlow)
+        )
+      )
+    );
+
+    const deletedStage = { from: 2, to: 3, commentary: null };
+
+    const testFlowsDeletedStage = [
+      {
+        name: "flow0",
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: null },
+          { from: 3, to: 4, commentary: null },
+        ],
+        idUsersToNotify: ["12345678901"],
+      },
+    ];
+
+    const expectedTestFlowsDeletedStage = testFlowsDeletedStage.map(
+      (testFlow, index) => {
+        let stages = [];
+        for (const { from, to } of testFlow.sequences) {
+          if (!stages.includes(from)) {
+            stages.push(from);
+          }
+          if (!stages.push(to)) {
+            stages.push(to);
+          }
+        }
+        return {
+          idFlow: index + 1,
+          name: testFlow.name,
+          idUnit: testFlow.idUnit,
+          sequences: testFlow.sequences,
+          stages,
+        };
+      }
+    );
+
+    const deleteStageResponse = await supertest(app).delete(
+      `/flow/1/${deletedStage.from}/${deletedStage.to}`
+    );
+    expect(deleteStageResponse.status).toBe(200);
+    expect(deleteStageResponse.body).toEqual({
+      message: `Desassociação entre fluxo '1' e etapas '${deletedStage.from}' e '${deletedStage.to}' concluída`,
+    });
+  });
 });
