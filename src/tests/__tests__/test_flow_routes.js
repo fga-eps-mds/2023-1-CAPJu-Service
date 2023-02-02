@@ -11,7 +11,7 @@ describe("flow endpoints", () => {
     injectDB(database);
   });
 
-  test("two new flows", async () => {
+  test("two new flows without processes", async () => {
     const testStages = [
       {
         name: "st0",
@@ -165,5 +165,16 @@ describe("flow endpoints", () => {
           expect.objectContaining({ idStageA, commentary, idStageB })
         )
     );
+
+    const record = 1;
+    const expectedFlowsByRecord = {
+      error: "Não há fluxos com esse processo",
+      message: `Não há fluxos com o processo '${record}'`,
+    };
+    const flowsByRecordResponse = await supertest(app).get(
+      `/flows/process/${record}`
+    );
+    expect(flowsByRecordResponse.status).toBe(404);
+    expect(flowsByRecordResponse.body).toEqual(expectedFlowsByRecord);
   });
 });
