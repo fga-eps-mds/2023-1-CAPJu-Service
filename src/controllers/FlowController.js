@@ -400,23 +400,27 @@ class FlowController {
   async deleteFlowStage(req, res) {
     const { idFlow, idStageA, idStageB } = req.params;
 
-    const affectedRows = await FlowStage.destroy({
-      where: {
-        idFlow,
-        idStageA,
-        idStageB,
-      },
-    });
+    try {
+      const affectedRows = await FlowStage.destroy({
+        where: { idFlow, idStageA, idStageB },
+      });
 
-    if (affectedRows === 0) {
-      return res.status(401).json({
-        error: `Não há relacionameto entre o fluxo '${idFlow}' e as etapas '${idStageA}' e '${idStageB}'`,
+      if (affectedRows === 0) {
+        return res.status(404).json({
+          message: `Não há relacionameto entre o fluxo '${idFlow}' e as etapas '${idStageA}' e '${idStageB}'`,
+        });
+      }
+
+      return res.status(200).json({
+        message: `Desassociação entre fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}' concluída`,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: `Falha ao desassociar fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}'`,
       });
     }
-
-    return res.status(200).json({
-      message: `Desassociação entre fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}' concluída`,
-    });
   }
 }
 
