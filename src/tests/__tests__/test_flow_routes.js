@@ -134,5 +134,20 @@ describe("flow endpoints", () => {
         testFlows.map((testFlow) => testFlow.idUsersToNotify)
       )
     );
+
+    const flowSequencesResponses = await Promise.all(
+      expectedTestFlows.map(
+        async ({ idFlow }) =>
+          await supertest(app).get(`/flowSequences/${idFlow}`)
+      )
+    );
+    flowSequencesResponses.forEach(({ status }) => expect(status).toBe(200));
+    expect(flowSequencesResponses.map(({ body }) => body)).toEqual(
+      expect.arrayContaining(
+        expectedTestFlows.map(({ idFlow, name, idUnit, sequences }) =>
+          expect.objectContaining({ idFlow, name, idUnit, sequences })
+        )
+      )
+    );
   });
 });
