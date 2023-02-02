@@ -13,21 +13,9 @@ describe("flow endpoints", () => {
 
   test("two new flows without processes", async () => {
     const testStages = [
-      {
-        name: "st0",
-        duration: 1,
-        idUnit: 1,
-      },
-      {
-        name: "st1",
-        duration: 2,
-        idUnit: 1,
-      },
-      {
-        name: "st2",
-        duration: 3,
-        idUnit: 1,
-      },
+      { name: "st0", duration: 1, idUnit: 1 },
+      { name: "st1", duration: 2, idUnit: 1 },
+      { name: "st2", duration: 3, idUnit: 1 },
     ];
 
     for (const testStage of testStages) {
@@ -41,25 +29,13 @@ describe("flow endpoints", () => {
       {
         name: "flow0",
         idUnit: 1,
-        sequences: [
-          {
-            from: 1,
-            to: 2,
-            commentary: null,
-          },
-        ],
+        sequences: [{ from: 1, to: 2, commentary: null }],
         idUsersToNotify: ["12345678901"],
       },
       {
         name: "flow1",
         idUnit: 1,
-        sequences: [
-          {
-            from: 2,
-            to: 3,
-            commentary: null,
-          },
-        ],
+        sequences: [{ from: 2, to: 3, commentary: null }],
         idUsersToNotify: ["12345678901"],
       },
     ];
@@ -180,26 +156,10 @@ describe("flow endpoints", () => {
 
   test("Create flow and delete a stage", async () => {
     const testStages = [
-      {
-        name: "st0",
-        duration: 1,
-        idUnit: 1,
-      },
-      {
-        name: "st1",
-        duration: 2,
-        idUnit: 1,
-      },
-      {
-        name: "st2",
-        duration: 3,
-        idUnit: 1,
-      },
-      {
-        name: "st3",
-        duration: 4,
-        idUnit: 1,
-      },
+      { name: "st0", duration: 1, idUnit: 1 },
+      { name: "st1", duration: 2, idUnit: 1 },
+      { name: "st2", duration: 3, idUnit: 1 },
+      { name: "st3", duration: 4, idUnit: 1 },
     ];
 
     for (const testStage of testStages) {
