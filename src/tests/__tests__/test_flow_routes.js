@@ -269,4 +269,93 @@ describe("flow endpoints", () => {
       message: "Fluxo não encontrado",
     });
   });
+
+  test("Try updating a flow", async () => {
+    const testStages = [
+      { name: "st0", duration: 1, idUnit: 1 },
+      { name: "st1", duration: 2, idUnit: 1 },
+      { name: "st2", duration: 3, idUnit: 1 },
+      { name: "st3", duration: 4, idUnit: 1 },
+      { name: "st4", duration: 5, idUnit: 1 },
+    ];
+
+    for (const testStage of testStages) {
+      const newStageResponse = await supertest(app)
+        .post("/newStage")
+        .send(testStage);
+      expect(newStageResponse.status).toBe(200);
+    }
+
+    const testFlows = [
+      {
+        name: "flow0",
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: null },
+          { from: 2, to: 3, commentary: null },
+          { from: 3, to: 4, commentary: null },
+          { from: 4, to: 5, commentary: null },
+        ],
+        idUsersToNotify: ["12345678901"],
+      },
+    ];
+
+    for (const testFlow of testFlows) {
+      const newFlowResponse = await supertest(app)
+        .post("/newFlow")
+        .send(testFlow);
+      expect(newFlowResponse.status).toBe(200);
+    }
+
+    const updatedName = "fluxo_0";
+
+    const updatedTestFlows = [
+      {
+        idFlow: 1,
+        name: updatedName,
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: "12" },
+          { from: 2, to: 3, commentary: "23" },
+          { from: 3, to: 4, commentary: "34" },
+          { from: 4, to: 5, commentary: "45" },
+        ],
+        idUsersToNotify: ["12345678901"],
+      },
+    ];
+
+    const expectedTestFlows = updatedTestFlows.map((testFlow, index) => {
+      let stages = [];
+      for (const { from, to } of testFlow.sequences) {
+        if (!stages.includes(from)) {
+          stages.push(from);
+        }
+        if (!stages.push(to)) {
+          stages.push(to);
+        }
+      }
+      return {
+        idFlow: index + 1,
+        name: testFlow.name,
+        idUnit: testFlow.idUnit,
+        sequences: testFlow.sequences,
+        stages,
+      };
+    });
+
+    for (const flow of updatedTestFlows) {
+      const updateResponse = await supertest(app).put("/flow").send(flow);
+      expect(updateResponse.status).toBe(200);
+    }
+
+    const flowsResponse = await supertest(app).get("/flows");
+    expect(flowsResponse.status).toBe(200);
+    expect(flowsResponse.body).toEqual(
+      expect.arrayContaining(
+        expectedTestFlows.map((expectedTestFlow) =>
+          expect.objectContaining(expectedTestFlow)
+        )
+      )
+    );
+  });
 });
