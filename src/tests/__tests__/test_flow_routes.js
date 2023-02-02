@@ -261,4 +261,12 @@ describe("flow endpoints", () => {
       message: `Desassociação entre fluxo '1' e etapas '${deletedStage.from}' e '${deletedStage.to}' concluída`,
     });
   });
+
+  test("Try deleting an inexistent flow", async () => {
+    const deleteFlowResponse = await supertest(app).delete("/flow/1");
+    expect(deleteFlowResponse.status).toBe(404);
+    expect(deleteFlowResponse.body).toEqual({
+      message: "Fluxo não encontrado",
+    });
+  });
 });
