@@ -320,11 +320,11 @@ class FlowController {
         const { idUnit } = flow;
 
         await flow.save();
-        const flowStage = await FlowStage.destroy({
+        await FlowStage.destroy({
           where: { idFlow },
         });
 
-        const flowUser = await FlowUser.destroy({
+        await FlowUser.destroy({
           where: { idFlow },
         });
 
