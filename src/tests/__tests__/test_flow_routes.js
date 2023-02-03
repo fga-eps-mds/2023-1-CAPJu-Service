@@ -270,6 +270,56 @@ describe("flow endpoints", () => {
     });
   });
 
+  test("Delete flows", async () => {
+    const testStages = [
+      { name: "st0", duration: 1, idUnit: 1 },
+      { name: "st1", duration: 2, idUnit: 1 },
+      { name: "st2", duration: 3, idUnit: 1 },
+      { name: "st3", duration: 4, idUnit: 1 },
+    ];
+
+    for (const testStage of testStages) {
+      const newStageResponse = await supertest(app)
+        .post("/newStage")
+        .send(testStage);
+      expect(newStageResponse.status).toBe(200);
+    }
+
+    const testFlows = [
+      {
+        name: "flow0",
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: null },
+          { from: 2, to: 3, commentary: null },
+          { from: 3, to: 4, commentary: null },
+        ],
+        idUsersToNotify: ["12345678901"],
+      },
+    ];
+
+    for (const testFlow of testFlows) {
+      const newFlowResponse = await supertest(app)
+        .post("/newFlow")
+        .send(testFlow);
+      expect(newFlowResponse.status).toBe(200);
+    }
+
+    const deletedResponse = await supertest(app).delete("/flow/1");
+    expect(deletedResponse.status).toBe(200);
+    expect(deletedResponse.body).toEqual({
+      message: "Fluxo apagado com sucesso",
+    });
+
+    const flowsResponse = await supertest(app).get("/flows");
+    expect(flowsResponse.status).toBe(200);
+    expect(flowsResponse.body).toEqual([]);
+
+    const flowResponse = await supertest(app).get("/flow/1");
+    expect(flowResponse.status).toBe(404);
+    expect(flowResponse.body).toEqual({ message: "Não há fluxo '1'" });
+  });
+
   test("Try updating a flow", async () => {
     const testStages = [
       { name: "st0", duration: 1, idUnit: 1 },
