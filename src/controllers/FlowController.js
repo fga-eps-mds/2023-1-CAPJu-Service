@@ -174,6 +174,10 @@ class FlowController {
     const { idFlow } = req.params;
     try {
       const flow = await Flow.findByPk(idFlow);
+      if (!flow) {
+        return res.status(404).json({ message: `Não há fluxo '${idFlow}'` });
+      }
+
       const flowStages = await FlowStage.findAll({
         where: { idFlow: flow.idFlow },
       });
@@ -360,13 +364,15 @@ class FlowController {
       await FlowUser.destroy({ where: { idFlow } });
       const rows = await Flow.destroy({ where: { idFlow } });
       if (rows > 0) {
-        return res.status(200).json({ message: "Apagado com sucesso" });
+        return res.status(200).json({ message: "Fluxo apagado com sucesso" });
       } else {
         return res.status(404).json({ message: "Fluxo não encontrado" });
       }
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ error, message: "Impossível apagar" });
+      return res
+        .status(500)
+        .json({ error, message: "Impossível apagar fluxo" });
     }
   }
 
