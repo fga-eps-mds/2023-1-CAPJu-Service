@@ -50,67 +50,67 @@ class FlowController {
         message: "Necessário pelo menos duas etapas!",
         json: null,
       };
-    } else {
-      for (const sequence of sequences) {
-        const { from: idStageA, to: idStageB } = sequence;
-
-        if (idStageA == idStageB) {
-          return {
-            status: 400,
-            message: "Sequências devem ter início e fim diferentes",
-            json: null,
-          };
-        }
-
-        const stageA = await Stage.findByPk(idStageA);
-        if (!stageA) {
-          return {
-            status: 404,
-            message: `Não existe a etapa com identificador '${idStageA}'`,
-            json: null,
-          };
-        }
-        const stageB = await Stage.findByPk(idStageB);
-        if (!stageB) {
-          return {
-            status: 404,
-            message: `Não existe a etapa com identificador '${idStageB}'`,
-            json: null,
-          };
-        }
-      }
-
-      if (!flow) {
-        flow = await Flow.create({ name, idUnit });
-      }
-
-      const { idFlow } = flow;
-
-      for (const sequence of sequences) {
-        await FlowStage.create({
-          idFlow,
-          idStageA: sequence.from,
-          idStageB: sequence.to,
-          commentary: sequence.commentary,
-        });
-      }
-
-      for (const idUser of idUsersToNotify) {
-        await FlowUser.create({ cpf: idUser, idFlow });
-      }
-
-      return {
-        status: 200,
-        message: null,
-        json: {
-          idFlow: idFlow,
-          name: flow.name,
-          idUnit: idUnit,
-          sequences,
-          usersToNotify: idUsersToNotify,
-        },
-      };
     }
+
+    for (const sequence of sequences) {
+      const { from: idStageA, to: idStageB } = sequence;
+
+      if (idStageA == idStageB) {
+        return {
+          status: 400,
+          message: "Sequências devem ter início e fim diferentes",
+          json: null,
+        };
+      }
+
+      const stageA = await Stage.findByPk(idStageA);
+      if (!stageA) {
+        return {
+          status: 404,
+          message: `Não existe a etapa com identificador '${idStageA}'`,
+          json: null,
+        };
+      }
+      const stageB = await Stage.findByPk(idStageB);
+      if (!stageB) {
+        return {
+          status: 404,
+          message: `Não existe a etapa com identificador '${idStageB}'`,
+          json: null,
+        };
+      }
+    }
+
+    if (!flow) {
+      flow = await Flow.create({ name, idUnit });
+    }
+
+    const { idFlow } = flow;
+
+    for (const sequence of sequences) {
+      await FlowStage.create({
+        idFlow,
+        idStageA: sequence.from,
+        idStageB: sequence.to,
+        commentary: sequence.commentary,
+      });
+    }
+
+    for (const idUser of idUsersToNotify) {
+      await FlowUser.create({ cpf: idUser, idFlow });
+    }
+
+    return {
+      status: 200,
+      message: null,
+      json: {
+        idFlow: idFlow,
+        name: flow.name,
+        idUnit: idUnit,
+        sequences,
+        usersToNotify: idUsersToNotify,
+      },
+    };
   }
 
   async indexByRecord(req, res) {
