@@ -1,6 +1,8 @@
 import { dataAtualFormatada, getMailContents, sendEmail } from "../../controllers/Emailer";
 import Database from "../../database/index.js";
 
+const senha = process.env;
+
 const mailContents = [
   {
     id_flow: 4,
@@ -40,15 +42,18 @@ const mailContents = [
   },
 ];
 
-jest.mock('../../controllers/Emailer.js', () => {
-  return {
-    dataAtualFormatada: jest.fn().mockImplementation(() => "04/11/2022"),
-    getMailContents: jest.fn().mockImplementation(() => mailContents ),
-    sendEmail: jest.fn().mockImplementation(() => true),
-  };
+beforeEach(async () => {
+  jest.clearAllMocks();
 });
 
-
+// mock Database.connection
+jest.mock("../../database/index.js", () => {
+  return {
+    connection: {
+      query: jest.fn().mockImplementation(() => mailContents),
+    },
+  };
+});
 
 describe("Test for function dataAtualFormatada", () => {
   test("formats date correctly", () => {
@@ -64,8 +69,7 @@ describe("getMailContents", () => {
     const result = await getMailContents();
     expect(result).toEqual(mailContents);
   });
-
-  it("retorna uma mensagem de erro em caso de falha", async () => {
+  it("execpt", async () => {
     try {
       const error = new Error("Erro ao acessar o banco de dados");
       Database.connection.query = jest.fn().mockRejectedValue(error);
@@ -74,15 +78,29 @@ describe("getMailContents", () => {
         error,
         message: "Erro ao obter conteúdo dos emails",
       });
-    } catch (error){
+    } catch (error) {
       expect(true);
     }
   });
 });
 
-describe("sendEmail", () => {
-  it("Send email true", async () => {
+describe("Test for function sendEmail", () => {
+  it("send email correctly", async () => {
+    const result = sendEmail();
+    expect(result).toBeTruthy();
+  });
+  it("Retorno dos console.log", async () => {
+    const mockGetMailContents = jest.fn().mockResolvedValue([]);
+    console.log = jest.fn();
+    await sendEmail(mockGetMailContents);
+    expect(console.log).toHaveBeenCalledTimes(2);
+  });
+  it("should log 'Não há senha' and return false if password is not set", async () => {
+    process.env.CAPJU_EMAIL_PASSWORD = "";
+    console.log = jest.fn();
     const result = await sendEmail();
-    expect(result).toEqual(true);
-  })
+    expect(console.log).toHaveBeenCalledWith("Não há senha");
+    expect(result).toBe(false);
+    delete process.env.CAPJU_EMAIL_PASSWORD;
+  });
 });
