@@ -1,0 +1,47 @@
+{
+  "/newUnit": {
+    "post": {
+      "summary": "Cria uma nova unidade",
+      "description": "Cria uma nova unidade",
+      "produces": ["application/json"],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "Successfull operation",
+          "schema": {
+            "Unit": {
+              "type": "object",
+              "properties": {
+                "idUnit": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "updatedAt": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

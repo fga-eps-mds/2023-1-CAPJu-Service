@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-dotenv.config();
+/*import dotenv from "dotenv";
+dotenv.config();*/
 
 jest.mock("../middleware/authMiddleware", () => {
   return {
