@@ -1,4 +1,8 @@
-import { dataAtualFormatada, getMailContents, sendEmail } from "../../controllers/Emailer";
+import {
+  dataAtualFormatada,
+  getMailContents,
+  sendEmail,
+} from "../../controllers/Emailer";
 import Database from "../../database/index.js";
 
 const senha = process.env;
