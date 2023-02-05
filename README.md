@@ -4,8 +4,6 @@
   <img src="https://i.imgur.com/0KsqIUe.png" alt="logo">
 </div>
 
-[![Service-CI](https://github.com/fga-eps-mds/2022-1-CAPJu-Service/actions/workflows/CI.yaml/badge.svg)](https://github.com/fga-eps-mds/2022-1-CAPJu-Service/actions/workflows/CI.yaml) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-CAPJu-Service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-CAPJu-Service)
-
 ## Sobre Projetos
 
 O CAPJu é abreviação para _"Controle e Acompanhamento de Processos da Justiça"_, no qual trata-se de uma projeto de código aberto que tem como objetivo ajudar os usuários da 4ª vara cível da Justiça Federal na realização de gerenciar os processos.
@@ -16,97 +14,49 @@ O CAPJu é uma aplicação _Web_ compatível com qualquer navegador.
 
 ## Tecnologias
 
-<img src="https://download.logo.wine/logo/Node.js/Node.js-Logo.wine.png" alt="nodeJS" height="80" width="auto"/><img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmiro.medium.com%2Fmax%2F5000%2F1*M1XoId5pZaVJiIDAMDTDiw.png&f=1&nofb=1" alt="Express" height="50" width="100"/><img src="https://logos-download.com/wp-content/uploads/2016/09/MongoDB_logo_Mongo_DB.png" alt="MongoBD" height="auto" width="120"/><img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/mongoose/mongoose.png" alt="Mogoose" height="80" width="auto"/><img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Flogos-download.com%2Fwp-content%2Fuploads%2F2016%2F09%2FReact_logo_logotype_emblem.png&f=1&nofb=1" alt="ReactJS" height="60" width="auto"/><img src="https://avatars.githubusercontent.com/u/40133106?s=200&v=4" alt="Docsify" height="60" width="auto"/>
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Sequelize](https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=Sequelize&logoColor=white)
+![Yarn](https://img.shields.io/badge/yarn-%232C8EBB.svg?style=for-the-badge&logo=yarn&logoColor=white)
+<!-- ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) -->
 
 Este é o repositório foi utilizado o seguinte para seu desenvolvimento:
 
-- [Node.js](https://nodejs.org/en/) (Latest Version) Como ambiente de execução de JavaScript.
+- [Node.js](https://nodejs.org/en/) (Versão 14 ou superior) Como ambiente de execução de JavaScript.
 - [Express.js](https://expressjs.com/) Como framework de servidor e camada de controller.
-- [MongoDB](https://www.mongodb.com/) Como camada de banco de dados
-- [Mongoose](https://mongoosejs.com/) Como camada "ODM" / model
-
-## Demais Repositórios
-
-- [Doc](https://github.com/fga-eps-mds/2022-1-CAPJu-Doc)
-- [User](https://github.com/fga-eps-mds/2022-1-CAPJu-User)
-- [Interface](https://github.com/fga-eps-mds/2022-1-CAPJu-Interface)
+- [Postgres](https://www.postgresql.org/) (Versão 14 ou superior) Como camada de banco de dados
+- [Sequelize](https://sequelize.org/) Como camada "ODM" / model
 
 ## Instalação
+### Configurando .env
 
-A aplicação encontra-se em homologação acessando o seguinte [LINK](https://capju.vercel.app/)
+Configure o arquivo .env dos repositórios service e user-new igual abaixo:
 
-### Executando as coisas localmente
-
-Quer ver o projeto funcionando em sua máquina?
-
-Você precisará ter o [NodeJS](https://nodejs.org/en/) e o [Yarn](https://yarnpkg.com/) previamente instalados.
-
-E o projeto foi implementado em máquinas com sistemas operacionais de distribuição Linux, portanto os passos encontrados a seguir mostram orientações de sistemas Linux.
-
-Em caso tentativa de execução em outro sistema operacional como, o Windows, recomenda-se uma pesquisa breve. E os usuários do MacOS certamente podem pagar alguém para descobrir como fazer isso.
-
-Será necessário que adicione uma variavel em um arquivo `.env` dentro na pasta raiz do projeto com nome `REACT_APP_DEV=true` para que possa executar na porta 3000 do serviço local
-
-_Abra http://localhost:3000 para ver em seu navegador._
-
-**Executando os Serviços**
-
-Nos repositórios _2022-1-CAPJu-Service_ e _2022-1-CAPJu-User_:
-
-```bash
-$ cd ~/your/directory/
-$ git clone https://github.com/fga-eps-mds/2022-1-CAPJu-Service.git
-$ cd 2022-1-CAPJu-Service
+```
+POSTGRES_HOST=
+POSTGRES_PORT=
+POSTGRES_DATABASE=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+JWT_SECRET=
 ```
 
-```bash
-$ cd ~/your/directory/
-$ git clone https://github.com/fga-eps-mds/2022-1-CAPJu-User.git
-$ cd 2022-1-CAPJu-User
+### Instalado bibliotecas do node
+
+Para instalar as bibliotecas de cada repositorio basta apenas dar o seguinte comando
+
 ```
-
-Instale as dependências do NodeJs
-
-```bash
-$ yarn install
+yarn install
 ```
+## Executando o projeto
 
-Execute o servidor
+Para executar o projeto é recomendar executar os comandos na ordem de repositórios de back-end primeiro e front-end ao final. E cada um em um terminal diferente
 
-```bash
-$ yarn start
 ```
-
-Caso exista um serviço MongoDB em nuvem, adicione a string de conexão a um arquivo `.env` dentro na pasta raiz do projeto com nome `MONGODB_URI`
-
-Caso não seja configurada uma string de conexão personalizada, a aplicação se conectará à porta 27017 do serviço local
-
-No arquvo `.env` também será necessário que adicione um string com nome `JWT_SECRET` para realização autenticação do usuário
-
-<br>
-
-No repositórios _2022-1-CAPJu-Interface_:
-
-```bash
-$ cd ~/your/directory/
-$ git clone https://github.com/fga-eps-mds/2022-1-CAPJu-Interface.git
-$ cd 2022-1-CAPJu-Interface
+yarn start
 ```
-
-Instale as dependencias.
-
-```bash
-$ yarn install
-```
-
-Inicie a aplicação
-
-```bash
-$ yarn start
-```
-
-<br>
-
 ## Testes
 
 Para rodar os testes execulte:
@@ -115,7 +65,7 @@ Para rodar os testes execulte:
 $ yarn test
 ```
 
-### Instalando de Dependecias
+## Instalando de Dependecias
 
 Pode ser utilizado o seguinte comando para inserir novas dependencias no sistema
 
@@ -125,18 +75,18 @@ $ yarn add "nome_da_dependencia"
 
 ### Deployment
 
-[GitHub Actions](https://github.com/fga-eps-mds/2022-1-CAPJu-Service/actions).
+[GitHub Actions](https://github.com/fga-eps-mds/2022-2-CAPJu-Service/actions).
 
 ## Contribuição
 
-Certifique-se de ler o [Guia de Contribuição](https://github.com/fga-eps-mds/2022-1-CAPJu-Doc/blob/main/.github/CONTRIBUTING.md) antes de realizar qualquer atividade no projeto!
+Certifique-se de ler o [Guia de Contribuição](https://github.com/fga-eps-mds/2022-2-CAPJu-Doc/blob/main/.github/CONTRIBUTING.md) antes de realizar qualquer atividade no projeto!
 
 ## Licença
 
-O CAPJu está sob as regras aplicadas na licença [MIT](https://github.com/fga-eps-mds/2022-1-CAPJu-Doc/blob/main/LICENSE)
+O CAPJu está sob as regras aplicadas na licença [MIT](https://github.com/fga-eps-mds/2022-2-CAPJu-Doc/blob/main/LICENSE)
 
 ## Contribuidores
 
-<a href="https://github.com/fga-eps-mds/2022-1-CAPJu-Service/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=fga-eps-mds/2022-1-CAPJu-Service" />
+<a href="https://github.com/fga-eps-mds/2022-2-CAPJu-Service/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=fga-eps-mds/2022-2-CAPJu-Service" />
 </a>
