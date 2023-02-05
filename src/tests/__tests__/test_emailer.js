@@ -64,7 +64,7 @@ describe("Test for function dataAtualFormatada", () => {
     const input = "2022-11-05";
     const result = dataAtualFormatada(input);
 
-    expect(result).toEqual("04/11/2022");
+    expect(result).toEqual("05/11/2022");
   });
 });
 
