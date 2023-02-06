@@ -8,9 +8,9 @@
 
 O CAPJu é abreviação para _"Controle e Acompanhamento de Processos da Justiça"_, no qual trata-se de uma projeto de código aberto que tem como objetivo ajudar os usuários da 4ª vara cível da Justiça Federal na realização de gerenciar os processos.
 
-Este repositório, em especial, é totalmente dedicado à manutenção dos detalhes do Microserviço Service do projeto. Sinta-se livre para contribuir, mas antes leia o guia de contribuição.
+Este repositório, em especial, é totalmente dedicado à manutenção dos detalhes do Microsserviço Service do projeto. Sinta-se livre para contribuir, mas antes leia o guia de contribuição.
 
-O CAPJu é uma aplicação _Web_ compatível com qualquer navegador.
+O CAPJu é uma aplicação _Web_ compatível com qualquer navegador. O microsserviço Service requer uma máquina com uma instalação válida do NodeJS.
 
 ## Tecnologias
 
@@ -32,7 +32,7 @@ Este é o repositório foi utilizado o seguinte para seu desenvolvimento:
 ## Instalação
 ### Configurando .env
 
-Configure o arquivo .env dos repositórios service e user-new igual abaixo:
+Configure o arquivo .env dos repositórios service e user-new igual abaixo, lembrando de configurá-las conforme o ambiente:
 
 ```
 POSTGRES_HOST=
@@ -41,25 +41,28 @@ POSTGRES_DATABASE=
 POSTGRES_USER=
 POSTGRES_PASSWORD=
 JWT_SECRET=
+CAPJU_EMAIL_PASSWORD=
 ```
+
+A variável `JWT_SECRET` deve ser idêntica à presente nas configurações do repositório de *front-end*.
 
 ### Instalado bibliotecas do node e criando/populando banco
 
-Para instalar as bibliotecas de cada repositorio basta apenas dar o seguinte comando
+Para instalar as bibliotecas de cada repositório basta apenas dar o seguinte comando
 
 ```
 yarn install && yarn migration && yarn seed
 ```
 ## Execute o projeto
 
-Para executar o projeto é recomendar executar os comandos na ordem de repositórios de back-end primeiro e front-end ao final. E cada um em um terminal diferente
+Para executar o projeto é necessário executar os comandos na ordem de repositórios de back-end primeiro e front-end ao final, sendo cada um em um terminal diferente
 
 ```
 yarn start
 ```
 ## Testes
 
-Para rodar os testes execulte:
+Para rodar os testes execute:
 
 ```bash
 $ yarn test
@@ -67,7 +70,7 @@ $ yarn test
 
 ## Instalando de Dependecias
 
-Pode ser utilizado o seguinte comando para inserir novas dependencias no sistema
+Pode ser utilizado o seguinte comando para inserir novas dependências no sistema
 
 ```bash
 $ yarn add "nome_da_dependencia"
