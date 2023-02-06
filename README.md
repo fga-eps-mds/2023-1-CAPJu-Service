@@ -27,7 +27,7 @@ Este é o repositório foi utilizado o seguinte para seu desenvolvimento:
 - [Node.js](https://nodejs.org/en/) (Versão 14 ou superior) Como ambiente de execução de JavaScript.
 - [Express.js](https://expressjs.com/) Como framework de servidor e camada de controller.
 - [Postgres](https://www.postgresql.org/) (Versão 14 ou superior) Como camada de banco de dados
-- [Sequelize](https://sequelize.org/) Como camada "ODM" / model
+- [Sequelize](https://sequelize.org/).
 
 ## Instalação
 ### Configurando .env
@@ -50,7 +50,7 @@ Para instalar as bibliotecas de cada repositorio basta apenas dar o seguinte com
 ```
 yarn install
 ```
-## Executando o projeto
+## Execute o projeto
 
 Para executar o projeto é recomendar executar os comandos na ordem de repositórios de back-end primeiro e front-end ao final. E cada um em um terminal diferente
 
