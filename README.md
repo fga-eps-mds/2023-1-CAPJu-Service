@@ -24,7 +24,7 @@ O CAPJu é uma aplicação _Web_ compatível com qualquer navegador.
 
 Este é o repositório foi utilizado o seguinte para seu desenvolvimento:
 
-- [Node.js](https://nodejs.org/en/) (Versão 14 ou superior) Como ambiente de execução de JavaScript.
+- [Node.js](https://nodejs.org/en/) (Versão 14) Como ambiente de execução de JavaScript.
 - [Express.js](https://expressjs.com/) Como framework de servidor e camada de controller.
 - [Postgres](https://www.postgresql.org/) (Versão 14 ou superior) Como camada de banco de dados
 - [Sequelize](https://sequelize.org/).
@@ -43,12 +43,12 @@ POSTGRES_PASSWORD=
 JWT_SECRET=
 ```
 
-### Instalado bibliotecas do node
+### Instalado bibliotecas do node e criando/populando banco
 
 Para instalar as bibliotecas de cada repositorio basta apenas dar o seguinte comando
 
 ```
-yarn install
+yarn install && yarn migration && yarn seed
 ```
 ## Execute o projeto
 
