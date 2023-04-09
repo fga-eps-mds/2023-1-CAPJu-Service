@@ -78,18 +78,18 @@ $ yarn add "nome_da_dependencia"
 
 ### Deployment
 
-[GitHub Actions](https://github.com/fga-eps-mds/2022-2-CAPJu-Service/actions).
+[GitHub Actions](https://github.com/fga-eps-mds/2023-1-CAPJu-Service/actions).
 
 ## Contribuição
 
-Certifique-se de ler o [Guia de Contribuição](https://github.com/fga-eps-mds/2022-2-CAPJu-Doc/blob/main/.github/CONTRIBUTING.md) antes de realizar qualquer atividade no projeto!
+Certifique-se de ler o [Guia de Contribuição](https://github.com/fga-eps-mds/2023-1-CAPJu-Doc/blob/main/.github/CONTRIBUTING.md) antes de realizar qualquer atividade no projeto!
 
 ## Licença
 
-O CAPJu está sob as regras aplicadas na licença [MIT](https://github.com/fga-eps-mds/2022-2-CAPJu-Doc/blob/main/LICENSE)
+O CAPJu está sob as regras aplicadas na licença [MIT](https://github.com/fga-eps-mds/2023-1-CAPJu-Doc/blob/main/LICENSE)
 
 ## Contribuidores
 
-<a href="https://github.com/fga-eps-mds/2022-2-CAPJu-Service/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=fga-eps-mds/2022-2-CAPJu-Service" />
+<a href="https://github.com/fga-eps-mds/2023-1-CAPJu-Service/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=fga-eps-mds/2023-1-CAPJu-Service" />
 </a>
