@@ -48,4 +48,35 @@ export const authRole = (roleArray) => (req, res, next) => {
   });
 };
 
-export { protect };
+async function tokenToUser(req){
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    try {
+      // Get token from header
+      token = req.headers.authorization.split(" ")[1];
+
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Get user from the token
+      req.user = await User.findByPk(decoded.id);
+      if (req.user.accepted === false) {
+        throw new Error();
+      }
+
+      return req.user;
+    } catch (error) {
+      console.log(error);
+      return res.status(401).send();
+    }
+  }
+
+  if (!token) {
+    return res.status(401).send();
+  }
+}
+export { protect, tokenToUser };
