@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import FlowUser from "../models/FlowUser.js";
 import FlowProcess from "../models/FlowProcess.js";
 import { QueryTypes } from "sequelize";
+import { tokenToUser } from "../middleware/authMiddleware.js";
 
 class FlowController {
   static #stagesSequencesFromFlowStages(flowStages) {
@@ -140,7 +141,14 @@ class FlowController {
 
   async index(req, res) {
     try {
-      const flows = await Flow.findAll();
+
+      req.user = await tokenToUser(req);
+      const { idUnit: idUnit } = req.user;
+      
+      const flows = await Flow.findAll({
+        where: { idUnit: idUnit },
+      });
+
       let flowsWithSequences = [];
       for (const flow of flows) {
         const flowStages = await FlowStage.findAll({
