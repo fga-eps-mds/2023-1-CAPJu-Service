@@ -2,8 +2,11 @@ import Flow from "../models/Flow.js";
 import Stage from "../models/Stage.js";
 
 class StageController {
+
   async index(req, res) {
-    const stages = await Stage.findAll();
+    const stages = await Stage.findAll({
+      where: { idUnit: idUnit }
+    });
 
     if (!stages) {
       return res.status(401).json({ error: "Não Existem fluxos" });
