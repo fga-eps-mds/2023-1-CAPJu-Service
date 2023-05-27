@@ -1,3 +1,4 @@
+import { tokenToUser } from "../middleware/authMiddleware.js";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 
@@ -78,13 +79,14 @@ class UserController {
 
   async allUser(req, res) {
     try {
+      const { idUnit } = await tokenToUser(req);
       if (req.query.accepted) {
         const { accepted } = req.query;
         let users;
         if (accepted === "true") {
-          users = await User.findAll({ where: { accepted: true } });
+          users = await User.findAll({ where: { accepted: true, idUnit } });
         } else if (accepted === "false") {
-          users = await User.findAll({ where: { accepted: false } });
+          users = await User.findAll({ where: { accepted: false, idUnit } });
         } else {
           return res.status(400).json({
             message: "Parâmetro accepted deve ser 'true' ou 'false'",
@@ -103,7 +105,9 @@ class UserController {
         });
         return res.status(200).json(users);
       } else {
-        let users = await User.findAll();
+        let users = await User.findAll({
+          where: { idUnit },
+        });
         users = users.map((user) => {
           return {
             cpf: user.cpf,
