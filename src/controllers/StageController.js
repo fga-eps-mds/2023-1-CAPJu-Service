@@ -1,9 +1,14 @@
-import Flow from "../models/Flow.js";
 import Stage from "../models/Stage.js";
+import { tokenToUser } from "../middleware/authMiddleware.js";
 
 class StageController {
+
   async index(req, res) {
-    const stages = await Stage.findAll();
+    req.user = await tokenToUser(req);
+    const { idUnit: idUnit } = req.user;
+    const stages = await Stage.findAll({
+      where: { idUnit: idUnit }
+    });
 
     if (!stages) {
       return res.status(401).json({ error: "Não Existem fluxos" });
