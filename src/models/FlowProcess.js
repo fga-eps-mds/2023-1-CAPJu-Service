@@ -24,6 +24,13 @@ class FlowProcess extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
         },
+        status: {
+          type: DataTypes.ENUM({
+              values: ['inProgress', 'archived','finished','notStarted']
+          }),
+          allowNull: false,
+          defaultValue: "notStarted",
+        },
       },
       {
         sequelize,

@@ -42,6 +42,9 @@ class ProcessController {
           const flowProcessesIdFlows = flowProcesses.map((flowProcess) => {
             return flowProcess.idFlow;
           });
+          const flowProcessesStatus = flowProcesses.map((flowProcess) => {
+            return flowProcess.status;
+          });
 
           processesWithFlows.push({
             record: process.record,
@@ -51,6 +54,7 @@ class ProcessController {
             idStage: process.idStage,
             idPriority: process.idPriority,
             idFlow: flowProcessesIdFlows,
+            status: flowProcessesStatus,
           });
         }
         return res.status(200).json(processesWithFlows);
