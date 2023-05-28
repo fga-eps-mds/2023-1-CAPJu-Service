@@ -5,6 +5,7 @@ import Process from "../models/Process.js";
 import Flow from "../models/Flow.js";
 import Database from "../database/index.js";
 import { QueryTypes } from "sequelize";
+import { tokenToUser } from "../middleware/authMiddleware.js";
 
 const isRecordValid = (record) => {
   const regex = /^\d{20}$/;
@@ -27,8 +28,12 @@ const validateRecord = (record) => {
 class ProcessController {
   async index(req, res) {
     try {
-      let processes = await Process.findAll();
-
+      const { idUnit } = await tokenToUser(req);
+      let processes = await Process.findAll({
+        where: {
+          idUnit,
+        },
+      });
       if (!processes) {
         return res.status(404).json({ error: "Não há processos" });
       } else {
