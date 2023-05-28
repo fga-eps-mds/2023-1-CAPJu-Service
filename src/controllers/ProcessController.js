@@ -264,6 +264,7 @@ class ProcessController {
       for (const fp of flowProcesses) {
         fp.set({ 
           idFlow: idFlow, 
+          status: status,
         });
         fp.save();
       }
