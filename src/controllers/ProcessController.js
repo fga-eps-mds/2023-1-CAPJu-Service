@@ -220,8 +220,8 @@ class ProcessController {
 
   async updateProcess(req, res) {
     try {
-      const { idFlow, nickname, priority } = req.body;
-
+      const { idFlow, nickname, priority, status} = req.body;
+      
       const recordStatus = validateRecord(req.body.record);
 
       if (!recordStatus.valid) {
@@ -262,7 +262,9 @@ class ProcessController {
       });
 
       for (const fp of flowProcesses) {
-        fp.set({ idFlow: idFlow });
+        fp.set({ 
+          idFlow: idFlow, 
+        });
         fp.save();
       }
 
