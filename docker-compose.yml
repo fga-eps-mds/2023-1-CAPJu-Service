@@ -10,10 +10,3 @@ services:
       - "5432:5432"
     env_file:
       - .env
-    healthcheck:
-      test: ["CMD", "pg_isready", "-h", "db", "-p", "5432"]
-      timeout: 10s
-      retries: 3
-      interval: 5s
-      start_period: 5s
-    restart: always

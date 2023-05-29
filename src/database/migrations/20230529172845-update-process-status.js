@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.addColumn("flowProcess", "status", {
+    await queryInterface.addColumn("process", "status", {
       type: Sequelize.ENUM({
         values: ['inProgress', 'archived','finished','notStarted']
     }),
@@ -13,6 +13,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeColumn("flowProcess", "status");
+    await queryInterface.removeColumn("process", "status");
   },
 };
