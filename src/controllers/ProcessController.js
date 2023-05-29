@@ -47,19 +47,10 @@ class ProcessController {
           const flowProcessesIdFlows = flowProcesses.map((flowProcess) => {
             return flowProcess.idFlow;
           });
-          const flowProcessesStatus = flowProcesses.map((flowProcess) => {
-            return flowProcess.status;
-          });
 
           processesWithFlows.push({
-            record: process.record,
-            nickname: process.nickname,
-            effectiveDate: process.effectiveDate,
-            idUnit: process.idUnit,
-            idStage: process.idStage,
-            idPriority: process.idPriority,
+            ...process,
             idFlow: flowProcessesIdFlows,
-            status: flowProcessesStatus,
           });
         }
         return res.status(200).json(processesWithFlows);
