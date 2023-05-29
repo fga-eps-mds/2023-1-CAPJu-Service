@@ -49,8 +49,14 @@ class ProcessController {
           });
 
           processesWithFlows.push({
-            ...process,
+            record: process.record,
+            nickname: process.nickname,
+            effectiveDate: process.effectiveDate,
+            idUnit: process.idUnit,
+            idStage: process.idStage,
+            idPriority: process.idPriority,
             idFlow: flowProcessesIdFlows,
+            status: process.status,
           });
         }
         return res.status(200).json(processesWithFlows);
