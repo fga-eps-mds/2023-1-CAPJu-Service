@@ -32,6 +32,13 @@ class Process extends Model {
           foreignKey: true,
           allowNull: false,
         },
+        status: {
+          type: DataTypes.ENUM({
+              values: ['inProgress', 'archived','finished','notStarted']
+          }),
+          allowNull: false,
+          defaultValue: "notStarted",
+        },
       },
       {
         sequelize,

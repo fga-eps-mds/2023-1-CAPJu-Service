@@ -15,5 +15,5 @@ services:
       timeout: 10s
       retries: 3
       interval: 5s
-      start_period: 5s
+      #      start_period: 5s
     restart: always
