@@ -1,4 +1,5 @@
 import { tokenToUser } from "../middleware/authMiddleware.js";
+import { Op } from "sequelize";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 
@@ -79,14 +80,16 @@ class UserController {
 
   async allUser(req, res) {
     try {
-      const { idUnit } = await tokenToUser(req);
+      const { idUnit, idRole } = await tokenToUser(req);
+      const where = idRole === 5 ? {} : { idUnit };
+
       if (req.query.accepted) {
         const { accepted } = req.query;
         let users;
         if (accepted === "true") {
-          users = await User.findAll({ where: { accepted: true, idUnit } });
+          users = await User.findAll({ where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where } });
         } else if (accepted === "false") {
-          users = await User.findAll({ where: { accepted: false, idUnit } });
+          users = await User.findAll({ where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where } });
         } else {
           return res.status(400).json({
             message: "Parâmetro accepted deve ser 'true' ou 'false'",
@@ -106,7 +109,10 @@ class UserController {
         return res.status(200).json(users);
       } else {
         let users = await User.findAll({
-          where: { idUnit },
+          where: {
+            idRole: { [Op.ne]: 5 },
+            ...where,
+          },
         });
         users = users.map((user) => {
           return {
@@ -145,7 +151,20 @@ class UserController {
       return res.json(user);
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ error, message: "Erro ao criar usuário" });
+
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        const errorMessages = {
+          cpf: 'Este CPF já foi cadastrado na plataforma.',
+          email: 'Este e-mail já foi cadastrado na plataforma.',
+        };
+    
+        const duplicatedField = error.errors[0].path;
+        const errorMessage = errorMessages[duplicatedField] || 'Já existe um registro duplicado.';
+    
+        return res.status(409).json({ error: 'Campo duplicado.', message: errorMessage });
+      }
+
+      return res.status(500).json({ error });
     }
   }
 

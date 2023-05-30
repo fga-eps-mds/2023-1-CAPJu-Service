@@ -1,13 +1,16 @@
 import Stage from "../models/Stage.js";
+import FlowStage from "../models/FlowStage.js";
+import { Op } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
 
 class StageController {
 
   async index(req, res) {
-    req.user = await tokenToUser(req);
-    const { idUnit: idUnit } = req.user;
+    const { idUnit, idRole } = await tokenToUser(req);
+    const where = idRole === 5 ? {} : { idUnit };
+
     const stages = await Stage.findAll({
-      where: { idUnit: idUnit }
+      where,
     });
 
     if (!stages) {
@@ -46,15 +49,36 @@ class StageController {
   }
 
   async delete(req, res) {
-    const idStage = req.params.id;
+    try {
+      const idStage = req.params.id;
 
-    const stage = await Stage.findByPk(idStage);
+      const flowStages = await FlowStage.findAll({
+        where: {
+          [Op.or]: [
+            { idStageA: idStage },
+            { idStageB: idStage },
+          ]
+        }
+      });
 
-    if (!stage) {
-      return res.status(401).json({ error: "Esse fluxo não existe!" });
-    } else {
-      await stage.destroy();
-      return res.json(stage);
+      if (flowStages.length > 0) {
+        return res.status(409).json({
+          error: "Há fluxos utilizando esta etapa",
+          message: `Há ${flowStages.length} fluxos que dependem desta etapa.`,
+        });
+      }
+
+
+      const stage = await Stage.findByPk(idStage);
+
+      if (!stage) {
+        return res.status(401).json({ error: "Essa etapa não existe!" });
+      } else {
+        await stage.destroy();
+        return res.json(stage);
+      }
+    } catch (error) {
+      return res.status(400).json({ error });
     }
   }
 }
