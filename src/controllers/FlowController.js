@@ -107,7 +107,7 @@ class FlowController {
       json: {
         idFlow: idFlow,
         name: flow.name,
-        idUnit: idUnit,
+        idUnit,
         sequences,
         usersToNotify: idUsersToNotify,
       },
@@ -142,11 +142,11 @@ class FlowController {
   async index(req, res) {
     try {
 
-      req.user = await tokenToUser(req);
-      const { idUnit: idUnit } = req.user;
-      
+      const { idUnit, idRole } = await tokenToUser(req);
+      const where = idRole === 5 ? {} : { idUnit };
+
       const flows = await Flow.findAll({
-        where: { idUnit: idUnit },
+        where,
       });
 
       let flowsWithSequences = [];

@@ -28,11 +28,11 @@ const validateRecord = (record) => {
 class ProcessController {
   async index(req, res) {
     try {
-      const { idUnit } = await tokenToUser(req);
+      const { idUnit, idRole } = await tokenToUser(req);
+      const where = idRole === 5 ? {} : { idUnit };
+
       let processes = await Process.findAll({
-        where: {
-          idUnit,
-        },
+        where,
       });
       if (!processes) {
         return res.status(404).json({ error: "Não há processos" });
