@@ -139,6 +139,15 @@ class UserController {
     const { fullName, cpf, email, password, idUnit, idRole } = req.body;
 
     try {
+      const users = await User.findAll({ where: { cpf } });
+
+      if (users.length !== 0) {
+        return res.status(409).json({
+          error: "CPF repetido.",
+          message: `Este CPF já foi cadastrado na plataforma.`,
+        });
+      }
+
       const user = await User.create({
         fullName,
         cpf: cpfFilter(cpf),
@@ -151,7 +160,7 @@ class UserController {
       return res.json(user);
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ error, message: "Erro ao criar usuário" });
+      return res.status(500).json({ error });
     }
   }
 
