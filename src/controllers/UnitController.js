@@ -46,15 +46,28 @@ class UnitController {
   }
 
   async delete(req, res) {
-    const { idUnit } = req.body;
+    try {
+      const { idUnit } = req.body;
 
-    const unit = await Unit.findByPk(idUnit);
+      const users = await User.findAll({ where: { idUnit } });
 
-    if (!unit) {
-      return res.status(401).json({ error: "Essa unidade não existe!" });
-    } else {
-      await unit.destroy();
-      return res.status(200).json(unit);
+      if (users.length > 0) {
+        return res.status(409).json({
+          error: "Há usuários na unidade",
+          message: `Há ${users.length} usuários nesta unidade.`,
+        });
+      }
+
+      const unit = await Unit.findByPk(idUnit);
+
+      if (!unit) {
+        return res.status(401).json({ error: "Essa unidade não existe!" });
+      } else {
+        await unit.destroy();
+        return res.status(200).json(unit);
+      }
+    } catch (error) {
+      return res.status(500).json({ error });
     }
   }
 
