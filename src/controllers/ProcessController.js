@@ -133,7 +133,7 @@ class ProcessController {
 
   async store(req, res) {
     try {
-      let { nickname, effectiveDate, priority, idFlow } = req.body;
+      let { nickname, priority, idFlow } = req.body;
 
       const recordStatus = validateRecord(req.body.record);
 
@@ -147,20 +147,14 @@ class ProcessController {
       const record = recordStatus.filtered;
 
       const flow = await Flow.findByPk(idFlow);
-      const flowStages = await FlowStage.findAll({
-        where: { idFlow },
-      });
 
       if (flow) {
-        const process = await Process.create({
+        await Process.create({
           record,
           idUnit: flow.idUnit,
           nickname,
-          idStage: flowStages[0].idStageA,
-          effectiveDate,
           idPriority: priority,
         });
-        const { idProcess } = process;
         try {
           if (flow) {
             const flowProcess = await FlowProcess.create({
@@ -244,13 +238,20 @@ class ProcessController {
       }
 
       if (!process) {
-        return res.status(404).json({ error: "Não há este processo" });
+        return res.status(404).json({ error: "processo inexistente" });
       }
+
+      const startingProcess = process.status === "notStarted" && status === "inProgress" ? { 
+        idStage:flowStages[0].idStageA,
+        effectiveDate: new Date(),
+       } : {}
 
       process.set({
         nickname,
         idStage: flowStages[0].idStageA,
         idPriority: priority,
+        status,
+        ...startingProcess
       });
 
       await process.save();
