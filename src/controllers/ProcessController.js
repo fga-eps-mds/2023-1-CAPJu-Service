@@ -290,10 +290,10 @@ class ProcessController {
     }
   }
 
-  async nextStage(req, res) {
+  async updateProcessStage(req, res) {
     const { record, from, to, idFlow } = req.body;
 
-    if (isNaN(parseInt(to)) || isNaN(parseInt(to)) || isNaN(parseInt(idFlow))) {
+    if (isNaN(parseInt(from)) || isNaN(parseInt(to)) || isNaN(parseInt(idFlow))) {
       return res.status(400).json({
         error: "Identificadores inválidos",
         message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
@@ -304,14 +304,14 @@ class ProcessController {
       const flowStages = await FlowStage.findAll({
         where: {
           idFlow,
-          idStageA: from,
-          idStageB: to,
         },
       });
+
       let canAdvance = false;
+
       if (flowStages?.length > 0) {
         for (const flowStage of flowStages) {
-          if (flowStage.idStageA === from && flowStage.idStageB === to) {
+          if (flowStage.idStageA === from && flowStage.idStageB === to || flowStage.idStageB === from && flowStage.idStageA === to) {
             canAdvance = true;
             break;
           }
@@ -339,19 +339,19 @@ class ProcessController {
       console.log(process[0]);
       if (process[0] > 0) {
         return res.status(200).json({
-          message: "Etapa avançada com sucesso",
+          message: "Etapa atualizada com sucesso",
         });
       }
 
       return res.status(409).json({
-        error: "Impossível avançar etapa",
-        message: `Impossível avançar processo '${record}' para etapa '${to}`,
+        error: "Impossível atualizar etapa",
+        message: `Impossível atualizar processo '${record}' para etapa '${to}`,
       });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
         error,
-        message: `Erro ao avançar processo '${record}' para etapa '${to}`,
+        message: `Erro ao atualizar processo '${record}' para etapa '${to}`,
       });
     }
   }
