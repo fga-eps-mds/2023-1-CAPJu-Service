@@ -7,6 +7,7 @@
     "test": "NODE_ENV=test jest --config=jest.config.mjs --detectOpenHandles --coverage",
     "start": "node src/server.js",
     "dev": "npx nodemon --experimental-json-modules src/server.js",
+    "create-db": "npx sequelize-cli db:create",
     "migration": "sequelize db:migrate",
     "test-migration": "NODE_ENV=test sequelize db:migrate",
     "seed": "sequelize db:seed:all",

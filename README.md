@@ -51,7 +51,7 @@ A variável `JWT_SECRET` deve ser idêntica à presente nas configurações do r
 Para instalar as bibliotecas de cada repositório basta apenas dar o seguinte comando
 
 ```
-yarn install && yarn migration && yarn seed
+yarn create-db && yarn install && yarn migration && yarn seed
 ```
 ## Execute o projeto
 
