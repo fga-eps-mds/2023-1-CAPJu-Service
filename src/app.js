@@ -5,6 +5,9 @@ import routes from "./routes.js";
 import Database from "./database/index.js";
 import cron from "node-cron";
 import * as Emailer from "./controllers/Emailer.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
@@ -12,7 +15,9 @@ app.use(express.json({ limit: "50mb" }));
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(routes);
+const app_route = process.env.API_ENV || "dev";
+
+app.use(`/${app_route}`, routes);
 
 cron.schedule("0 0 0 * * *", () => {
   Emailer.sendEmail();
