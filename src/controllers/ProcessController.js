@@ -211,7 +211,7 @@ class ProcessController {
 
   async updateProcess(req, res) {
     try {
-      const { idFlow, nickname, priority, status} = req.body;
+      const { idFlow, nickname, priority, status, idstage} = req.body;
       
       const recordStatus = validateRecord(req.body.record);
 
@@ -245,7 +245,7 @@ class ProcessController {
 
       process.set({
         nickname,
-        idStage: flowStages[0].idStageA,
+        idStage: idstage,
         idPriority: priority,
         status,
         ...startingProcess
