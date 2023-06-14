@@ -34,11 +34,15 @@ class Process extends Model {
         },
         status: {
           type: DataTypes.ENUM({
-            values: ["inProgress", "archived", "finished", "notStarted"],
+            values: ['inProgress', 'archived', 'finished', 'notStarted']
           }),
           allowNull: false,
           defaultValue: "notStarted",
         },
+        progress: {
+          type: DataTypes.ARRAY(DataTypes.JSON),
+          allowNull: true,
+        }
       },
       {
         sequelize,
