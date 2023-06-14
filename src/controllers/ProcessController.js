@@ -67,6 +67,7 @@ class ProcessController {
             idPriority: process.idPriority,
             idFlow: flowProcessesIdFlows,
             status: process.status,
+            progress: process.progress
           });
         }
 
@@ -78,7 +79,6 @@ class ProcessController {
           .json({ processes: processesWithFlows, totalPages });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro ao buscar processos",
