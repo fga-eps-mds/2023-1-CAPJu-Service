@@ -3,6 +3,7 @@ import FlowStage from "../models/FlowStage.js";
 import Priority from "../models/Priority.js";
 import Process from "../models/Process.js";
 import Flow from "../models/Flow.js";
+import Stage from "../models/Stage.js"
 import Database from "../database/index.js";
 import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
@@ -355,10 +356,45 @@ class ProcessController {
           message: `Não há a transição da etapa '${to}' para '${from}' no fluxo '${idFlow}'`,
         });
       }
+
+      // BUSCAR O PROCESSO
+      const currentProcess = await Process.findOne({
+        where: { record }
+      });
+
+      let tempProgress = []
+      let maturityDate;
+      let stageStartDate;
+      let stageEndDate;
+      let progressData = {}
+
+      if (from < to) {
+        const currentStage = await Stage.findOne({
+          where: { idStage: from }
+        })
+        stageStartDate = new Date();
+        stageEndDate = new Date(stageStartDate);
+        stageEndDate.setDate(stageEndDate.getDate() + (currentStage.duration + 1));
+        maturityDate = stageEndDate.toLocaleString("pt-BR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        progressData = {
+          idStage: to,
+          entrada: new Date(),
+          vencimento: maturityDate,
+        }
+        tempProgress = currentProcess.progress;
+        tempProgress.push(progressData);
+      }
+
       const process = await Process.update(
         {
           idStage: to,
           effectiveDate: new Date(),
+          progress: tempProgress
         },
         {
           where: {
