@@ -130,7 +130,7 @@ class ProcessController {
 
   async store(req, res) {
     try {
-      let { nickname, effectiveDate, priority, idFlow } = req.body;
+      let { nickname, priority, idFlow } = req.body;
 
       const recordStatus = validateRecord(req.body.record);
 
@@ -144,20 +144,14 @@ class ProcessController {
       const record = recordStatus.filtered;
 
       const flow = await Flow.findByPk(idFlow);
-      const flowStages = await FlowStage.findAll({
-        where: { idFlow },
-      });
 
       if (flow) {
-        const process = await Process.create({
+        await Process.create({
           record,
           idUnit: flow.idUnit,
           nickname,
-          idStage: flowStages[0].idStageA,
-          effectiveDate,
           idPriority: priority,
         });
-        const { idProcess } = process;
         try {
           if (flow) {
             const flowProcess = await FlowProcess.create({
@@ -217,8 +211,8 @@ class ProcessController {
 
   async updateProcess(req, res) {
     try {
-      const { idFlow, nickname, priority } = req.body;
-
+      const { idFlow, nickname, priority, status, idStage } = req.body;
+      
       const recordStatus = validateRecord(req.body.record);
 
       if (!recordStatus.valid) {
@@ -241,13 +235,20 @@ class ProcessController {
       }
 
       if (!process) {
-        return res.status(404).json({ error: "Não há este processo" });
+        return res.status(404).json({ error: "processo inexistente" });
       }
+
+      const startingProcess = process.status === "notStarted" && status === "inProgress" ? { 
+        idStage:flowStages[0].idStageA,
+        effectiveDate: new Date(),
+       } : {}
 
       process.set({
         nickname,
-        idStage: flowStages[0].idStageA,
+        idStage: idStage || process.idStage,
         idPriority: priority,
+        status,
+        ...startingProcess
       });
 
       await process.save();
@@ -259,7 +260,10 @@ class ProcessController {
       });
 
       for (const fp of flowProcesses) {
-        fp.set({ idFlow: idFlow });
+        fp.set({ 
+          idFlow: idFlow, 
+          status: status,
+        });
         fp.save();
       }
 
@@ -290,10 +294,10 @@ class ProcessController {
     }
   }
 
-  async nextStage(req, res) {
+  async updateProcessStage(req, res) {
     const { record, from, to, idFlow } = req.body;
 
-    if (isNaN(parseInt(to)) || isNaN(parseInt(to)) || isNaN(parseInt(idFlow))) {
+    if (isNaN(parseInt(from)) || isNaN(parseInt(to)) || isNaN(parseInt(idFlow))) {
       return res.status(400).json({
         error: "Identificadores inválidos",
         message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
@@ -304,14 +308,14 @@ class ProcessController {
       const flowStages = await FlowStage.findAll({
         where: {
           idFlow,
-          idStageA: from,
-          idStageB: to,
         },
       });
+
       let canAdvance = false;
+
       if (flowStages?.length > 0) {
         for (const flowStage of flowStages) {
-          if (flowStage.idStageA === from && flowStage.idStageB === to) {
+          if (flowStage.idStageA === from && flowStage.idStageB === to || flowStage.idStageB === from && flowStage.idStageA === to) {
             canAdvance = true;
             break;
           }
@@ -339,19 +343,19 @@ class ProcessController {
       console.log(process[0]);
       if (process[0] > 0) {
         return res.status(200).json({
-          message: "Etapa avançada com sucesso",
+          message: "Etapa atualizada com sucesso",
         });
       }
 
       return res.status(409).json({
-        error: "Impossível avançar etapa",
-        message: `Impossível avançar processo '${record}' para etapa '${to}`,
+        error: "Impossível atualizar etapa",
+        message: `Impossível atualizar processo '${record}' para etapa '${to}`,
       });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
         error,
-        message: `Erro ao avançar processo '${record}' para etapa '${to}`,
+        message: `Erro ao atualizar processo '${record}' para etapa '${to}`,
       });
     }
   }

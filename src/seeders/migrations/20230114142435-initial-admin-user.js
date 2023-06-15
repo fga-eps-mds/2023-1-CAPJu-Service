@@ -9,7 +9,7 @@ module.exports = {
         {
           cpf: "12345678901",
           fullName: "Usuário Administrador Inicial",
-          email: "email@email.com",
+          email: "email@emaill.com",
           password: "123Teste",
           idUnit: 1,
           accepted: true,
