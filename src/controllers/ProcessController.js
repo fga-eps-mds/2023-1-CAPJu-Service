@@ -383,7 +383,11 @@ class ProcessController {
 
         progressData = {
           idStage: to,
-          entrada: new Date(),
+          entrada: new Date().toLocaleString("pt-BR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
           vencimento: maturityDate,
         }
         tempProgress = currentProcess.progress;

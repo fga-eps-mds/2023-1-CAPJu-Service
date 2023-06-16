@@ -6,7 +6,7 @@ module.exports = {
     await queryInterface.addColumn('process', 'progress', {
       type: Sequelize.ARRAY(Sequelize.JSON),
       allowNull: true,
-      defaultValue: null,
+      defaultValue: [],
     });
   },
 
