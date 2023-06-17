@@ -1,5 +1,6 @@
 import { Database } from "../TestDatabase.js";
 import "sequelize";
+import { Op } from "sequelize";
 import supertest from "supertest";
 import jwt from "jsonwebtoken";
 import { app, injectDB } from "../TestApp";
@@ -152,28 +153,21 @@ describe("user endpoints", () => {
     }
 
     const acceptedUsersDb = await User.findAll({
-      where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where } 
+      where: { accepted: true, idRole:  5 } 
     });
 
-    // const responseAccepted = await supertest(app).get("/allUser?accepted=true");
-    // expect(responseAccepted.status).toBe(200);
+    console.info(acceptedUsersDb[0].dataValues.cpf)
 
     // Only the administrator is accepted
-    // expect(acceptedUsersDb.length).toBe(1);
-    // expect(acceptedUsersDb).toEqual(expect.arrayContaining(adminUser));
+    expect(acceptedUsersDb.length).toBe(1);
+    expect(acceptedUsersDb[0].dataValues.cpf).toEqual(adminUser[0].cpf);
 
-    // const rejectedUsersDb = await supertest(app).get(
-    //   "/allUser?accepted=false"
-    // );
-
-    // const acceptedUsersDb = await User.findAll({
-    //   where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where } 
-    // });
-
-    expect(responseAccepted.status).toBe(200);
+    const rejectedUsersDb = await User.findAll({
+      where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where } 
+    });
 
     // the three created above + initial unaccepted user
-    expect(responseNotAccepted.body.length).toBe(4);
+    expect(rejectedUsersDb.length).toBe(4);
   });
 
   test("new user and check by id", async () => {
