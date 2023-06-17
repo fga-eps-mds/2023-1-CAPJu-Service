@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { app, injectDB } from "../TestApp";
 import User from "../../models/User.js";
 
-let token, where
+let token, where;
 
 describe("user endpoints", () => {
   beforeEach(async () => {
@@ -16,9 +16,9 @@ describe("user endpoints", () => {
     injectDB(database);
 
     const userAdminCredentials = {
-      "cpf": "12345678901",
-      "password": "123Teste"
-    }
+      cpf: "12345678901",
+      password: "123Teste",
+    };
 
     const newUnitResponse = await supertest(app)
       .post("/login")
@@ -28,7 +28,6 @@ describe("user endpoints", () => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findByPk(decoded.id);
     where = user.dataValues.idRole === 5 ? {} : user.dataValues.idUnit;
-
   });
 
   test("new user", async () => {
@@ -92,10 +91,10 @@ describe("user endpoints", () => {
     const usersDb = await User.findAll({
       where,
     });
-    
+
     expect(usersDb.length).toBe(testUsers.length + 2);
 
-    console.info(usersDb)
+    console.info(usersDb);
 
     expect(usersDb).toEqual(
       expect.arrayContaining(
@@ -153,17 +152,17 @@ describe("user endpoints", () => {
     }
 
     const acceptedUsersDb = await User.findAll({
-      where: { accepted: true, idRole:  5 } 
+      where: { accepted: true, idRole: 5 },
     });
 
-    console.info(acceptedUsersDb[0].dataValues.cpf)
+    console.info(acceptedUsersDb[0].dataValues.cpf);
 
     // Only the administrator is accepted
     expect(acceptedUsersDb.length).toBe(1);
     expect(acceptedUsersDb[0].dataValues.cpf).toEqual(adminUser[0].cpf);
 
     const rejectedUsersDb = await User.findAll({
-      where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where } 
+      where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
     });
 
     // the three created above + initial unaccepted user

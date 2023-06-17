@@ -141,7 +141,6 @@ class FlowController {
 
   async index(req, res) {
     try {
-
       const { idUnit, idRole } = await tokenToUser(req);
       const where = idRole === 5 ? {} : { idUnit };
 
