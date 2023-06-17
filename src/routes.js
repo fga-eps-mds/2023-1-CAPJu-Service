@@ -48,7 +48,11 @@ routes.delete(
   authRole([ROLE.DIRETOR, ROLE.SERVIDOR, ROLE.ADMINISTRADOR]),
   ProcessController.deleteProcess
 );
-routes.put("/processUpdateStage/", protect, ProcessController.updateProcessStage);
+routes.put(
+  "/processUpdateStage/",
+  protect,
+  ProcessController.updateProcessStage
+);
 routes.put(
   "/processNewObservation/",
   protect,
