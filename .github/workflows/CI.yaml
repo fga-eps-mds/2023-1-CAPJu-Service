@@ -1,4 +1,4 @@
-name: CAPJu Service CI
+name: service-ci
 on: [push]
 jobs:
   build:
