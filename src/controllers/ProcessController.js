@@ -357,31 +357,25 @@ class ProcessController {
         });
       }
 
-      // BUSCAR O PROCESSO
       const currentProcess = await Process.findOne({
         where: { record }
       });
-
+      const currentStage = await Stage.findOne({
+        where: { idStage: to }
+      })
       let tempProgress = []
       let maturityDate;
-      let stageStartDate;
-      let stageEndDate;
-      let progressData = {}
+      const stageStartDate = new Date();
+      const stageEndDate = new Date(stageStartDate);
+      stageEndDate.setDate(stageEndDate.getDate() + (currentStage.duration + 1));
+      maturityDate = stageEndDate.toLocaleString("pt-BR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
 
       if (from < to) {
-        const currentStage = await Stage.findOne({
-          where: { idStage: from }
-        })
-        stageStartDate = new Date();
-        stageEndDate = new Date(stageStartDate);
-        stageEndDate.setDate(stageEndDate.getDate() + (currentStage.duration + 1));
-        maturityDate = stageEndDate.toLocaleString("pt-BR", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-
-        progressData = {
+        const progressData = {
           idStage: to,
           entrada: new Date().toLocaleString("pt-BR", {
             year: "numeric",
@@ -392,6 +386,18 @@ class ProcessController {
         }
         tempProgress = currentProcess.progress;
         tempProgress.push(progressData);
+      } else {
+        tempProgress = currentProcess.progress;
+        tempProgress.pop();
+        tempProgress[tempProgress.length - 1] = {
+          idStage: to,
+          entrada: new Date().toLocaleString("pt-BR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          vencimento: maturityDate,
+        }
       }
 
       const process = await Process.update(
@@ -407,7 +413,6 @@ class ProcessController {
           },
         }
       );
-      console.log(process[0]);
       if (process[0] > 0) {
         return res.status(200).json({
           message: "Etapa atualizada com sucesso",
