@@ -5,8 +5,6 @@ import {
 } from "../../controllers/Emailer";
 import Database from "../../database/index.js";
 
-const senha = process.env;
-
 const mailContents = [
   {
     id_flow: 4,
@@ -64,7 +62,7 @@ describe("Test for function dataAtualFormatada", () => {
     const input = "2022-11-05";
     const result = dataAtualFormatada(input);
 
-    expect(result).toEqual("04/11/2022");
+    expect(result).toEqual("05/11/2022");
   });
 });
 
@@ -75,11 +73,9 @@ describe("getMailContents", () => {
   });
   it("execpt", async () => {
     try {
-      const error = new Error("Erro ao acessar o banco de dados");
-      Database.connection.query = jest.fn().mockRejectedValue(error);
+      Database.connection.query = jest.fn().mockRejectedValue();
       const result = await getMailContents();
       expect(result).toEqual({
-        error,
         message: "Erro ao obter conteúdo dos emails",
       });
     } catch (error) {

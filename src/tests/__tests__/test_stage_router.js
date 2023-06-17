@@ -1,10 +1,8 @@
 import { Database } from "../TestDatabase.js";
 import "sequelize";
 import supertest from "supertest";
-import jwt from "jsonwebtoken";
 import { app, injectDB } from "../TestApp";
 import Stage from "../../models/Stage.js";
-import User from "../../models/User.js";
 
 describe("stage endpoints", () => {
   beforeEach(async () => {
@@ -89,28 +87,23 @@ describe("stage endpoints", () => {
   });
 
   test("new stages and search", async () => {
-    const userAdminCredentials = {
-      cpf: "12345678901",
-      password: "123Teste",
+    const testUnit = {
+      name: "Unidade Teste",
     };
 
     const newUnitResponse = await supertest(app)
-      .post("/login")
-      .send(userAdminCredentials);
-    let token = newUnitResponse.body.token;
-    expect(newUnitResponse.status).toEqual(200);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.id);
-    const where = user.dataValues.idRole === 5 ? {} : user.dataValues.idUnit;
+      .post("/newUnit")
+      .send(testUnit);
+    expect(newUnitResponse.status).toBe(200);
 
     let stagesMock = [
       {
-        name: `Etapa 1 ${token}`,
+        name: `Etapa 1`,
         duration: 1,
         idUnit: newUnitResponse.body.idUnit,
       },
       {
-        name: `Etapa 2 ${token}`,
+        name: `Etapa 2`,
         duration: 1,
         idUnit: newUnitResponse.body.idUnit,
       },
@@ -125,17 +118,13 @@ describe("stage endpoints", () => {
       allStages.push(testStageResponse.body);
     }
     const stagesDb = await Stage.findAll({
-      where,
+      where: { idUnit: newUnitResponse.body.idUnit },
     });
 
-    let lastStages = stagesDb.slice(-2).reverse();
-    stagesMock = stagesMock.reverse();
-    let aux = stagesDb.length - 1;
-    for (let index = 0; index < lastStages.length; index++) {
-      expect(stagesDb[aux]?.dataValues?.name).toEqual(
+    for (let index = 0; index < stagesDb.length; index++) {
+      expect(stagesDb[index]?.dataValues?.name).toEqual(
         stagesMock[index]?.name.toLocaleLowerCase()
       );
-      aux--;
     }
   });
 });

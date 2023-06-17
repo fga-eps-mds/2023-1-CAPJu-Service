@@ -2,11 +2,10 @@ import { Database } from "../TestDatabase.js";
 import "sequelize";
 import { Op } from "sequelize";
 import supertest from "supertest";
-import jwt from "jsonwebtoken";
 import { app, injectDB } from "../TestApp";
 import User from "../../models/User.js";
 
-let token, where;
+let where;
 
 describe("user endpoints", () => {
   beforeEach(async () => {
@@ -14,20 +13,6 @@ describe("user endpoints", () => {
     await database.migrate();
     await database.seed();
     injectDB(database);
-
-    const userAdminCredentials = {
-      cpf: "12345678901",
-      password: "123Teste",
-    };
-
-    const newUnitResponse = await supertest(app)
-      .post("/login")
-      .send(userAdminCredentials);
-    token = newUnitResponse.body.token;
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.id);
-    where = user.dataValues.idRole === 5 ? {} : user.dataValues.idUnit;
   });
 
   test("new user", async () => {
