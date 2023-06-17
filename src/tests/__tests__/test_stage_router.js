@@ -6,7 +6,6 @@ import { app, injectDB } from "../TestApp";
 import Stage from "../../models/Stage.js";
 import User from "../../models/User.js";
 
-
 describe("stage endpoints", () => {
   beforeEach(async () => {
     const database = new Database();
@@ -91,9 +90,9 @@ describe("stage endpoints", () => {
 
   test("new stages and search", async () => {
     const userAdminCredentials = {
-      "cpf": "12345678901",
-      "password": "123Teste"
-    }
+      cpf: "12345678901",
+      password: "123Teste",
+    };
 
     const newUnitResponse = await supertest(app)
       .post("/login")
@@ -129,11 +128,13 @@ describe("stage endpoints", () => {
       where,
     });
 
-    let lastStages = (stagesDb.slice(-2)).reverse();
-    stagesMock = stagesMock.reverse()
-    let aux = (stagesDb.length) - 1;
+    let lastStages = stagesDb.slice(-2).reverse();
+    stagesMock = stagesMock.reverse();
+    let aux = stagesDb.length - 1;
     for (let index = 0; index < lastStages.length; index++) {
-      expect(stagesDb[aux]?.dataValues?.name).toEqual(stagesMock[index]?.name.toLocaleLowerCase());
+      expect(stagesDb[aux]?.dataValues?.name).toEqual(
+        stagesMock[index]?.name.toLocaleLowerCase()
+      );
       aux--;
     }
   });

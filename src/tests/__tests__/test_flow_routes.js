@@ -3,7 +3,6 @@ import "sequelize";
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
 
-
 describe("flow endpoints", () => {
   beforeEach(async () => {
     const database = new Database();
@@ -67,7 +66,7 @@ describe("flow endpoints", () => {
       expect(newFlowResponse.status).toBe(200);
     }
 
- /*    const flowsResponse = await supertest(app).get("/flows");
+    /*    const flowsResponse = await supertest(app).get("/flows");
     expect(flowsResponse.status).toBe(200);
     expect(flowsResponse.body).toEqual(
       expect.arrayContaining(
@@ -208,7 +207,7 @@ describe("flow endpoints", () => {
         .send(testFlow);
       expect(newFlowResponse.status).toBe(200);
     }
-/* 
+    /* 
     const flowsResponse = await supertest(app).get("/flows");
     expect(flowsResponse.status).toBe(200);
     expect(flowsResponse.body).toEqual(
@@ -311,7 +310,7 @@ describe("flow endpoints", () => {
     expect(deletedResponse.body).toEqual({
       message: "Fluxo apagado com sucesso",
     });
-/* 
+    /* 
     const flowsResponse = await supertest(app).get("/flows");
     expect(flowsResponse.status).toBe(200); 
     expect(flowsResponse.body).toEqual([]);*/
