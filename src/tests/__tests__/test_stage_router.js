@@ -1,8 +1,11 @@
 import { Database } from "../TestDatabase.js";
 import "sequelize";
 import supertest from "supertest";
+import jwt from "jsonwebtoken";
 import { app, injectDB } from "../TestApp";
-import Unit from "../../models/Unit.js";
+import Stage from "../../models/Stage.js";
+import User from "../../models/User.js";
+
 
 describe("stage endpoints", () => {
   beforeEach(async () => {
@@ -86,51 +89,52 @@ describe("stage endpoints", () => {
     expect(responseStage.body.name).toEqual(response.body.name);
   });
 
-  test("new stages and list existing", async () => {
-    const testUnit = {
-      name: "Unidade Teste",
-    };
+  test("new stages and search", async () => {
+    const userAdminCredentials = {
+      "cpf": "12345678901",
+      "password": "123Teste"
+    }
 
     const newUnitResponse = await supertest(app)
-      .post("/newUnit")
-      .send(testUnit);
-    expect(newUnitResponse.status).toBe(200);
+      .post("/login")
+      .send(userAdminCredentials);
+    let token = newUnitResponse.body.token;
+    expect(newUnitResponse.status).toEqual(200);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.id);
+    const where = user.dataValues.idRole === 5 ? {} : user.dataValues.idUnit;
 
-    const testStages = [
+    let stagesMock = [
       {
-        name: "etapa teste 1",
+        name: `Etapa 1 ${token}`,
         duration: 1,
         idUnit: newUnitResponse.body.idUnit,
       },
       {
-        name: "etapa teste 2",
+        name: `Etapa 2 ${token}`,
         duration: 1,
         idUnit: newUnitResponse.body.idUnit,
       },
     ];
 
     let allStages = [];
-    for (const stage of testStages) {
+    for (const stage of stagesMock) {
       const testStageResponse = await supertest(app)
         .post("/newStage")
         .send(stage);
       expect(testStageResponse.status).toBe(200);
       allStages.push(testStageResponse.body);
     }
+    const stagesDb = await Stage.findAll({
+      where,
+    });
 
-    const response = await supertest(app).get("/stages");
-    expect(response.status).toBe(200);
-
-    expect(response.body).toEqual(allStages);
-
-    // for (const stage of allStages) {
-    //     expect(response.body.map((stage) =>
-    //     {
-    //         return stage;
-    //     }
-    //     )).toEqual(
-    //         allStages.map(stageTest => stage.idStage === stageTest.idStage)
-    //     );
-    // }
+    let lastStages = (stagesDb.slice(-2)).reverse();
+    stagesMock = stagesMock.reverse()
+    let aux = (stagesDb.length) - 1;
+    for (let index = 0; index < lastStages.length; index++) {
+      expect(stagesDb[aux]?.dataValues?.name).toEqual(stagesMock[index]?.name.toLocaleLowerCase());
+      aux--;
+    }
   });
 });
