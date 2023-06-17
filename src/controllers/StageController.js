@@ -4,7 +4,6 @@ import { Op } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
 
 class StageController {
-
   async index(req, res) {
     const { idUnit, idRole } = await tokenToUser(req);
     const where = idRole === 5 ? {} : { idUnit };
@@ -54,11 +53,8 @@ class StageController {
 
       const flowStages = await FlowStage.findAll({
         where: {
-          [Op.or]: [
-            { idStageA: idStage },
-            { idStageB: idStage },
-          ]
-        }
+          [Op.or]: [{ idStageA: idStage }, { idStageB: idStage }],
+        },
       });
 
       if (flowStages.length > 0) {
@@ -67,7 +63,6 @@ class StageController {
           message: `Há ${flowStages.length} fluxos que dependem desta etapa.`,
         });
       }
-
 
       const stage = await Stage.findByPk(idStage);
 

@@ -87,9 +87,13 @@ class UserController {
         const { accepted } = req.query;
         let users;
         if (accepted === "true") {
-          users = await User.findAll({ where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where } });
+          users = await User.findAll({
+            where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
+          });
         } else if (accepted === "false") {
-          users = await User.findAll({ where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where } });
+          users = await User.findAll({
+            where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
+          });
         } else {
           return res.status(400).json({
             message: "Parâmetro accepted deve ser 'true' ou 'false'",
@@ -152,16 +156,19 @@ class UserController {
     } catch (error) {
       console.log(error);
 
-      if (error.name === 'SequelizeUniqueConstraintError') {
+      if (error.name === "SequelizeUniqueConstraintError") {
         const errorMessages = {
-          cpf: 'Este CPF já foi cadastrado na plataforma.',
-          email: 'Este e-mail já foi cadastrado na plataforma.',
+          cpf: "Este CPF já foi cadastrado na plataforma.",
+          email: "Este e-mail já foi cadastrado na plataforma.",
         };
-    
+
         const duplicatedField = error.errors[0].path;
-        const errorMessage = errorMessages[duplicatedField] || 'Já existe um registro duplicado.';
-    
-        return res.status(409).json({ error: 'Campo duplicado.', message: errorMessage });
+        const errorMessage =
+          errorMessages[duplicatedField] || "Já existe um registro duplicado.";
+
+        return res
+          .status(409)
+          .json({ error: "Campo duplicado.", message: errorMessage });
       }
 
       return res.status(500).json({ error });
