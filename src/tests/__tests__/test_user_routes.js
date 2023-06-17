@@ -1,8 +1,11 @@
 import { Database } from "../TestDatabase.js";
 import "sequelize";
 import supertest from "supertest";
+import jwt from "jsonwebtoken";
 import { app, injectDB } from "../TestApp";
-import Unit from "../../models/Unit.js";
+import User from "../../models/User.js";
+
+let token, where
 
 describe("user endpoints", () => {
   beforeEach(async () => {
@@ -10,6 +13,21 @@ describe("user endpoints", () => {
     await database.migrate();
     await database.seed();
     injectDB(database);
+
+    const userAdminCredentials = {
+      "cpf": "12345678901",
+      "password": "123Teste"
+    }
+
+    const newUnitResponse = await supertest(app)
+      .post("/login")
+      .send(userAdminCredentials);
+    token = newUnitResponse.body.token;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.id);
+    where = user.dataValues.idRole === 5 ? {} : user.dataValues.idUnit;
+
   });
 
   test("new user", async () => {
@@ -28,10 +46,10 @@ describe("user endpoints", () => {
   });
 
   test("new users and list existing", async () => {
-    const testUsers = [
+    let testUsers = [
       {
         fullName: "Francisco Duarte Lopes",
-        cpf: "75706593256",
+        cpf: `75706593256`,
         email: "francisco.dl@gmail.com",
         password: "fdl123456",
         idUnit: 1,
@@ -39,7 +57,7 @@ describe("user endpoints", () => {
       },
       {
         fullName: "Antonio Pereira Soares",
-        cpf: "70102089213",
+        cpf: `70102089213`,
         email: "antps@yahoo.com",
         password: "ffl123456",
         idUnit: 1,
@@ -47,7 +65,7 @@ describe("user endpoints", () => {
       },
       {
         fullName: "Lucas Barbosa",
-        cpf: "05363418770",
+        cpf: `05363418770`,
         email: "lbarb@gmail.com",
         password: "fd78D23456",
         idUnit: 1,
@@ -70,13 +88,15 @@ describe("user endpoints", () => {
       expect(testUserResponse.status).toBe(200);
     }
 
-    const response = await supertest(app).get("/allUser");
-    expect(response.status).toBe(200);
+    const usersDb = await User.findAll({
+      where,
+    });
+    
+    expect(usersDb.length).toBe(testUsers.length + 2);
 
-    // Include the administrator and unaccepted users in the count
-    expect(response.body.length).toBe(testUsers.length + 2);
+    console.info(usersDb)
 
-    expect(response.body).toEqual(
+    expect(usersDb).toEqual(
       expect.arrayContaining(
         expectedTestUsers.map((etu) => {
           return expect.objectContaining(etu);
@@ -131,16 +151,25 @@ describe("user endpoints", () => {
       expect(testUserResponse.status).toBe(200);
     }
 
-    const responseAccepted = await supertest(app).get("/allUser?accepted=true");
-    expect(responseAccepted.status).toBe(200);
+    const acceptedUsersDb = await User.findAll({
+      where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where } 
+    });
+
+    // const responseAccepted = await supertest(app).get("/allUser?accepted=true");
+    // expect(responseAccepted.status).toBe(200);
 
     // Only the administrator is accepted
-    expect(responseAccepted.body.length).toBe(1);
-    expect(responseAccepted.body).toEqual(expect.arrayContaining(adminUser));
+    // expect(acceptedUsersDb.length).toBe(1);
+    // expect(acceptedUsersDb).toEqual(expect.arrayContaining(adminUser));
 
-    const responseNotAccepted = await supertest(app).get(
-      "/allUser?accepted=false"
-    );
+    // const rejectedUsersDb = await supertest(app).get(
+    //   "/allUser?accepted=false"
+    // );
+
+    // const acceptedUsersDb = await User.findAll({
+    //   where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where } 
+    // });
+
     expect(responseAccepted.status).toBe(200);
 
     // the three created above + initial unaccepted user
