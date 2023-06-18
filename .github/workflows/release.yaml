@@ -24,13 +24,14 @@ jobs:
           path: ${{ steps.name.outputs.file_name }}.json
 
       - name: Send metrics to doc repo
-        uses: dmnemec/copy_file_to_another_repo_action@v1.1.1
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          source_file: ${{ steps.name.outputs.file_name }}.json
-          destination_repo: 'fga-eps-mds/2023-1-CAPJu-Doc'
-          destination_folder: 'analytics-raw-data/2023-1-CAPJu'
-          user_email: ${{ secrets.GIT_EMAIL}}
-          user_name: ${{ secrets.GIT_USER }}
-          commit_message: Métricas automáticas da release ${{github.ref_name}} - ${{ github.event.repository.name }}
+        run: |
+          git config --global user.email "${{ secrets.GIT_EMAIL }}"
+          git config --global user.name "${{ secrets.GIT_USER }}"
+          git clone --single-branch --branch main "https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/fga-eps-mds/2023-1-CAPJu-Doc" doc
+          mkdir -p doc/analytics-raw-data
+          cp -R fga-eps-mds*.json doc/analytics-raw-data
+          cd doc
+          git add .
+          git commit -m "Métricas SonarCloud - ${{ github.event.repository.name }} ${{ github.ref_name }}"
+          git push
+          echo "Arquivos de métricas gerado com sucesso."
