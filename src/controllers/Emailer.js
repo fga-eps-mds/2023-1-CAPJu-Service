@@ -10,11 +10,12 @@ dotenv.config();
 const senha = process.env.CAPJU_EMAIL_PASSWORD;
 
 export function dataAtualFormatada(data) {
-  data = new Date(data);
-  var dia = data.getDate().toString().padStart(2, "0");
-  var mes = (data.getMonth() + 1).toString().padStart(2, "0");
-  var ano = data.getFullYear();
-  return dia + "/" + mes + "/" + ano;
+  const partesData = data.split("-");
+  const ano = partesData[0];
+  const mes = partesData[1];
+  const dia = partesData[2];
+  const dataFormatada = `${dia}/${mes}/${ano}`;
+  return dataFormatada;
 }
 
 export async function getMailContents() {
