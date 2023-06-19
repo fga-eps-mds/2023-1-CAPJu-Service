@@ -48,7 +48,7 @@ export const authRole = (roleArray) => (req, res, next) => {
   });
 };
 
-async function tokenToUser(req){
+async function tokenToUser(req, res) {
   let token;
 
   if (

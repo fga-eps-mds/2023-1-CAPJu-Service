@@ -212,7 +212,7 @@ class ProcessController {
   async updateProcess(req, res) {
     try {
       const { idFlow, nickname, priority, status, idStage } = req.body;
-      
+
       const recordStatus = validateRecord(req.body.record);
 
       if (!recordStatus.valid) {
@@ -238,17 +238,20 @@ class ProcessController {
         return res.status(404).json({ error: "processo inexistente" });
       }
 
-      const startingProcess = process.status === "notStarted" && status === "inProgress" ? { 
-        idStage:flowStages[0].idStageA,
-        effectiveDate: new Date(),
-       } : {}
+      const startingProcess =
+        process.status === "notStarted" && status === "inProgress"
+          ? {
+              idStage: flowStages[0].idStageA,
+              effectiveDate: new Date(),
+            }
+          : {};
 
       process.set({
         nickname,
         idStage: idStage || process.idStage,
         idPriority: priority,
         status,
-        ...startingProcess
+        ...startingProcess,
       });
 
       await process.save();
@@ -260,8 +263,8 @@ class ProcessController {
       });
 
       for (const fp of flowProcesses) {
-        fp.set({ 
-          idFlow: idFlow, 
+        fp.set({
+          idFlow: idFlow,
           status: status,
         });
         fp.save();
@@ -297,7 +300,11 @@ class ProcessController {
   async updateProcessStage(req, res) {
     const { record, from, to, idFlow } = req.body;
 
-    if (isNaN(parseInt(from)) || isNaN(parseInt(to)) || isNaN(parseInt(idFlow))) {
+    if (
+      isNaN(parseInt(from)) ||
+      isNaN(parseInt(to)) ||
+      isNaN(parseInt(idFlow))
+    ) {
       return res.status(400).json({
         error: "Identificadores inválidos",
         message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
@@ -315,7 +322,10 @@ class ProcessController {
 
       if (flowStages?.length > 0) {
         for (const flowStage of flowStages) {
-          if (flowStage.idStageA === from && flowStage.idStageB === to || flowStage.idStageB === from && flowStage.idStageA === to) {
+          if (
+            (flowStage.idStageA === from && flowStage.idStageB === to) ||
+            (flowStage.idStageB === from && flowStage.idStageA === to)
+          ) {
             canAdvance = true;
             break;
           }
