@@ -4,9 +4,9 @@ import { ROLE } from "../schemas/role.js";
 
 class UnitController {
   async index(req, res) {
-    const units = await Unit.findAll();
+    const units = await Unit.findAll({ offset: 0, limit: 5 });
 
-    if (!units) {
+    if (!units || units.length === 0) {
       return res.status(401).json({ message: "Não Existe unidades" });
     } else {
       return res.status(200).json(units);
