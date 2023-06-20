@@ -18,6 +18,23 @@ const recordFilter = (record) => {
   return record.replace(regex, "");
 };
 
+const IsUtilDay = (data) => {
+  const diaDaSemana = data.getDay();
+  return diaDaSemana >= 1 && diaDaSemana <= 5;
+}
+
+const handleVerifyDate = (startDate, duration) => {
+  let days = 0;
+  while (duration > 0) {
+    startDate.setDate(startDate.getDate() + 1);
+    if (IsUtilDay(startDate)) {
+      duration--;
+    }
+    days++;
+  }
+  return days;
+}
+
 const validateRecord = (record) => {
   const filtered = recordFilter(record);
   return {
@@ -367,7 +384,8 @@ class ProcessController {
       let maturityDate;
       const stageStartDate = new Date();
       const stageEndDate = new Date(stageStartDate);
-      stageEndDate.setDate(stageEndDate.getDate() + (currentStage.duration + 1));
+      stageEndDate.setDate(stageEndDate.getDate() + (handleVerifyDate(stageStartDate, currentStage.duration)));
+
       maturityDate = stageEndDate.toLocaleString("pt-BR", {
         year: "numeric",
         month: "long",
