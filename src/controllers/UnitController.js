@@ -5,8 +5,10 @@ import { ROLE } from "../schemas/role.js";
 class UnitController {
   async index(req, res) {
     try {
-      const units = await Unit.findAll({ offset: req.params.offset, limit: req.params.limit });
-      return res.json(units);
+      const units = await Unit.findAll({ offset: req.query.offset, limit: req.query.limit });
+      const totalCount = await Unit.count();
+      const totalPages = Math.ceil(totalCount/parseInt(req.query.limit,10));
+      return res.json({units:units || [],totalPages});
     } catch (error) {
       console.log(error);
       return res.status(500).json({
