@@ -276,17 +276,35 @@ class ProcessController {
       const startingProcess =
         process.status === "notStarted" && status === "inProgress"
           ? {
-              idStage: flowStages[0].idStageA,
-              effectiveDate: new Date(),
-            }
+            idStage: flowStages[0].idStageA,
+            effectiveDate: new Date(),
+          }
           : {};
+      let tempProgress = []
+      if (process.status === "notStarted" && status === "inProgress") {
+        const currentStage = await Stage.findOne({
+          where: { idStage: flowStages[0].idStageA }
+        })
+
+        const stageStartDate = new Date();
+        const stageEndDate = new Date(stageStartDate);
+        stageEndDate.setDate(stageEndDate.getDate() + (handleVerifyDate(stageStartDate, currentStage.duration)));
+
+        const progressData = {
+          idStage: flowStages[0].idStageA,
+          entrada: new Date(),
+          vencimento: stageEndDate,
+        }
+        tempProgress.push(progressData);
+      }
 
       process.set({
         nickname,
         idStage: idStage || process.idStage,
         idPriority: priority,
         status,
-        ...startingProcess,
+        progress: tempProgress,
+        ...startingProcess
       });
 
       await process.save();
@@ -386,20 +404,12 @@ class ProcessController {
       const stageEndDate = new Date(stageStartDate);
       stageEndDate.setDate(stageEndDate.getDate() + (handleVerifyDate(stageStartDate, currentStage.duration)));
 
-      maturityDate = stageEndDate.toLocaleString("pt-BR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
+      maturityDate = stageEndDate;
 
       if (from < to) {
         const progressData = {
           idStage: to,
-          entrada: new Date().toLocaleString("pt-BR", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          entrada: new Date(),
           vencimento: maturityDate,
         }
         tempProgress = currentProcess.progress;
@@ -409,11 +419,7 @@ class ProcessController {
         tempProgress.pop();
         tempProgress[tempProgress.length - 1] = {
           idStage: to,
-          entrada: new Date().toLocaleString("pt-BR", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          entrada: new Date(),
           vencimento: maturityDate,
         }
       }

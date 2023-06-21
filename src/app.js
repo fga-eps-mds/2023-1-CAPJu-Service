@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const app_route = process.env.API_ENV || "dev";
 
-app.use(`/`, routes);
+app.use(`/${app_route}`, routes);
 
 cron.schedule("0 0 0 * * *", () => {
   Emailer.sendEmail();
