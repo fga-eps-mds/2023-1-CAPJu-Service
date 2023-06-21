@@ -296,6 +296,8 @@ class ProcessController {
           vencimento: stageEndDate,
         }
         tempProgress.push(progressData);
+      }else{
+        tempProgress = process.progress;
       }
 
       process.set({
