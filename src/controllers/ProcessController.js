@@ -296,7 +296,7 @@ class ProcessController {
           vencimento: stageEndDate,
         }
         tempProgress.push(progressData);
-      }else{
+      } else {
         tempProgress = process.progress;
       }
 
@@ -397,14 +397,19 @@ class ProcessController {
       const currentProcess = await Process.findOne({
         where: { record }
       });
-      const currentStage = await Stage.findOne({
+      const currentToStage = await Stage.findOne({
         where: { idStage: to }
       })
+
+      const currentFromStage = await Stage.findOne({
+        where: { idStage: from }
+      })
+
       let tempProgress = []
       let maturityDate;
       const stageStartDate = new Date();
       const stageEndDate = new Date(stageStartDate);
-      stageEndDate.setDate(stageEndDate.getDate() + (handleVerifyDate(stageStartDate, currentStage.duration)));
+      stageEndDate.setDate(stageEndDate.getDate() + (handleVerifyDate(stageStartDate, currentToStage.duration)));
 
       maturityDate = stageEndDate;
 
@@ -417,12 +422,22 @@ class ProcessController {
         tempProgress = currentProcess.progress;
         tempProgress.push(progressData);
       } else {
-        tempProgress = currentProcess.progress;
-        tempProgress.pop();
-        tempProgress[tempProgress.length - 1] = {
-          idStage: to,
-          entrada: new Date(),
-          vencimento: maturityDate,
+        if (currentFromStage.createdAt > currentToStage.createdAt) {
+          const progressData = {
+            idStage: to,
+            entrada: new Date(),
+            vencimento: maturityDate,
+          }
+          tempProgress = currentProcess.progress;
+          tempProgress.push(progressData);
+        } else {
+          tempProgress = currentProcess.progress;
+          tempProgress.pop();
+          tempProgress[tempProgress.length - 1] = {
+            idStage: to,
+            entrada: new Date(),
+            vencimento: maturityDate,
+          }
         }
       }
 
