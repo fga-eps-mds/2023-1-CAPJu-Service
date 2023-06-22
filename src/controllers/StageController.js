@@ -10,14 +10,16 @@ class StageController {
 
     const stages = await Stage.findAll({
       where,
-      offset: 0,
-      limit: 5,
+      offset: req.query.offset,
+      limit: req.query.limit,
     });
+    const totalCount = await Stage.count();
+    const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
     if (!stages || stages.length === 0) {
       return res.status(401).json({ error: "Não Existem fluxos" });
     } else {
-      return res.json(stages);
+      return res.json({ stages: stages || [], totalPages });
     }
   }
 
