@@ -34,6 +34,7 @@ class ProcessController {
       let processes = await Process.findAll({
         where,
       });
+
       if (!processes) {
         return res.status(404).json({ error: "Não há processos" });
       } else {
@@ -43,6 +44,7 @@ class ProcessController {
             where: {
               record: process.record,
             },
+            //offset: req.query.offset, limit: req.query.limit,
           });
           const flowProcessesIdFlows = flowProcesses.map((flowProcess) => {
             return flowProcess.idFlow;
@@ -59,9 +61,17 @@ class ProcessController {
             status: process.status,
           });
         }
-        return res.status(200).json(processesWithFlows);
+
+        const totalCount = await Process.count();
+        const totalPages =
+          Math.ceil(totalCount / parseInt(req.query.limit, 10)) || 0;
+
+        return res
+          .status(200)
+          .json({ processes: processesWithFlows || [], totalPages });
       }
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro ao buscar processos",
