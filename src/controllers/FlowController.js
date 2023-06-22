@@ -143,20 +143,30 @@ class FlowController {
     try {
       const { idUnit, idRole } = await tokenToUser(req);
       const where = idRole === 5 ? {} : { idUnit };
-
+//      const limit = 10;
+      const {limit, offset} = req.query;
+//      const page = parseInt(req.query.pagination, 10);
+      console.log("aqui!!!!!!1");
+      console.log(req.query);
+  
       const flows = await Flow.findAll({
         where,
+        offset: parseInt(offset),
+        limit: parseInt(limit),
       });
-
+  
+      const totalCount = await Flow.count({ where });
+      const totalPages = Math.ceil(totalCount / limit);
+  
       let flowsWithSequences = [];
       for (const flow of flows) {
         const flowStages = await FlowStage.findAll({
           where: { idFlow: flow.idFlow },
         });
-
+  
         const { stages, sequences } =
           FlowController.#stagesSequencesFromFlowStages(flowStages);
-
+  
         const flowSequence = {
           idFlow: flow.idFlow,
           name: flow.name,
@@ -164,16 +174,14 @@ class FlowController {
           stages,
           sequences,
         };
-
+  
         flowsWithSequences.push(flowSequence);
       }
-
-      return res.status(200).json(flowsWithSequences);
+  
+      return res.status(200).json({ flows: flowsWithSequences || [], totalPages });
     } catch (error) {
       console.log(error);
-      return res
-        .status(500)
-        .json({ error, message: "Impossível obter fluxos" });
+      return res.status(500).json({ error, message: "Impossível obter fluxos" });
     }
   }
 
