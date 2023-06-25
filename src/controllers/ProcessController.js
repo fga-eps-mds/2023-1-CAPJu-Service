@@ -31,21 +31,26 @@ class ProcessController {
       const { idUnit, idRole } = await tokenToUser(req);
       const where = idRole === 5 ? {} : { idUnit };
 
-      let processes = await Process.findAll({
+      const limit = parseInt(req.query.limit) || 10;
+      const offset = parseInt(req.query.offset) || 0;
+
+      const processes = await Process.findAll({
         where,
+        limit,
+        offset,
       });
 
-      if (!processes) {
+      if (!processes || processes.length === 0) {
         return res.status(404).json({ error: "Não há processos" });
       } else {
-        let processesWithFlows = [];
+        const processesWithFlows = [];
         for (const process of processes) {
           const flowProcesses = await FlowProcess.findAll({
             where: {
               record: process.record,
             },
-            //offset: req.query.offset, limit: req.query.limit,
           });
+
           const flowProcessesIdFlows = flowProcesses.map((flowProcess) => {
             return flowProcess.idFlow;
           });
@@ -62,13 +67,12 @@ class ProcessController {
           });
         }
 
-        const totalCount = await Process.count();
-        const totalPages =
-          Math.ceil(totalCount / parseInt(req.query.limit, 10)) || 0;
+        const totalCount = await Process.count({ where });
+        const totalPages = Math.ceil(totalCount / limit) || 0;
 
         return res
           .status(200)
-          .json({ processes: processesWithFlows || [], totalPages });
+          .json({ processes: processesWithFlows, totalPages });
       }
     } catch (error) {
       console.log(error);
@@ -156,6 +160,7 @@ class ProcessController {
       const flow = await Flow.findByPk(idFlow);
 
       if (flow) {
+        console.log("primeiro if");
         await Process.create({
           record,
           idUnit: flow.idUnit,
@@ -164,22 +169,36 @@ class ProcessController {
         });
         try {
           if (flow) {
+            console.log("segundo if");
+            console.log(`valores:    , '${idFlow}, ${record}`);
             const flowProcess = await FlowProcess.create({
               idFlow,
               record,
               finalised: false,
             });
+            console.log(`valor:  ${flowProcess}`);
+
+            if (flowProcess) {
+              console.log("passou");
+            } else {
+              throw new Error(flowProcess);
+            }
+            console.log(`valor:  ${flowProcess}`);
+            console.log("criei flow process");
             return res
               .status(200)
               .json({ message: "Criado com sucesso!", flowProcess });
           }
         } catch (error) {
+          console.log("terceiro if de erro");
+
           console.log(error);
           return res.status(500).json(error);
         }
       }
       return res.status(200).json({ process });
     } catch (error) {
+      console.log("quarto if de erro");
       console.log(error);
       return res.status(500).json(error);
     }
