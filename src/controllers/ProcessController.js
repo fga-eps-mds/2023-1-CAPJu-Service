@@ -31,9 +31,8 @@ class ProcessController {
       const { idUnit, idRole } = await tokenToUser(req);
       const where = idRole === 5 ? {} : { idUnit };
 
-      const limit = parseInt(req.query.limit) || 10;
       const offset = parseInt(req.query.offset) || 0;
-
+      const limit = parseInt(req.query.limit) || 10;
       const processes = await Process.findAll({
         where,
         limit,
