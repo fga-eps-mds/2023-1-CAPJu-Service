@@ -89,10 +89,12 @@ class UserController {
         if (accepted === "true") {
           users = await User.findAll({
             where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
+            limit: req.query.limit, // Define o limite para 2 itens
           });
         } else if (accepted === "false") {
           users = await User.findAll({
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
+            limit: req.query.limit, // Define o limite para 2 itens
           });
         } else {
           return res.status(400).json({
@@ -117,6 +119,7 @@ class UserController {
             idRole: { [Op.ne]: 5 },
             ...where,
           },
+          limit: 5, // Define o limite para 2 itens
         });
         users = users.map((user) => {
           return {
