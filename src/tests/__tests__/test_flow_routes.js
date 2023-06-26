@@ -16,10 +16,10 @@ describe("flow endpoints", () => {
       name: "Fluxo AB",
       idUnit: 1,
       sequences: [
-        { "from": 1, "to": 2, "commentary": "Primeiro Comentário" },
-        { "from": 2, "to": 3, "commentary": "Segundo Comentário" },
+        { from: 1, to: 2, commentary: "Primeiro Comentário" },
+        { from: 2, to: 3, commentary: "Segundo Comentário" },
       ],
-      idUsersToNotify: ["12345678901", "12345678909"]
+      idUsersToNotify: ["12345678901", "12345678909"],
     };
 
     const newFlowResponse = await supertest(app)
@@ -28,17 +28,23 @@ describe("flow endpoints", () => {
 
     expect(newFlowResponse.status).toBe(200);
 
-    const createdFlow = await supertest(app)
-      .get(`/flow/${newFlowResponse.body.idFlow}`)
+    const createdFlow = await supertest(app).get(
+      `/flow/${newFlowResponse.body.idFlow}`
+    );
 
     expect(newFlowResponse.body.idFlow).toEqual(createdFlow.body.idFlow);
     expect(newFlowResponse.body.name).toEqual(createdFlow.body.name);
     expect(newFlowResponse.body.idUnit).toEqual(createdFlow.body.idUnit);
     expect(newFlowResponse.body.sequences).toEqual(createdFlow.body.sequences);
-
   });
 
+  test("get flow by id", async () => {
+    const idFlow = 1;
+    const flowResponse = await supertest(app).get(`/flow/${idFlow}`);
 
+    expect(flowResponse.status).toBe(200);
+    expect(flowResponse.body.idFlow).toBe(idFlow);
+  });
 
   // test("two new flows without processes", async () => {
   //   const testStages = [
@@ -236,7 +242,7 @@ describe("flow endpoints", () => {
   //       .send(testFlow);
   //     expect(newFlowResponse.status).toBe(200);
   //   }
-  //   /* 
+  //   /*
   //   const flowsResponse = await supertest(app).get("/flows");
   //   expect(flowsResponse.status).toBe(200);
   //   expect(flowsResponse.body).toEqual(
@@ -339,9 +345,9 @@ describe("flow endpoints", () => {
   //   expect(deletedResponse.body).toEqual({
   //     message: "Fluxo apagado com sucesso",
   //   });
-  //   /* 
+  //   /*
   //   const flowsResponse = await supertest(app).get("/flows");
-  //   expect(flowsResponse.status).toBe(200); 
+  //   expect(flowsResponse.status).toBe(200);
   //   expect(flowsResponse.body).toEqual([]);*/
 
   //   const flowResponse = await supertest(app).get("/flow/1");
