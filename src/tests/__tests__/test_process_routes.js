@@ -198,7 +198,7 @@ describe("process endpoints", () => {
     });
   });
 
-  test("update process ", async () => {
+  test("update process", async () => {
     const testProcess = {
       record: "12345678901234567890",
       idUnit: 1,
