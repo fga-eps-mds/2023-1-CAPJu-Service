@@ -116,6 +116,35 @@ describe("flow endpoints", () => {
     });
   });
 
+  test("get users to notify", async () => {
+    const flowData = {
+      name: "Fluxo AB",
+      idUnit: 1,
+      sequences: [
+        { from: 1, to: 2, commentary: "Primeiro Comentário" },
+        { from: 2, to: 3, commentary: "Segundo Comentário" },
+      ],
+      idUsersToNotify: ["12345678901", "12345678909"],
+    };
+
+    const newFlowResponse = await supertest(app)
+      .post("/newFlow")
+      .send(flowData);
+
+    expect(newFlowResponse.status).toBe(200);
+    const usersToNotifyResponse = await supertest(app).get(
+      `/flow/${newFlowResponse.body.idFlow}/usersToNotify`
+    );
+    expect(usersToNotifyResponse.status).toBe(200);
+    usersToNotifyResponse.body.usersToNotify.forEach((user) => {
+      expect(user).toHaveProperty("idFlow");
+      expect(user).toHaveProperty("cpf");
+      expect(user).toHaveProperty("email");
+      expect(user).toHaveProperty("idFlow");
+      expect(user).toHaveProperty("idUnit");
+    });
+  });
+
   // test("two new flows without processes", async () => {
   //   const testStages = [
   //     { name: "st0", duration: 1, idUnit: 1 },
