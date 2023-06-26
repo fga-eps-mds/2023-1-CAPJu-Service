@@ -101,6 +101,21 @@ describe("flow endpoints", () => {
     });
   });
 
+  test("get all flow stages", async () => {
+    const flowStagesResponse = await supertest(app).get("/flowStages");
+
+    expect(flowStagesResponse.status).toBe(200);
+    flowStagesResponse.body.forEach((flowStage) => {
+      expect(flowStage).toHaveProperty("idFlowStage");
+      expect(flowStage).toHaveProperty("idStageA");
+      expect(flowStage).toHaveProperty("idStageB");
+      expect(flowStage).toHaveProperty("idFlow");
+      expect(flowStage).toHaveProperty("commentary");
+      expect(flowStage).toHaveProperty("createdAt");
+      expect(flowStage).toHaveProperty("updatedAt");
+    });
+  });
+
   // test("two new flows without processes", async () => {
   //   const testStages = [
   //     { name: "st0", duration: 1, idUnit: 1 },
