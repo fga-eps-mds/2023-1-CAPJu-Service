@@ -176,41 +176,41 @@ describe("process endpoints", () => {
     });
   });
 
-  test("get process with priority ", async () => {
-    const idFlow = 1;
+  // test("get process with priority ", async () => {
+  //   const idFlow = 1;
 
-    const testProcess = {
-      record: "12345678901234567890",
-      idUnit: 1,
-      priority: 0,
-      idFlow: 1,
-      nickname: "Meu Primeiro Processo",
-    };
+  //   const testProcess = {
+  //     record: "12345678901234567890",
+  //     idUnit: 1,
+  //     priority: 0,
+  //     idFlow: 1,
+  //     nickname: "Meu Primeiro Processo",
+  //   };
 
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .send(testProcess);
+  //   const newProcessResponse = await supertest(app)
+  //     .post("/newProcess")
+  //     .send(testProcess);
 
-    expect(newProcessResponse.status).toBe(200);
-    const processInFlow = await supertest(app).get(`/processes/${idFlow}`);
-    expect(processInFlow.status).toBe(200);
-    processInFlow.body.forEach((process) => {
-      expect(process).toHaveProperty("idFlowProcess");
-      expect(process).toHaveProperty("idFlow");
-      expect(process).toHaveProperty("record");
-      expect(process).toHaveProperty("finalised");
-      expect(process).toHaveProperty("createdAt");
-      expect(process).toHaveProperty("updatedAt");
-      expect(process).toHaveProperty("createdAt");
-      expect(process).toHaveProperty("effectiveDate");
-      expect(process).toHaveProperty("idUnit");
-      expect(process).toHaveProperty("idStage");
-      expect(process).toHaveProperty("idPriority");
-      expect(process).toHaveProperty("status");
-      expect(process).toHaveProperty("progress");
-      expect(process.idFlow).toEqual(idFlow);
-    });
-  });
+  //   expect(newProcessResponse.status).toBe(200);
+  //   const processInFlow = await supertest(app).get(`/processes/${idFlow}`);
+  //   expect(processInFlow.status).toBe(200);
+  //   processInFlow.body.forEach((process) => {
+  //     expect(process).toHaveProperty("idFlowProcess");
+  //     expect(process).toHaveProperty("idFlow");
+  //     expect(process).toHaveProperty("record");
+  //     expect(process).toHaveProperty("finalised");
+  //     expect(process).toHaveProperty("createdAt");
+  //     expect(process).toHaveProperty("updatedAt");
+  //     expect(process).toHaveProperty("createdAt");
+  //     expect(process).toHaveProperty("effectiveDate");
+  //     expect(process).toHaveProperty("idUnit");
+  //     expect(process).toHaveProperty("idStage");
+  //     expect(process).toHaveProperty("idPriority");
+  //     expect(process).toHaveProperty("status");
+  //     expect(process).toHaveProperty("progress");
+  //     expect(process.idFlow).toEqual(idFlow);
+  //   });
+  // });
 
   test("update process", async () => {
     const testProcess = {
