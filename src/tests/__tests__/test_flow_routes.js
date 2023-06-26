@@ -145,6 +145,51 @@ describe("flow endpoints", () => {
     });
   });
 
+  test("create and update flow", async () => {
+    const flowData = {
+      name: "Fluxo AB",
+      idUnit: 1,
+      sequences: [
+        { from: 1, to: 2, commentary: "Primeiro Comentário" },
+        { from: 2, to: 3, commentary: "Segundo Comentário" },
+      ],
+      idUsersToNotify: ["12345678901", "12345678909"],
+    };
+
+    const newFlowResponse = await supertest(app)
+      .post("/newFlow")
+      .send(flowData);
+
+    expect(newFlowResponse.status).toBe(200);
+    const newFlowData = {
+      name: "Fluxo AB Editado",
+      idFlow: newFlowResponse.body.idFlow,
+      sequences: [
+        { from: 1, to: 2, commentary: "Primeiro Comentário Editado" },
+        { from: 2, to: 3, commentary: "Segundo Comentário Editado" },
+      ],
+      idUsersToNotify: ["12345678901", "12345678909"],
+    };
+
+    const updatedFlowResponse = await supertest(app)
+      .put(`/flow`)
+      .send(newFlowData);
+
+    expect(updatedFlowResponse.status).toBe(200);
+    expect(updatedFlowResponse.body).toHaveProperty("idFlow");
+    expect(updatedFlowResponse.body).toHaveProperty("name");
+    expect(updatedFlowResponse.body).toHaveProperty("idUnit");
+    expect(updatedFlowResponse.body).toHaveProperty("sequences");
+    expect(updatedFlowResponse.body).toHaveProperty("usersToNotify");
+
+    expect(updatedFlowResponse.body.idFlow).toEqual(newFlowData.idFlow);
+    expect(updatedFlowResponse.body.name).toEqual(newFlowData.name);
+    expect(updatedFlowResponse.body.sequences).toEqual(newFlowData.sequences);
+    expect(updatedFlowResponse.body.usersToNotify).toEqual(
+      newFlowData.idUsersToNotify
+    );
+  });
+
   // test("two new flows without processes", async () => {
   //   const testStages = [
   //     { name: "st0", duration: 1, idUnit: 1 },
