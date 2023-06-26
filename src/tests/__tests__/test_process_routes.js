@@ -65,27 +65,54 @@ describe("process endpoints", () => {
 
   test("new process and delete it", async () => {
     let processMock = {
-        record: "12345678901234567891",
-        idUnit: 1,
-        priority: 0,
-        idFlow: 1,
-        nickname: "Meu Primeiro Prcesso",
-      }
+      record: "12345678901234567891",
+      idUnit: 1,
+      priority: 0,
+      idFlow: 1,
+      nickname: "Meu Primeiro Prcesso",
+    };
 
     const newProcessResponse = await supertest(app)
       .post("/newProcess")
       .send(processMock);
-  
+
     expect(newProcessResponse.status).toBe(200);
 
-    console.log(newProcessResponse.body.message);
-    
-    console.log(newProcessResponse.body);
     const responseDelete = await supertest(app).delete(
       `/deleteProcess/${newProcessResponse.body.flowProcess.record}`
     );
 
-    expect(responseDelete.body.message).toEqual('OK')
+    expect(responseDelete.body.message).toEqual("OK");
     expect(responseDelete.status).toBe(200);
+  });
+
+  test("new sprocess and check by id", async () => {
+    let processMock = {
+      record: "12345678901234567891",
+      idUnit: 1,
+      priority: 0,
+      idFlow: 1,
+      nickname: "Meu Primeiro Prcesso",
+    };
+
+    const newProcessResponse = await supertest(app)
+      .post("/newProcess")
+      .send(processMock);
+
+    expect(newProcessResponse.status).toBe(200);
+
+    let process = await Process.findOne({
+      where: {
+        record: newProcessResponse.body.flowProcess.record,
+      },
+    });
+
+    console.log(process);
+
+    const response = await supertest(app).get(
+      `/getOneProcess/${process.record}`
+    );
+    expect(response.status).toBe(200);
+    expect(response.body.record).toEqual(processMock.record);
   });
 });
