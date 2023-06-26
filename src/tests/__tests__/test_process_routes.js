@@ -128,4 +128,53 @@ describe("process endpoints", () => {
       expect(priority).toHaveProperty("updatedAt");
     });
   });
+
+  test("get process with priority ", async () => {
+    let processMock = [
+      {
+        record: "12345678901234567891",
+        idUnit: 1,
+        priority: 0,
+        idFlow: 1,
+        nickname: "Meu Primeiro Prcesso",
+      },
+      {
+        record: "12345678901234567892",
+        idUnit: 1,
+        priority: 1,
+        idFlow: 1,
+        nickname: "Meu Segundo Prcesso",
+      },
+    ];
+
+    const allProcesses = [];
+    for (const process of processMock) {
+      const newProcessResponse = await supertest(app)
+        .post("/newProcess")
+        .send(process);
+      expect(newProcessResponse.status).toBe(200);
+      expect(newProcessResponse.body.message).toEqual("Criado com sucesso!");
+      allProcesses.push(newProcessResponse.body);
+    }
+
+    const priorities = [1, 2, 3, 4, 5, 6, 7, 8];
+
+    const priorityProcesses = await Process.findAll({
+      where: {
+        idPriority: priorities,
+      },
+    });
+
+    priorityProcesses.forEach((process) => {
+      expect(process).toHaveProperty("record");
+      expect(process).toHaveProperty("nickname");
+      expect(process).toHaveProperty("effectiveDate");
+      expect(process).toHaveProperty("idUnit");
+      expect(process).toHaveProperty("idStage");
+      expect(process).toHaveProperty("idPriority");
+      expect(process).toHaveProperty("createdAt");
+      expect(process).toHaveProperty("updatedAt");
+      expect(priorities).toContain(process.idPriority);
+    });
+  });
 });
