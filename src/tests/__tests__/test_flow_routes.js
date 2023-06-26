@@ -2,6 +2,7 @@ import { Database } from "../TestDatabase.js";
 import "sequelize";
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
+import Flow from "../../models/Flow.js";
 
 describe("flow endpoints", () => {
   beforeEach(async () => {
@@ -44,6 +45,17 @@ describe("flow endpoints", () => {
 
     expect(flowResponse.status).toBe(200);
     expect(flowResponse.body.idFlow).toBe(idFlow);
+  });
+
+  test("get all flows", async () => {
+    const flows = await Flow.findAll();
+    flows.forEach(flow => {
+      expect(flow.dataValues).toHaveProperty("idFlow");
+      expect(flow.dataValues).toHaveProperty("name");
+      expect(flow.dataValues).toHaveProperty("idUnit");
+      expect(flow.dataValues).toHaveProperty("createdAt");
+      expect(flow.dataValues).toHaveProperty("updatedAt")
+    });
   });
 
   // test("two new flows without processes", async () => {
