@@ -190,6 +190,13 @@ describe("flow endpoints", () => {
     );
   });
 
+  test("delete flow", async () => {
+    const idFlow = 1;
+    const deletedFlow = await supertest(app).delete(`/flow/${idFlow}`);
+    expect(deletedFlow.status).toBe(200);
+    expect(deletedFlow.body.message).toEqual("Fluxo apagado com sucesso");
+  });
+
   // test("two new flows without processes", async () => {
   //   const testStages = [
   //     { name: "st0", duration: 1, idUnit: 1 },
