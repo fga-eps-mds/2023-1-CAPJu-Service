@@ -179,7 +179,7 @@ describe("process endpoints", () => {
   test("get process with priority ", async () => {
     const idFlow = 1;
     const processInFlow = await supertest(app).get(`/processes/${idFlow}`);
-    console.log("processInFlow", processInFlow.status)
+    console.log("processInFlow", processInFlow.status);
     // expect(processInFlow.status).toBe(200);
     processInFlow.body.forEach((process) => {
       expect(process).toHaveProperty("idFlowProcess");
