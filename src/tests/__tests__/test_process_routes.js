@@ -115,4 +115,17 @@ describe("process endpoints", () => {
     expect(response.status).toBe(200);
     expect(response.body.record).toEqual(processMock.record);
   });
+
+  test("get priorities ", async () => {
+    const prioritiesResponse = await supertest(app).get("/priorities");
+
+    expect(prioritiesResponse.status).toBe(200);
+    expect(prioritiesResponse.body).toHaveLength(8);
+    prioritiesResponse.body.forEach((priority) => {
+      expect(priority).toHaveProperty("idPriority");
+      expect(priority).toHaveProperty("description");
+      expect(priority).toHaveProperty("createdAt");
+      expect(priority).toHaveProperty("updatedAt");
+    });
+  });
 });
