@@ -3,6 +3,8 @@ import "sequelize";
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
 import Flow from "../../models/Flow.js";
+import Process from "../../models/Process.js";
+import FlowProcess from "../../models/FlowProcess.js";
 
 describe("flow endpoints", () => {
   beforeEach(async () => {
@@ -49,15 +51,14 @@ describe("flow endpoints", () => {
 
   test("get all flows", async () => {
     const flows = await Flow.findAll();
-    flows.forEach(flow => {
+    flows.forEach((flow) => {
       expect(flow.dataValues).toHaveProperty("idFlow");
       expect(flow.dataValues).toHaveProperty("name");
       expect(flow.dataValues).toHaveProperty("idUnit");
       expect(flow.dataValues).toHaveProperty("createdAt");
-      expect(flow.dataValues).toHaveProperty("updatedAt")
+      expect(flow.dataValues).toHaveProperty("updatedAt");
     });
   });
-
 
   test("get by id with sequence", async () => {
     const idFlow = 1;
@@ -69,8 +70,36 @@ describe("flow endpoints", () => {
     expect(flows.body).toHaveProperty("sequences");
   });
 
+  test("get flow by process record", async () => {
+    const testProcess = {
+      record: "12345678901234567899",
+      idUnit: 1,
+      priority: 0,
+      idFlow: 1,
+      nickname: "Meu Primeiro Processo",
+    };
 
+    const newProcessResponse = await supertest(app)
+      .post("/newProcess")
+      .send(testProcess);
 
+    expect(newProcessResponse.status).toBe(200);
+
+    const flows = await supertest(app).get(
+      `/flows/process/${newProcessResponse.body.flowProcess.record}`
+    );
+    expect(flows.status).toBe(200);
+
+    flows.body.forEach((flow) => {
+      expect(flow).toHaveProperty("idFlowProcess");
+      expect(flow).toHaveProperty("idFlow");
+      expect(flow).toHaveProperty("record");
+      expect(flow).toHaveProperty("finalised");
+      expect(flow).toHaveProperty("createdAt");
+      expect(flow).toHaveProperty("updatedAt");
+      expect(flow.record).toEqual(newProcessResponse.body.flowProcess.record);
+    });
+  });
 
   // test("two new flows without processes", async () => {
   //   const testStages = [
