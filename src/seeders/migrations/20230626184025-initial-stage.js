@@ -20,6 +20,13 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          idUnit: 1,
+          name: "Etapa C",
+          duration: 3,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );
