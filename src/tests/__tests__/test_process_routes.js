@@ -28,6 +28,22 @@ describe("process endpoints", () => {
     expect(newProcessResponse.status).toBe(200);
   });
 
+  test("Error in create new process", async () => {
+    const testProcess = {
+      record: "12345678901234567890",
+      idUnit: 1,
+      priority: 0,
+      idFlow: 2,
+      nickname: "Meu Primeiro Processo",
+    };
+
+    const newProcessResponse = await supertest(app)
+      .post("/newProcess")
+      .send(testProcess);
+
+    expect(newProcessResponse.status).toBe(404);
+  });
+
   test("new process and search", async () => {
     let processMock = [
       {
