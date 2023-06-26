@@ -3,7 +3,7 @@ import FlowStage from "../models/FlowStage.js";
 import Priority from "../models/Priority.js";
 import Process from "../models/Process.js";
 import Flow from "../models/Flow.js";
-import Stage from "../models/Stage.js"
+import Stage from "../models/Stage.js";
 import Database from "../database/index.js";
 import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
@@ -21,7 +21,7 @@ const recordFilter = (record) => {
 const IsUtilDay = (data) => {
   const diaDaSemana = data.getDay();
   return diaDaSemana >= 1 && diaDaSemana <= 5;
-}
+};
 
 const handleVerifyDate = (startDate, duration) => {
   let days = 0;
@@ -33,7 +33,7 @@ const handleVerifyDate = (startDate, duration) => {
     days++;
   }
   return days;
-}
+};
 
 const validateRecord = (record) => {
   const filtered = recordFilter(record);
@@ -85,7 +85,7 @@ class ProcessController {
             idPriority: process.idPriority,
             idFlow: flowProcessesIdFlows,
             status: process.status,
-            progress: process.progress
+            progress: process.progress,
           });
         }
 
@@ -276,25 +276,28 @@ class ProcessController {
       const startingProcess =
         process.status === "notStarted" && status === "inProgress"
           ? {
-            idStage: flowStages[0].idStageA,
-            effectiveDate: new Date(),
-          }
+              idStage: flowStages[0].idStageA,
+              effectiveDate: new Date(),
+            }
           : {};
-      let tempProgress = []
+      let tempProgress = [];
       if (process.status === "notStarted" && status === "inProgress") {
         const currentStage = await Stage.findOne({
-          where: { idStage: flowStages[0].idStageA }
-        })
+          where: { idStage: flowStages[0].idStageA },
+        });
 
         const stageStartDate = new Date();
         const stageEndDate = new Date(stageStartDate);
-        stageEndDate.setDate(stageEndDate.getDate() + (handleVerifyDate(stageStartDate, currentStage.duration)));
+        stageEndDate.setDate(
+          stageEndDate.getDate() +
+            handleVerifyDate(stageStartDate, currentStage.duration)
+        );
 
         const progressData = {
           idStage: flowStages[0].idStageA,
           entrada: new Date(),
           vencimento: stageEndDate,
-        }
+        };
         tempProgress.push(progressData);
       } else {
         tempProgress = process.progress;
@@ -306,7 +309,7 @@ class ProcessController {
         idPriority: priority,
         status,
         progress: tempProgress,
-        ...startingProcess
+        ...startingProcess,
       });
 
       await process.save();
@@ -395,21 +398,24 @@ class ProcessController {
       }
 
       const currentProcess = await Process.findOne({
-        where: { record }
+        where: { record },
       });
       const currentToStage = await Stage.findOne({
-        where: { idStage: to }
-      })
+        where: { idStage: to },
+      });
 
       const currentFromStage = await Stage.findOne({
-        where: { idStage: from }
-      })
+        where: { idStage: from },
+      });
 
-      let tempProgress = []
+      let tempProgress = [];
       let maturityDate;
       const stageStartDate = new Date();
       const stageEndDate = new Date(stageStartDate);
-      stageEndDate.setDate(stageEndDate.getDate() + (handleVerifyDate(stageStartDate, currentToStage.duration)));
+      stageEndDate.setDate(
+        stageEndDate.getDate() +
+          handleVerifyDate(stageStartDate, currentToStage.duration)
+      );
 
       maturityDate = stageEndDate;
 
@@ -418,7 +424,7 @@ class ProcessController {
           idStage: to,
           entrada: new Date(),
           vencimento: maturityDate,
-        }
+        };
         tempProgress = currentProcess.progress;
         tempProgress.push(progressData);
       } else {
@@ -427,7 +433,7 @@ class ProcessController {
             idStage: to,
             entrada: new Date(),
             vencimento: maturityDate,
-          }
+          };
           tempProgress = currentProcess.progress;
           tempProgress.push(progressData);
         } else {
@@ -437,7 +443,7 @@ class ProcessController {
             idStage: to,
             entrada: new Date(),
             vencimento: maturityDate,
-          }
+          };
         }
       }
 
@@ -445,7 +451,7 @@ class ProcessController {
         {
           idStage: to,
           effectiveDate: new Date(),
-          progress: tempProgress
+          progress: tempProgress,
         },
         {
           where: {

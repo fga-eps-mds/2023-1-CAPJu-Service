@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('process', 'progress', {
+    await queryInterface.addColumn("process", "progress", {
       type: Sequelize.ARRAY(Sequelize.JSON),
       allowNull: true,
       defaultValue: [],
@@ -11,6 +11,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('process', 'progress');
-  }
+    await queryInterface.removeColumn("process", "progress");
+  },
 };

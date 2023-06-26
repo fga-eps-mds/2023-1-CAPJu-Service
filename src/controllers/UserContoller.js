@@ -176,8 +176,6 @@ class UserController {
       });
       return res.json(user);
     } catch (error) {
-      console.log(error);
-
       if (error.name === "SequelizeUniqueConstraintError") {
         const errorMessages = {
           cpf: "Este CPF já foi cadastrado na plataforma.",
