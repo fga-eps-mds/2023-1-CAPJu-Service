@@ -58,6 +58,20 @@ describe("flow endpoints", () => {
     });
   });
 
+
+  test("get by id with sequence", async () => {
+    const idFlow = 1;
+    const flows = await supertest(app).get(`/flowSequences/${idFlow}`);
+    expect(flows.status).toBe(200);
+    expect(flows.body).toHaveProperty("idFlow");
+    expect(flows.body).toHaveProperty("name");
+    expect(flows.body).toHaveProperty("idUnit");
+    expect(flows.body).toHaveProperty("sequences");
+  });
+
+
+
+
   // test("two new flows without processes", async () => {
   //   const testStages = [
   //     { name: "st0", duration: 1, idUnit: 1 },
