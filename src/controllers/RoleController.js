@@ -5,7 +5,7 @@ class RoleController {
     const role = await Role.findAll();
 
     if (!role) {
-      return res.status(401).json({ error: "Não Existe cargo" });
+      return res.status(404).json({ error: "Não Existe cargo" });
     } else {
       return res.json(role);
     }
@@ -17,7 +17,7 @@ class RoleController {
     const role = await Role.findByPk(idRole);
 
     if (!role) {
-      return res.status(401).json({ error: "Esse cargo não existe!" });
+      return res.status(404).json({ error: "Esse cargo não existe!" });
     } else {
       return res.json(role);
     }
@@ -28,8 +28,8 @@ class RoleController {
 
     const role = await Role.findByPk(idRole);
 
-    if (!role) {
-      return res.status(401).json({ error: "Esse cargo não existe!" });
+    if (!role || role === null) {
+      return res.status(404).json({ error: "Esse cargo não existe!" });
     } else {
       role.set({ name });
 
@@ -45,7 +45,7 @@ class RoleController {
     const role = await Role.findByPk(idRole);
 
     if (!role) {
-      return res.status(401).json({ error: "Esse cargo não existe!" });
+      return res.status(404).json({ error: "Esse cargo não existe!" });
     } else {
       await role.destroy();
       return res.json(role);
@@ -64,7 +64,7 @@ class RoleController {
       return res.json(role);
     } catch (error) {
       console.log(error);
-      return res.status(error).json(error);
+      return res.status(408).json(error);
     }
   }
 }

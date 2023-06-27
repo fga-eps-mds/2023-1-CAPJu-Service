@@ -3,6 +3,7 @@ import "sequelize";
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
 import Unit from "../../models/Unit.js";
+import Role from "../../models/Role.js";
 
 describe("role endpoints", () => {
   beforeEach(async () => {
@@ -21,6 +22,28 @@ describe("role endpoints", () => {
     const response = await supertest(app).post("/newRole").send(testRole);
     expect(response.status).toBe(200);
     expect(response.body.name).toBe(testRole.name);
+  });
+
+  test("new role 3", async () => {
+    const testRole = {
+      accessLevel: 3,
+    };
+
+    const response = await supertest(app).post("/newRole").send(testRole);
+    expect(response.status).toBe(408);
+  });
+
+  test("new role 4", async () => {
+    const testRole = {
+      name: "nome",
+      idRole: 7,
+      accessLevel: 4,
+    };
+    const role = await Role.findByPk(testRole.idRole);
+    console.log(role);
+
+    const response = await supertest(app).post("/updateRole").send({});
+    expect(response.status).toBe(404);
   });
 
   test("new roles and list existing", async () => {

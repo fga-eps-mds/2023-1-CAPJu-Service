@@ -18,7 +18,7 @@ class UserController {
       // Check for user cpf
       const user = await User.findByPk(cpfFilter(cpf));
       if (!user) {
-        return res.status(401).json({
+        return res.status(404).json({
           error: "Usuário inexistente",
           message: "Usuário inexistente",
         });
@@ -167,7 +167,7 @@ class UserController {
           errorMessages[duplicatedField] || "Já existe um registro duplicado.";
 
         return res
-          .status(409)
+          .status(400)
           .json({ error: "Campo duplicado.", message: errorMessage });
       }
 
