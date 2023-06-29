@@ -147,4 +147,27 @@ describe("role endpoints", () => {
     expect(response.status).toBe(200);
     expect(response.body.idRole).toEqual(newRoleResponse.body.idRole);
   });
+
+  test("new role and delete it", async () => {
+    for (let i = 0; i < 5; i++) {
+      let testRole = await Role.findOne({
+        where: {
+          name:
+            "Estagiário" ||
+            "Director" ||
+            "Juiz" ||
+            "Ädministrador" ||
+            "Servidor",
+        },
+      });
+
+      const response = await supertest(app)
+        .delete("/deleteRole/")
+        .send(testRole);
+      expect(response.status).toBe(404);
+      expect(response.body.idRole).toEqual(testRole.idRole);
+    }
+    const response = await supertest(app).get("/role");
+    expect(response.status).toBe(404);
+  });
 });
