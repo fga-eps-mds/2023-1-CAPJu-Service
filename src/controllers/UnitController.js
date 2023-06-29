@@ -7,7 +7,7 @@ class UnitController {
     const units = await Unit.findAll();
 
     if (!units) {
-      return res.status(404).json({ message: "Não Existe unidades" });
+      return res.status(204).json({ message: "Não Existe unidades" });
     } else {
       return res.status(200).json(units);
     }
@@ -61,7 +61,7 @@ class UnitController {
       const unit = await Unit.findByPk(idUnit);
 
       if (!unit) {
-        return res.status(404).json({ error: "Essa unidade não existe!" });
+        return res.status(204).json({ error: "Essa unidade não existe!" });
       } else {
         await unit.destroy();
         return res.status(200).json(unit);
@@ -83,7 +83,7 @@ class UnitController {
 
     if (!users) {
       return res
-        .status(404)
+        .status(204)
         .json({ error: "Não há administradores para essa unidade" });
     } else {
       return res.status(200).json(users);
@@ -137,7 +137,7 @@ class UnitController {
       },
     });
     if (!user) {
-      return res.status(404).json({
+      return res.status(204).json({
         error: "Usuário não existe nesta unidade",
       });
     } else {

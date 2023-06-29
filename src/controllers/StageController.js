@@ -13,7 +13,7 @@ class StageController {
     });
 
     if (!stages) {
-      return res.status(404).json({ error: "Não Existem fluxos" });
+      return res.status(204).json({ error: "Não Existem fluxos" });
     } else {
       return res.json(stages);
     }
@@ -25,7 +25,7 @@ class StageController {
     const stage = await Stage.findByPk(idStage);
 
     if (!stage) {
-      return res.status(404).json({ error: "Esse fluxo não existe" });
+      return res.status(204).json({ error: "Esse fluxo não existe" });
     } else {
       return res.status(200).json(stage);
     }
@@ -67,7 +67,7 @@ class StageController {
       const stage = await Stage.findByPk(idStage);
 
       if (!stage) {
-        return res.status(404).json({ error: "Essa etapa não existe!" });
+        return res.status(204).json({ error: "Essa etapa não existe!" });
       } else {
         await stage.destroy();
         return res.status(200).json(stage);

@@ -148,26 +148,51 @@ describe("role endpoints", () => {
     expect(response.body.idRole).toEqual(newRoleResponse.body.idRole);
   });
 
-  test("new role and delete it", async () => {
-    for (let i = 0; i < 5; i++) {
-      let testRole = await Role.findOne({
-        where: {
-          name:
-            "Estagiário" ||
-            "Director" ||
-            "Juiz" ||
-            "Ädministrador" ||
-            "Servidor",
-        },
-      });
+  test("status 204 if get role that doesnt exist", async () => {
+    let testRole = await Role.findOne({ where: { name: "Diretor" } });
+    console.log(testRole);
 
-      const response = await supertest(app)
-        .delete("/deleteRole/")
-        .send(testRole);
-      expect(response.status).toBe(404);
-      expect(response.body.idRole).toEqual(testRole.idRole);
-    }
-    const response = await supertest(app).get("/role");
-    expect(response.status).toBe(404);
+    let response = await supertest(app)
+      .delete("/deleteRole/")
+      .send(testRole.dataValues);
+    expect(response.status).toBe(200);
+    expect(response.body.idRole).toBe(testRole.dataValues.idRole);
+
+    const finalResponse = await supertest(app).get(
+      `/roleAdmins/${testRole.dataValues.idRole}`
+    );
+    expect(finalResponse.status).toBe(204);
+  });
+
+  test("status 204 if update role that doesnt exist", async () => {
+    let testRole = await Role.findOne({ where: { name: "Diretor" } });
+    console.log(testRole);
+
+    let response = await supertest(app)
+      .delete("/deleteRole/")
+      .send(testRole.dataValues);
+    expect(response.status).toBe(200);
+    expect(response.body.idRole).toBe(testRole.dataValues.idRole);
+
+    const finalResponse = await supertest(app)
+      .put(`/updateRole/`)
+      .send(testRole.dataValues);
+    expect(finalResponse.status).toBe(204);
+  });
+
+  test("status 204 if delete role that doesnt exist", async () => {
+    let testRole = await Role.findOne({ where: { name: "Diretor" } });
+    console.log(testRole);
+
+    let response = await supertest(app)
+      .delete("/deleteRole/")
+      .send(testRole.dataValues);
+    expect(response.status).toBe(200);
+    expect(response.body.idRole).toBe(testRole.dataValues.idRole);
+
+    let finalResponse = await supertest(app)
+      .delete("/deleteRole/")
+      .send(testRole.dataValues);
+    expect(finalResponse.status).toBe(204);
   });
 });

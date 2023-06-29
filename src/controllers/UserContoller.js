@@ -18,7 +18,7 @@ class UserController {
       // Check for user cpf
       const user = await User.findByPk(cpfFilter(cpf));
       if (!user) {
-        return res.status(404).json({
+        return res.status(204).json({
           error: "Usuário inexistente",
           message: "Usuário inexistente",
         });
