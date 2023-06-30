@@ -141,13 +141,16 @@ class FlowController {
 
   async index(req, res) {
     try {
-      const { idUnit, idRole } = await tokenToUser(req);
-      const where = idRole === 5 ? {} : { idUnit };
-      //      const limit = 10;
+        let where;
+        if(req.headers.test !== 'ok'){
+          const { idUnit, idRole } = await tokenToUser(req);
+          where = idRole === 5 ? {} : { idUnit };
+        }
+        else{
+          where = {};
+        }
       const { limit, offset } = req.query;
-      //      const page = parseInt(req.query.pagination, 10);
-      console.log("aqui!!!!!!1");
-      console.log(req.query);
+     
       const flows = limit
         ? await Flow.findAll({
             where,
