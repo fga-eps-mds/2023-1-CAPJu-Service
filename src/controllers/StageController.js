@@ -6,11 +6,10 @@ import { tokenToUser } from "../middleware/authMiddleware.js";
 class StageController {
   async index(req, res) {
     let where;
-    if(req.headers.test !== 'ok'){
+    if (req.headers.test !== "ok") {
       const { idUnit, idRole } = await tokenToUser(req);
       where = idRole === 5 ? {} : { idUnit };
-    }
-    else{
+    } else {
       where = {};
     }
 

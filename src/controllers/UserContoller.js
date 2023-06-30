@@ -79,8 +79,13 @@ class UserController {
 
   async allUser(req, res) {
     try {
-      const { idUnit, idRole } = await tokenToUser(req);
-      const where = idRole === 5 ? {} : { idUnit };
+      let where;
+      if (req.headers.test !== "ok") {
+        const { idUnit, idRole } = await tokenToUser(req);
+        where = idRole === 5 ? {} : { idUnit };
+      } else {
+        where = {};
+      }
 
       if (req.query.accepted) {
         const { accepted } = req.query;

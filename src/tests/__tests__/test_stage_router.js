@@ -133,12 +133,14 @@ describe("stage endpoints", () => {
 
   test("test", async () => {
     const testUser = {
-      "cpf": "12345678901",
-      "password": "123Teste",
+      cpf: "12345678901",
+      password: "123Teste",
     };
-    const login = await supertest(app).post("/login").send(testUser,tokenToUser);
+    const login = await supertest(app)
+      .post("/login")
+      .send(testUser, tokenToUser);
     const req = {
-      headers: {authorization: `Bearer ${login.body.token}`}
+      headers: { authorization: `Bearer ${login.body.token}` },
     };
     if (
       req.headers.authorization &&
@@ -147,10 +149,10 @@ describe("stage endpoints", () => {
       try {
         // Get token from header
         const token = req.headers.authorization.split(" ")[1];
-  
+
         // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  
+
         // Get user from the token
         req.user = await User.findByPk(decoded.id);
         if (req.user.accepted === false) {
@@ -161,7 +163,9 @@ describe("stage endpoints", () => {
       }
     }
 
-    const stagesResponse = await supertest(app).get("/stages").set("test", `ok`);
+    const stagesResponse = await supertest(app)
+      .get("/stages")
+      .set("test", `ok`);
     expect(stagesResponse.status).toBe(200);
     expect(stagesResponse.body.stages.length).toBe(3);
   });

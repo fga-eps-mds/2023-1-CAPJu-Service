@@ -4,6 +4,8 @@ import { Op } from "sequelize";
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
 import User from "../../models/User.js";
+import { tokenToUser } from "../../middleware/authMiddleware.js";
+import jwt from "jsonwebtoken";
 
 let where;
 
@@ -486,5 +488,44 @@ describe("user endpoints", () => {
     const checkUserResponse = await supertest(app).get(`/user/${testUser.cpf}`);
     expect(checkUserResponse.status).toBe(404);
     expect(checkUserResponse.body).toEqual({ error: "Usuário não existe" });
+  });
+
+  test("test", async () => {
+    const testUser = {
+      cpf: "12345678901",
+      password: "123Teste",
+    };
+    const login = await supertest(app)
+      .post("/login")
+      .send(testUser, tokenToUser);
+    const req = {
+      headers: { authorization: `Bearer ${login.body.token}` },
+    };
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      try {
+        // Get token from header
+        const token = req.headers.authorization.split(" ")[1];
+
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Get user from the token
+        req.user = await User.findByPk(decoded.id);
+        if (req.user.accepted === false) {
+          throw new Error();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const stagesResponse = await supertest(app)
+      .get("/allUser")
+      .set("test", `ok`);
+    expect(stagesResponse.status).toBe(200);
+    expect(stagesResponse.body.users.length).toBe(1);
   });
 });

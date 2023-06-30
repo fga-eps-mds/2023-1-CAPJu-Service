@@ -215,12 +215,14 @@ describe("flow endpoints", () => {
 
   test("test", async () => {
     const testUser = {
-      "cpf": "12345678901",
-      "password": "123Teste",
+      cpf: "12345678901",
+      password: "123Teste",
     };
-    const login = await supertest(app).post("/login").send(testUser,tokenToUser);
+    const login = await supertest(app)
+      .post("/login")
+      .send(testUser, tokenToUser);
     const req = {
-      headers: {authorization: `Bearer ${login.body.token}`}
+      headers: { authorization: `Bearer ${login.body.token}` },
     };
     if (
       req.headers.authorization &&
@@ -229,10 +231,10 @@ describe("flow endpoints", () => {
       try {
         // Get token from header
         const token = req.headers.authorization.split(" ")[1];
-  
+
         // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  
+
         // Get user from the token
         req.user = await Flow.findByPk(decoded.id);
         if (req.user.accepted === false) {
