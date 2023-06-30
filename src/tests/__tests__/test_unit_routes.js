@@ -33,8 +33,8 @@ describe("unit endpoints", () => {
     // this unit and FGA (initial unit)
     const expectedTestUnits = [initialUnit, testUnit];
 
-    expect(unitsResponse.body.length).toBe(2);
-    expect(unitsResponse.body).toEqual(
+    expect(unitsResponse.body.units.length).toBe(2);
+    expect(unitsResponse.body.units).toEqual(
       expect.arrayContaining(
         expectedTestUnits.map((expectedTestUnit) =>
           expect.objectContaining(expectedTestUnit)
@@ -65,8 +65,8 @@ describe("unit endpoints", () => {
 
     const unitsResponse = await supertest(app).get("/units");
     expect(unitsResponse.status).toBe(200);
-    expect(unitsResponse.body.length).toBe(1);
-    expect(unitsResponse.body).toEqual(
+    expect(unitsResponse.body.units.length).toBe(1);
+    expect(unitsResponse.body.units).toEqual(
       expect.arrayContaining([expect.objectContaining(initialUnit)])
     );
   });
