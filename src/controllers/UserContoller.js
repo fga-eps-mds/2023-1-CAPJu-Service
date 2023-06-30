@@ -77,17 +77,17 @@ class UserController {
     }
   }
 
-  async  allUser(req, res) {
+  async allUser(req, res) {
     try {
       const { idUnit, idRole } = await tokenToUser(req);
       const where = idRole === 5 ? {} : { idUnit };
-  
+
       if (req.query.accepted) {
         const { accepted } = req.query;
         let users;
         let totalCount;
         let totalPages;
-  
+
         if (accepted === "true") {
           users = await User.findAll({
             where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
@@ -113,7 +113,7 @@ class UserController {
             message: "O parâmetro accepted deve ser 'true' ou 'false'",
           });
         }
-  
+
         users = users.map((user) => {
           return {
             cpf: user.cpf,
@@ -124,7 +124,7 @@ class UserController {
             idRole: user.idRole,
           };
         });
-  
+
         return res.status(200).json({ users: users || [], totalPages });
       } else {
         const users = await User.findAll({
@@ -133,7 +133,7 @@ class UserController {
             ...where,
           },
         });
-  
+
         const mappedUsers = users.map((user) => {
           return {
             cpf: user.cpf,
@@ -144,7 +144,7 @@ class UserController {
             idRole: user.idRole,
           };
         });
-  
+
         return res.status(200).json({ users: mappedUsers || [] });
       }
     } catch (error) {
@@ -154,7 +154,7 @@ class UserController {
         message: "Erro ao listar usuários aceitos ou não",
       });
     }
-  }  
+  }
 
   async store(req, res) {
     const { fullName, cpf, email, password, idUnit, idRole } = req.body;
