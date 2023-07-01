@@ -249,4 +249,11 @@ describe("flow endpoints", () => {
     expect(flowsResponse.status).toBe(200);
     expect(flowsResponse.body.flows.length).toBe(1);
   });
+
+  it("should return 404 with error message if flow is not found", async () => {
+    const response = await supertest(app).get("/flows");
+
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe("Impossível obter fluxos");
+  });
 });
