@@ -256,4 +256,19 @@ describe("flow endpoints", () => {
     expect(response.status).toBe(500);
     expect(response.body.message).toBe("Impossível obter fluxos");
   });
+
+  it("should return a 404 status with an error message if there are less than two sequences", async () => {
+    const flowData = {
+      name: "Fluxo Teste",
+      idUnit: 1,
+      sequences: [],
+      idUsersToNotify: ["12345678901", "12345678909"],
+    };
+
+    const response = await supertest(app).post("/newFlow").send(flowData);
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Necessário pelo menos duas etapas!");
+    expect(response.body.json).toBeUndefined();
+  });
 });
