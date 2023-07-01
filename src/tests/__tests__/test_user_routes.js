@@ -806,4 +806,11 @@ describe("user endpoints", () => {
     );
     expect(deleteUserResponse.status).toBe(404);
   });
+
+  it("should return the total count and total pages for accepted users", async () => {
+    const response = await supertest(app)
+      .get("/allUser?accepted=true")
+      .set("test", "ok")
+      .expect(200);
+  });
 });

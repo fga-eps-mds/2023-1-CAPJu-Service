@@ -1,8 +1,8 @@
 import { Database } from "../TestDatabase.js";
 import "sequelize";
 import supertest from "supertest";
+import User from "../../models/User.js";
 import { app, injectDB } from "../TestApp";
-import Unit from "../../models/Unit.js";
 import { ROLE } from "../../schemas/role.js";
 
 describe("unit endpoints", () => {
@@ -131,5 +131,17 @@ describe("unit endpoints", () => {
     expect(setUserResponse.body).toEqual(
       expect.objectContaining(expectedTestUser)
     );
+  });
+
+  it("should return an error message if listing units fails", async () => {
+    // Simule um erro ao listar unidades definindo um objeto inválido para offset e limit
+    const response = await supertest(app)
+      .get("/units")
+      .query({ offset: "invalid", limit: "invalid" })
+      .expect(500);
+
+    // Verifique se a resposta contém o corpo esperado
+    expect(response.body.error).toBeDefined();
+    expect(response.body.message).toBe("Erro ao listar unidades");
   });
 });
