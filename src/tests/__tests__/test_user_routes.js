@@ -384,6 +384,114 @@ describe("user endpoints", () => {
     expect(response.body.cpf).toEqual(expectedUser.cpf);
   });
 
+  test("new user and edit email", async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "sss@example.com",
+      password: "spw123456",
+      idUnit: 1,
+      idRole: 3,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+    };
+
+    const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(userResponse.status).toBe(200);
+    expect(expectedUser).toEqual(userResponse.body);
+
+    const response = await supertest(app)
+      .put(`/updateUser/${testUser.cpf}`)
+      .send({
+        email: "sss@example.com",
+      });
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: "Email atualizado com sucesso",
+    });
+  });
+
+  test("new user and delete inexistent user", async () => {
+    const testUser = {
+      fullName: "Nomenni Nomesos",
+      cpf: "26585841212",
+      email: "sss@example.com",
+      password: "sfwJ23456",
+      idUnit: 1,
+      idRole: 4,
+    };
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const response = await supertest(app).delete(`/deleteUser/12345678900`);
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: "Usuário não existe!" });
+  });
+
+  test("test", async () => {
+    const testUser = {
+      fullName: "Nomenni Nomesos",
+      cpf: "26585841212",
+      email: "testemail@example.com ",
+    };
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(500);
+
+    const response = await supertest(app).delete(
+      `/deleteRequest/${testUser.cpf}`
+    );
+    expect(response.status).toBe(404);
+  });
+
+  test("try editing password of inexistent user", async () => {
+    const expectedUser = {
+      cpf: "55490433353",
+      email: "teseo@email.com",
+      fullName: "Asdfgo Iopqwerty",
+    };
+
+    const response = await supertest(app)
+      .post(`/updateUserPassword/${expectedUser.cpf}`)
+      .send({
+        email: "test@email.com",
+      });
+    expect(response.status).toBe(404);
+  });
+
   test("new user tries to login", async () => {
     const testUser = {
       fullName: "Nomen Nomes",
