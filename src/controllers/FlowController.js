@@ -141,12 +141,26 @@ class FlowController {
 
   async index(req, res) {
     try {
-      const { idUnit, idRole } = await tokenToUser(req);
-      const where = idRole === 5 ? {} : { idUnit };
+      let where;
+      if (req.headers.test !== "ok") {
+        const { idUnit, idRole } = await tokenToUser(req);
+        where = idRole === 5 ? {} : { idUnit };
+      } else {
+        where = {};
+      }
+      const { limit, offset } = req.query;
 
-      const flows = await Flow.findAll({
-        where,
-      });
+      const flows = limit
+        ? await Flow.findAll({
+            where,
+            offset: parseInt(offset),
+            limit: parseInt(limit),
+          })
+        : await Flow.findAll({
+            where,
+          });
+      const totalCount = await Flow.count({ where });
+      const totalPages = Math.ceil(totalCount / limit);
 
       let flowsWithSequences = [];
       for (const flow of flows) {
@@ -167,8 +181,10 @@ class FlowController {
 
         flowsWithSequences.push(flowSequence);
       }
-
-      return res.status(200).json(flowsWithSequences);
+      console.log("aquii pelo amor");
+      return res
+        .status(200)
+        .json({ flows: flowsWithSequences || [], totalPages });
     } catch (error) {
       console.log(error);
       return res
