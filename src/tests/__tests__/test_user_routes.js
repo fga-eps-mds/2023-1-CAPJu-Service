@@ -696,4 +696,72 @@ describe("user endpoints", () => {
 
     expect(response.status).toBe(200);
   });
+
+  test("new users and list existing accepted and unaccepted", async () => {
+    const testUsers = [
+      {
+        fullName: "Francisco Duarte Lopes",
+        cpf: "75706593256",
+        email: "francisco.dl@gmail.com",
+        password: "fdl123456",
+        idUnit: 1,
+        idRole: 1,
+      },
+      {
+        fullName: "Antonio Pereira Soares",
+        cpf: "70102089213",
+        email: "antps@yahoo.com",
+        password: "ffl123456",
+        idUnit: 1,
+        idRole: 2,
+      },
+      {
+        fullName: "Lucas Barbosa",
+        cpf: "05363418770",
+        email: "lbarb@gmail.com",
+        password: "fd78D23456",
+        idUnit: 1,
+        idRole: 3,
+      },
+    ];
+  
+    const adminUser = {
+      cpf: "12345678901",
+      fullName: "Usuário Administrador Inicial",
+      email: "admin@example.com",
+      idUnit: 1,
+      accepted: true,
+      idRole: 5,
+    };
+  
+    for (const testUser of testUsers) {
+      const testUserResponse = await supertest(app)
+        .post("/newUser")
+        .send(testUser);
+      expect(testUserResponse.status).toBe(200);
+    }
+  
+    const acceptedUsersDb = await User.findAll({
+      where: {
+        accepted: true,
+        idRole: adminUser.idRole,
+      },
+    });
+  
+    // Only the administrator is accepted
+    expect(acceptedUsersDb.length).toBe(1);
+    expect(acceptedUsersDb[0].cpf).toEqual(adminUser.cpf);
+  
+    const rejectedUsersDb = await User.findAll({
+      where: {
+        accepted: false,
+        idRole: {
+          [Op.not]: adminUser.idRole,
+        },
+      },
+    });
+  
+    // The three created above + initial unaccepted user
+    expect(rejectedUsersDb.length).toBe(4);
+  });
 });
