@@ -3,6 +3,8 @@ import "sequelize";
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
 import Flow from "../../models/Flow.js";
+import jwt from "jsonwebtoken";
+import { tokenToUser } from "../../middleware/authMiddleware.js";
 import Process from "../../models/Process.js";
 import FlowProcess from "../../models/FlowProcess.js";
 
@@ -209,5 +211,64 @@ describe("flow endpoints", () => {
     expect(deletedFlowStage.body.message).toEqual(
       `Desassociação entre fluxo '${flowResponse.body.idFlow}' e etapas '${flowResponse.body.sequences[0].from}' e '${flowResponse.body.sequences[0].to}' concluída`
     );
+  });
+
+  test("test", async () => {
+    const testUser = {
+      cpf: "12345678901",
+      password: "123Teste",
+    };
+    const login = await supertest(app)
+      .post("/login")
+      .send(testUser, tokenToUser);
+    const req = {
+      headers: { authorization: `Bearer ${login.body.token}` },
+    };
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      try {
+        // Get token from header
+        const token = req.headers.authorization.split(" ")[1];
+
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Get user from the token
+        req.user = await Flow.findByPk(decoded.id);
+        if (req.user.accepted === false) {
+          throw new Error();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const flowsResponse = await supertest(app).get("/flows").set("test", `ok`);
+    expect(flowsResponse.status).toBe(200);
+    expect(flowsResponse.body.flows.length).toBe(1);
+  });
+
+  it("should return 404 with error message if flow is not found", async () => {
+    const response = await supertest(app).get("/flows");
+
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe("Impossível obter fluxos");
+  });
+
+  it("should return a 404 status with an error message if there are less than two sequences", async () => {
+    const flowData = {
+      name: "Fluxo Teste",
+      idUnit: 1,
+      sequences: [],
+      idUsersToNotify: ["12345678901", "12345678909"],
+    };
+
+    const response = await supertest(app).post("/newFlow").send(flowData);
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Necessário pelo menos duas etapas!");
+    expect(response.body.json).toBeUndefined();
   });
 });

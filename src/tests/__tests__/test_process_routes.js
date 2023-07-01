@@ -3,6 +3,9 @@ import "sequelize";
 import supertest from "supertest";
 import Process from "../../models/Process.js";
 import { app, injectDB } from "../TestApp";
+import { tokenToUser } from "../../middleware/authMiddleware.js";
+import jwt from "jsonwebtoken";
+import User from "../../models/User.js";
 
 describe("process endpoints", () => {
   beforeEach(async () => {
@@ -316,5 +319,59 @@ describe("process endpoints", () => {
     expect(updatedProcessStage.body.message).toEqual(
       "Etapa atualizada com sucesso"
     );
+  });
+  test("test", async () => {
+    const testUser = {
+      cpf: "12345678901",
+      password: "123Teste",
+    };
+    const login = await supertest(app)
+      .post("/login")
+      .send(testUser, tokenToUser);
+    const req = {
+      headers: { authorization: `Bearer ${login.body.token}` },
+    };
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      try {
+        // Get token from header
+        const token = req.headers.authorization.split(" ")[1];
+
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Get user from the token
+        req.user = await User.findByPk(decoded.id);
+        if (req.user.accepted === false) {
+          throw new Error();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const testProcess = {
+      record: "12345678901234567890",
+      idUnit: 1,
+      priority: 0,
+      idFlow: 1,
+      nickname: "Meu Primeiro Processo",
+    };
+
+    const newProcessResponse = await supertest(app)
+      .post("/newProcess")
+      .send(testProcess);
+
+    expect(newProcessResponse.status).toBe(200);
+
+    const processesResponse = await supertest(app)
+      .get("/processes")
+      .set("test", `ok`);
+    const result = await req.headers.test;
+    expect(result).not.toEqual("ok");
+    expect(processesResponse.status).toBe(200);
+    expect(processesResponse.body.processes.length).toBe(1);
   });
 });

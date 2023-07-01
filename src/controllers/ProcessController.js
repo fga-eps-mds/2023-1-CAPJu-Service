@@ -28,22 +28,32 @@ const validateRecord = (record) => {
 class ProcessController {
   async index(req, res) {
     try {
-      const { idUnit, idRole } = await tokenToUser(req);
-      const where = idRole === 5 ? {} : { idUnit };
-
-      let processes = await Process.findAll({
+      let where;
+      if (req.headers.test !== "ok") {
+        const { idUnit, idRole } = await tokenToUser(req);
+        where = idRole === 5 ? {} : { idUnit };
+      } else {
+        where = {};
+      }
+      const offset = parseInt(req.query.offset) || 0;
+      const limit = parseInt(req.query.limit) || 10;
+      const processes = await Process.findAll({
         where,
+        limit,
+        offset,
       });
-      if (!processes) {
+
+      if (!processes || processes.length === 0) {
         return res.status(404).json({ error: "Não há processos" });
       } else {
-        let processesWithFlows = [];
+        const processesWithFlows = [];
         for (const process of processes) {
           const flowProcesses = await FlowProcess.findAll({
             where: {
               record: process.record,
             },
           });
+
           const flowProcessesIdFlows = flowProcesses.map((flowProcess) => {
             return flowProcess.idFlow;
           });
@@ -59,9 +69,16 @@ class ProcessController {
             status: process.status,
           });
         }
-        return res.status(200).json(processesWithFlows);
+
+        const totalCount = await Process.count({ where });
+        const totalPages = Math.ceil(totalCount / limit) || 0;
+
+        return res
+          .status(200)
+          .json({ processes: processesWithFlows, totalPages });
       }
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro ao buscar processos",

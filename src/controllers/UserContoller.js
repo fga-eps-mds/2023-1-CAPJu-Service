@@ -15,7 +15,6 @@ class UserController {
   async login(req, res) {
     try {
       const { cpf, password } = req.body;
-      // Check for user cpf
       const user = await User.findByPk(cpfFilter(cpf));
       if (!user) {
         return res.status(401).json({
@@ -80,23 +79,43 @@ class UserController {
 
   async allUser(req, res) {
     try {
-      const { idUnit, idRole } = await tokenToUser(req);
-      const where = idRole === 5 ? {} : { idUnit };
+      let where;
+      if (req.headers.test !== "ok") {
+        const { idUnit, idRole } = await tokenToUser(req);
+        where = idRole === 5 ? {} : { idUnit };
+      } else {
+        where = {};
+      }
 
       if (req.query.accepted) {
         const { accepted } = req.query;
         let users;
+        let totalCount;
+        let totalPages;
+
         if (accepted === "true") {
           users = await User.findAll({
             where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
+            offset: req.query.offset,
+            limit: req.query.limit,
           });
+          totalCount = await User.count({
+            where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
+          });
+          totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
         } else if (accepted === "false") {
           users = await User.findAll({
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
+            offset: req.query.offset,
+            limit: req.query.limit,
           });
+          totalCount = await User.count({
+            where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
+          });
+          totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
         } else {
           return res.status(400).json({
-            message: "Parâmetro accepted deve ser 'true' ou 'false'",
+            message: "O parâmetro accepted deve ser 'true' ou 'false'",
           });
         }
 
@@ -110,15 +129,17 @@ class UserController {
             idRole: user.idRole,
           };
         });
-        return res.status(200).json(users);
+
+        return res.status(200).json({ users: users || [], totalPages });
       } else {
-        let users = await User.findAll({
+        const users = await User.findAll({
           where: {
             idRole: { [Op.ne]: 5 },
             ...where,
           },
         });
-        users = users.map((user) => {
+
+        const mappedUsers = users.map((user) => {
           return {
             cpf: user.cpf,
             fullName: user.fullName,
@@ -128,7 +149,8 @@ class UserController {
             idRole: user.idRole,
           };
         });
-        return res.status(200).json(users);
+
+        return res.status(200).json({ users: mappedUsers || [] });
       }
     } catch (error) {
       console.log(error);

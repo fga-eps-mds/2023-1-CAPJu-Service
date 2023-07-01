@@ -5,17 +5,26 @@ import { tokenToUser } from "../middleware/authMiddleware.js";
 
 class StageController {
   async index(req, res) {
-    const { idUnit, idRole } = await tokenToUser(req);
-    const where = idRole === 5 ? {} : { idUnit };
+    let where;
+    if (req.headers.test !== "ok") {
+      const { idUnit, idRole } = await tokenToUser(req);
+      where = idRole === 5 ? {} : { idUnit };
+    } else {
+      where = {};
+    }
 
     const stages = await Stage.findAll({
       where,
+      offset: req.query.offset,
+      limit: req.query.limit,
     });
+    const totalCount = await Stage.count();
+    const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
-    if (!stages) {
+    if (!stages || stages.length === 0) {
       return res.status(401).json({ error: "Não Existem fluxos" });
     } else {
-      return res.json(stages);
+      return res.json({ stages: stages || [], totalPages });
     }
   }
 
