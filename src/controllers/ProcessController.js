@@ -62,7 +62,7 @@ class ProcessController {
       });
 
       if (!processes || processes.length === 0) {
-        return res.status(404).json({ error: "Não há processos" });
+        return res.status(204).json({ error: "Não há processos" });
       } else {
         const processesWithFlows = [];
         for (const process of processes) {
@@ -272,9 +272,9 @@ class ProcessController {
       const startingProcess =
         process.status === "notStarted" && status === "inProgress"
           ? {
-              idStage: flowStages[0].idStageA,
-              effectiveDate: new Date(),
-            }
+            idStage: flowStages[0].idStageA,
+            effectiveDate: new Date(),
+          }
           : {};
       let tempProgress = [];
       if (process.status === "notStarted" && status === "inProgress") {
@@ -286,7 +286,7 @@ class ProcessController {
         const stageEndDate = new Date(stageStartDate);
         stageEndDate.setDate(
           stageEndDate.getDate() +
-            handleVerifyDate(stageStartDate, currentStage.duration)
+          handleVerifyDate(stageStartDate, currentStage.duration)
         );
 
         const progressData = {
@@ -296,6 +296,8 @@ class ProcessController {
         };
         tempProgress.push(progressData);
       } else {
+        let aux = [];
+        aux.push(process.progress);
         tempProgress = process.progress;
       }
 
@@ -408,7 +410,7 @@ class ProcessController {
       const stageEndDate = new Date(stageStartDate);
       stageEndDate.setDate(
         stageEndDate.getDate() +
-          handleVerifyDate(stageStartDate, currentToStage.duration)
+        handleVerifyDate(stageStartDate, currentToStage.duration)
       );
 
       maturityDate = stageEndDate;
@@ -419,7 +421,7 @@ class ProcessController {
           entrada: new Date(),
           vencimento: maturityDate,
         };
-        tempProgress = currentProcess.progress;
+        tempProgress = Array.isArray(currentProcess.progress) ? currentProcess.progress : [currentProcess.progress];
         tempProgress.push(progressData);
       } else {
         if (currentFromStage.createdAt > currentToStage.createdAt) {
