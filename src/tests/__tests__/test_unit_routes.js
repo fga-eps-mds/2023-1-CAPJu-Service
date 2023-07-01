@@ -133,6 +133,62 @@ describe("unit endpoints", () => {
     );
   });
 
+  test("create user and accept and add it as administrator of a new unit", async () => {
+    const testUser = {
+      fullName: "Francisco Duarte Lopes",
+      cpf: "75706593256",
+    };
+
+    const testUnit = {
+      name: "Unidade Teste",
+    };
+
+    const expectedTestUser = {
+      fullName: testUser.fullName,
+      cpf: testUser.cpf,
+      accepted: true,
+      idUnit: 2,
+      idRole: ROLE.ADMINISTRADOR,
+    };
+
+    const testUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(testUserResponse.status).toBe(500);
+
+    const acceptResponse = await supertest(app).post(
+      `/acceptRequest/${testUser.cpf}`
+    );
+    expect(acceptResponse.status).toBe(404);
+
+    const newUnitResponse = await supertest(app)
+      .post("/newUnit")
+      .send(testUnit);
+    expect(newUnitResponse.status).toBe(200);
+
+    const setUserResponse = await supertest(app).put("/setUnitAdmin").send({
+      idUnit: 2,
+      cpf: testUser.cpf,
+    });
+    expect(setUserResponse.status).toBe(404);
+  });
+
+  it("should return an error message if the unit name is not provided", async () => {
+    const response = await supertest(app).post("/newUnit").send({}).expect(500);
+
+    expect(response.body.error).toBeDefined();
+    expect(response.body.message).toBe("Erro ao criar unidade");
+  });
+
+  it("should return an error message if the unit name is not provided when updating", async () => {
+    const response = await supertest(app)
+      .put("/updateUnit")
+      .send({})
+      .expect(404);
+
+    expect(response.body.message).toBe("Essa unidade não existe!");
+  });
+
   it("should return an error message if listing units fails", async () => {
     // Simule um erro ao listar unidades definindo um objeto inválido para offset e limit
     const response = await supertest(app)
