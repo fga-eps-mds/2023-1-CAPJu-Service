@@ -724,7 +724,7 @@ describe("user endpoints", () => {
         idRole: 3,
       },
     ];
-  
+
     const adminUser = {
       cpf: "12345678901",
       fullName: "Usuário Administrador Inicial",
@@ -733,25 +733,25 @@ describe("user endpoints", () => {
       accepted: true,
       idRole: 5,
     };
-  
+
     for (const testUser of testUsers) {
       const testUserResponse = await supertest(app)
         .post("/newUser")
         .send(testUser);
       expect(testUserResponse.status).toBe(200);
     }
-  
+
     const acceptedUsersDb = await User.findAll({
       where: {
         accepted: true,
         idRole: adminUser.idRole,
       },
     });
-  
+
     // Only the administrator is accepted
     expect(acceptedUsersDb.length).toBe(1);
     expect(acceptedUsersDb[0].cpf).toEqual(adminUser.cpf);
-  
+
     const rejectedUsersDb = await User.findAll({
       where: {
         accepted: false,
@@ -760,7 +760,7 @@ describe("user endpoints", () => {
         },
       },
     });
-  
+
     // The three created above + initial unaccepted user
     expect(rejectedUsersDb.length).toBe(4);
   });
