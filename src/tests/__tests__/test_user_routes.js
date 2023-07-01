@@ -764,4 +764,48 @@ describe("user endpoints", () => {
     // The three created above + initial unaccepted user
     expect(rejectedUsersDb.length).toBe(4);
   });
+
+  it('should return error for non-existent user', async () => {
+    const response = await supertest(app)
+      .post('/login')
+      .send({
+        cpf: 'cpf_inexistente',
+        password: 'senha_qualquer',
+      })
+      .expect(401);
+
+    expect(response.body.error).toBe('Usuário inexistente');
+    expect(response.body.message).toBe('Usuário inexistente');
+  });
+
+  test("get all users", async () => {
+    const testUser = {
+      fullName: "Nomenni Nomesos",
+      cpf: "26585841212",
+      email: "email@gmail.com",
+    };
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+    };
+  
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(500);
+  
+    const response = await supertest(app).get("/allUser");
+    expect(response.status).toBe(500);
+   
+  
+    const deleteUserResponse = await supertest(app).delete(
+      `/deleteUser/${testUser.cpf}`
+    );
+    expect(deleteUserResponse.status).toBe(404);
+  });
+  
 });
