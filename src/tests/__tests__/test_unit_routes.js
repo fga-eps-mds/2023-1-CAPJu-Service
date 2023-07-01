@@ -200,4 +200,36 @@ describe("unit endpoints", () => {
     expect(response.body.error).toBeDefined();
     expect(response.body.message).toBe("Erro ao listar unidades");
   });
+
+  it("should return an error message if the unit name is not provided when deleting", async () => {
+    const response = await supertest(app)
+      .delete("/deleteunit")
+      .send({})
+      .expect(500);
+  });
+
+  test("removeUnitAdmin - Unidade inexistente", async () => {
+    const idUnit = 123;
+    const cpf = "75706593256";
+
+    const response = await supertest(app)
+      .put("/removeUnitAdmin")
+      .send({ idUnit, cpf });
+
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({
+      error: "Usuário não existe nesta unidade",
+    });
+  });
+
+  test("removeUnitAdmin - Usuário inexistente", async () => {
+    const idUnit = 1;
+    const cpf = "12345678901";
+
+    const response = await supertest(app)
+      .put("/removeUnitAdmin")
+      .send({ idUnit, cpf });
+
+    expect(response.status).toBe(200);
+  });
 });
