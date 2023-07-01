@@ -636,4 +636,66 @@ describe("user endpoints", () => {
     expect(stagesResponse.status).toBe(200);
     expect(stagesResponse.body.users.length).toBe(1);
   });
+  
+  test("Get all rejected users", async () => {
+    // Create a test user with accepted=false
+    const testUser = {
+      cpf: "98765432109",
+      password: "456Teste",
+      fullName: "Rejected User",
+      email: "rejected@example.com",
+      accepted: false,
+      idUnit: 1,
+      idRole: 2,
+    };
+    await User.create(testUser);
+  
+    // Login to get the JWT token
+    const loginResponse = await supertest(app).post("/login").send({
+      cpf: testUser.cpf,
+      password: testUser.password,
+    });
+    const token = loginResponse.body.token;
+  
+    // Set the Authorization header with the JWT token
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+  
+    // Make the request to get all rejected users
+    const response = await supertest(app)
+      .get("/allUser")
+      .set("test", "ok")
+      .set(headers)
+      .query({ accepted: false });
+  
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.users)).toBe(true);
+    expect(response.body.users.length).toBe(2);
+    expect(response.body.users[0].accepted).toBe(false);
+  });
+  
+  test("Unauthorized access without JWT token", async () => {
+    // Make the request to get all users without JWT token
+    const response = await supertest(app).get("/allUser").set("test", "ok");
+  
+    expect(response.status).toBe(200);
+  });
+  
+  test("Unauthorized access with invalid JWT token", async () => {
+    // Set an invalid JWT token
+    const headers = {
+      Authorization: "Bearer invalid-token",
+    };
+  
+    // Make the request to get all users with an invalid JWT token
+    const response = await supertest(app)
+      .get("/allUser")
+      .set("test", "ok")
+      .set(headers);
+  
+    expect(response.status).toBe(200);
+  });
+  
+
 });
