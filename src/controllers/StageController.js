@@ -51,7 +51,6 @@ class StageController {
 
       return res.json(stage);
     } catch (error) {
-      console.log(error);
       return res.status(error).json(error);
     }
   }

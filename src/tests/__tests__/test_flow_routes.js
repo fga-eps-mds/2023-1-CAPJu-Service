@@ -5,8 +5,6 @@ import { app, injectDB } from "../TestApp";
 import Flow from "../../models/Flow.js";
 import jwt from "jsonwebtoken";
 import { tokenToUser } from "../../middleware/authMiddleware.js";
-import Process from "../../models/Process.js";
-import FlowProcess from "../../models/FlowProcess.js";
 
 describe("flow endpoints", () => {
   beforeEach(async () => {

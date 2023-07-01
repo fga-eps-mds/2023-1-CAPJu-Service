@@ -81,8 +81,6 @@ describe("user endpoints", () => {
 
     expect(usersDb.length).toBe(testUsers.length + 2);
 
-    console.info(usersDb);
-
     expect(usersDb).toEqual(
       expect.arrayContaining(
         expectedTestUsers.map((etu) => {
@@ -141,8 +139,6 @@ describe("user endpoints", () => {
     const acceptedUsersDb = await User.findAll({
       where: { accepted: true, idRole: 5 },
     });
-
-    console.info(acceptedUsersDb[0].dataValues.cpf);
 
     // Only the administrator is accepted
     expect(acceptedUsersDb.length).toBe(1);

@@ -155,7 +155,6 @@ class ProcessController {
         return res.json(process);
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Erro ao procurar processo ${idProcess}`,
@@ -199,13 +198,11 @@ class ProcessController {
               .json({ message: "Criado com sucesso!", flowProcess });
           }
         } catch (error) {
-          console.log(error);
           return res.status(500).json(error);
         }
       }
       return res.status(404).json({ message: "Erro na criação de processo" });
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -237,7 +234,6 @@ class ProcessController {
 
       return res.status(200).json(processes);
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Erro ao buscar processos" });
@@ -330,7 +326,6 @@ class ProcessController {
 
       return res.status(200).json({ process, flows: flowProcesses });
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -350,7 +345,6 @@ class ProcessController {
 
       return res.status(200).json({ message: "OK" });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error, message: "Impossível apagar" });
     }
   }
@@ -471,7 +465,6 @@ class ProcessController {
         message: `Impossível atualizar processo '${record}' para etapa '${to}`,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Erro ao atualizar processo '${record}' para etapa '${to}`,
@@ -516,12 +509,10 @@ class ProcessController {
         }
       );
 
-      console.log("updateResult = ", updateResult);
       return res.status(200).json({
         message: "Comentário adicionado com sucesso",
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Falha ao adicionar comentário",

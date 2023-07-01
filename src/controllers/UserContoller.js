@@ -46,7 +46,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error, message: "erro inesperado" });
     }
   }
@@ -153,7 +152,6 @@ class UserController {
         return res.status(200).json({ users: mappedUsers || [] });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro ao listar usuários aceitos ou não",
@@ -213,7 +211,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Impossível atualizar email",
@@ -238,7 +235,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ message: "Usuário não atualizado!" });
     }
   }
@@ -264,7 +260,6 @@ class UserController {
         return res.status(400).json({ message: "Senha inválida!" });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro a atualizar usuário ",
@@ -308,7 +303,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log("error", error);
       return res.status(500).json({
         error,
         message: "Falha ao aceitar usuário",
@@ -330,7 +324,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log("error", error);
       return res.status(500).json({
         error,
         message: "Erro ao negar pedido do usuário",

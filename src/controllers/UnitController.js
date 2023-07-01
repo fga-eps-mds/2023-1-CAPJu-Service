@@ -13,7 +13,6 @@ class UnitController {
       const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
       return res.json({ units: units || [], totalPages });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro ao listar unidades",
@@ -29,7 +28,6 @@ class UnitController {
       });
       return res.json(unit);
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro ao criar unidade",
@@ -127,7 +125,6 @@ class UnitController {
         };
         return res.status(200).json(userNoPassword);
       } catch (error) {
-        console.log(error);
         return res.status(500).json({
           error,
           message: "Erro ao configurar usuário como administrador",
@@ -154,7 +151,6 @@ class UnitController {
         await user.save();
         return res.status(200).json(user);
       } catch (error) {
-        console.log(error);
         return res.status(500).json({
           error: "Erro ao configurar usuário como administrador",
         });

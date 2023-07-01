@@ -315,11 +315,12 @@ describe("process endpoints", () => {
       .put(`/processUpdateStage`)
       .send(processStageData);
 
-    expect(updatedProcessStage.status).toBe(200);
     expect(updatedProcessStage.body.message).toEqual(
       "Etapa atualizada com sucesso"
     );
+    expect(updatedProcessStage.status).toBe(200);
   });
+
   test("test", async () => {
     const testUser = {
       cpf: "12345678901",
