@@ -171,19 +171,11 @@ class ProcessController {
         });
         try {
           if (flow) {
-            console.log(`valores:    , '${idFlow}, ${record}`);
             const flowProcess = await FlowProcess.create({
               idFlow,
               record,
               finalised: false,
             });
-            console.log(`valor:  ${flowProcess}`);
-
-            if (flowProcess) {
-              console.log("passou");
-            } else {
-              throw new Error(flowProcess);
-            }
             return res
               .status(200)
               .json({ message: "Criado com sucesso!", flowProcess });

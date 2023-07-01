@@ -166,6 +166,8 @@ describe("stage endpoints", () => {
     const stagesResponse = await supertest(app)
       .get("/stages")
       .set("test", `ok`);
+    const result = await req.headers.test;
+    expect(result).not.toEqual("ok");
     expect(stagesResponse.status).toBe(200);
     expect(stagesResponse.body.stages.length).toBe(3);
   });

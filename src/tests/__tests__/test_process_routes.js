@@ -369,6 +369,8 @@ describe("process endpoints", () => {
     const processesResponse = await supertest(app)
       .get("/processes")
       .set("test", `ok`);
+    const result = await req.headers.test;
+    expect(result).not.toEqual("ok");
     expect(processesResponse.status).toBe(200);
     expect(processesResponse.body.processes.length).toBe(1);
   });
