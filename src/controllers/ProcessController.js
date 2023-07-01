@@ -163,7 +163,6 @@ class ProcessController {
       const flow = await Flow.findByPk(idFlow);
 
       if (flow) {
-        console.log("primeiro if");
         await Process.create({
           record,
           idUnit: flow.idUnit,
@@ -172,7 +171,6 @@ class ProcessController {
         });
         try {
           if (flow) {
-            console.log("segundo if");
             console.log(`valores:    , '${idFlow}, ${record}`);
             const flowProcess = await FlowProcess.create({
               idFlow,
@@ -186,22 +184,17 @@ class ProcessController {
             } else {
               throw new Error(flowProcess);
             }
-            console.log(`valor:  ${flowProcess}`);
-            console.log("criei flow process");
             return res
               .status(200)
               .json({ message: "Criado com sucesso!", flowProcess });
           }
         } catch (error) {
-          console.log("terceiro if de erro");
-
           console.log(error);
           return res.status(500).json(error);
         }
       }
       return res.status(404).json({ message: "Erro na criação de processo" });
     } catch (error) {
-      console.log("quarto if de erro");
       console.log(error);
       return res.status(500).json(error);
     }
