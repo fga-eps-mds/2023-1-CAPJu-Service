@@ -71,9 +71,7 @@ describe("stage endpoints", () => {
   });
 
   test("status 204 if delete stage that doesnt exist and delete it", async () => {
-    const responseDelete = await supertest(app).delete(
-      `/deleteStage/${1000}`
-    );
+    const responseDelete = await supertest(app).delete(`/deleteStage/${1000}`);
     expect(responseDelete.status).toBe(204);
     // expect(responseDelete.body.idStage).toEqual(response.body.idStage);
   });
@@ -106,9 +104,7 @@ describe("stage endpoints", () => {
   });
 
   test("status 204 if stage doesnt exist in check by id", async () => {
-    const response = await supertest(app).get(
-      `/stage/${1}`
-    );
+    const response = await supertest(app).get(`/stage/${1}`);
     expect(response.status).toBe(204);
     // expect(responseStage.body.name).toEqual(response.body.name);
   });
