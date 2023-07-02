@@ -426,7 +426,7 @@ class ProcessController {
         const index = tempProgress.findIndex(x => x.idStage == to);
         index === -1 && tempProgress.push(progressData)
       } else {
-        tempProgress = currentProcess.progress;
+        tempProgress = Array.isArray(currentProcess.progress) ? currentProcess.progress : [currentProcess.progres];
         tempProgress.pop();
         tempProgress[tempProgress.length - 1] = {
           idStage: to,
