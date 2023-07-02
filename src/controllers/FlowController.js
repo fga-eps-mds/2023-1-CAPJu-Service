@@ -131,7 +131,6 @@ class FlowController {
         message: `Não há fluxos com o processo '${record}'`,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Erro ao buscar fluxos do processo ${record}`,
@@ -181,12 +180,10 @@ class FlowController {
 
         flowsWithSequences.push(flowSequence);
       }
-      console.log("aquii pelo amor");
       return res
         .status(200)
         .json({ flows: flowsWithSequences || [], totalPages });
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Impossível obter fluxos" });
@@ -218,7 +215,6 @@ class FlowController {
 
       return res.status(200).json(flowSequence);
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Impossível obter fluxo ${idFlow}`,
@@ -258,7 +254,6 @@ class FlowController {
         sequences: sequences,
       });
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Impossível ler sequências" });
@@ -277,7 +272,6 @@ class FlowController {
 
       return res.status(200).json(flowStages);
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Erro ao ler fluxos ligados a etapas" });
@@ -304,7 +298,6 @@ class FlowController {
 
       res.status(200).json({ usersToNotify: result });
     } catch (error) {
-      console.log(error);
       res.status(500).json({
         error,
         message: "Impossível obter usuários que devem ser notificados no fluxo",
@@ -327,7 +320,6 @@ class FlowController {
         ? res.status(status).json(json)
         : res.status(status).json({ message });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error: "Impossível criar fluxo" });
     }
   }
@@ -368,7 +360,6 @@ class FlowController {
           : res.status(status).json({ message });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error, message: "Impossível criar fluxo" });
     }
   }
@@ -392,7 +383,6 @@ class FlowController {
         return res.status(404).json({ message: "Fluxo não encontrado" });
       }
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Impossível apagar fluxo" });
@@ -417,7 +407,6 @@ class FlowController {
         message: `Desassociação entre fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}' concluída`,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Falha ao desassociar fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}'`,

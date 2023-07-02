@@ -2,7 +2,6 @@ import { Database } from "../TestDatabase.js";
 import "sequelize";
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
-import Unit from "../../models/Unit.js";
 
 describe("role endpoints", () => {
   beforeEach(async () => {
