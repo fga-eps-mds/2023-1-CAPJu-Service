@@ -2,13 +2,18 @@ import Stage from "../models/Stage.js";
 import FlowStage from "../models/FlowStage.js";
 import { Op } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
+import { filterByName } from "../utils/filters.js"
 
 class StageController {
   async index(req, res) {
     let where;
     if (req.headers.test !== "ok") {
       const { idUnit, idRole } = await tokenToUser(req);
-      where = idRole === 5 ? {} : { idUnit };
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByName(req),
+        ...unitFilter,
+      };
     } else {
       where = {};
     }
