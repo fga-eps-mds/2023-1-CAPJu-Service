@@ -296,8 +296,8 @@ class ProcessController {
         };
         tempProgress.push(progressData);
       } else {
-        let aux = [];
-        aux.push(process.progress);
+        // let aux = [];
+        // aux.push(process.progress);
         tempProgress = process.progress;
       }
 
@@ -328,6 +328,7 @@ class ProcessController {
 
       return res.status(200).json({ process, flows: flowProcesses });
     } catch (error) {
+      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -352,7 +353,7 @@ class ProcessController {
   }
 
   async updateProcessStage(req, res) {
-    const { record, from, to, idFlow } = req.body;
+    const { record, from, to, idFlow, isNextStage } = req.body;
 
     if (
       isNaN(parseInt(from)) ||
@@ -415,33 +416,26 @@ class ProcessController {
 
       maturityDate = stageEndDate;
 
-      if (from < to) {
+      if (isNextStage) {
         const progressData = {
           idStage: to,
           entrada: new Date(),
           vencimento: maturityDate,
         };
-        tempProgress = Array.isArray(currentProcess.progress) ? currentProcess.progress : [currentProcess.progress];
-        tempProgress.push(progressData);
+        tempProgress = currentProcess.progress;
+        const index = tempProgress.findIndex(x => x.idStage == to);
+        index === -1 && tempProgress.push(progressData)
       } else {
-        if (currentFromStage.createdAt > currentToStage.createdAt) {
-          const progressData = {
-            idStage: to,
-            entrada: new Date(),
-            vencimento: maturityDate,
-          };
-          tempProgress = currentProcess.progress;
-          tempProgress.push(progressData);
-        } else {
-          tempProgress = currentProcess.progress;
-          tempProgress.pop();
-          tempProgress[tempProgress.length - 1] = {
-            idStage: to,
-            entrada: new Date(),
-            vencimento: maturityDate,
-          };
-        }
+        tempProgress = currentProcess.progress;
+        tempProgress.pop();
+        tempProgress[tempProgress.length - 1] = {
+          idStage: to,
+          entrada: new Date(),
+          vencimento: maturityDate,
+        };
       }
+
+      console.log("FROM TO", currentProcess.idStage, from, to)
 
       const process = await Process.update(
         {
@@ -467,6 +461,7 @@ class ProcessController {
         message: `Impossível atualizar processo '${record}' para etapa '${to}`,
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error,
         message: `Erro ao atualizar processo '${record}' para etapa '${to}`,

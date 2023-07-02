@@ -4,9 +4,8 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn("process", "progress", {
-      type: Sequelize.JSON,
+      type: Sequelize.ARRAY(Sequelize.JSON),
       allowNull: true,
-      defaultValue: JSON.stringify([]),
     });
   },
 
