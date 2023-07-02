@@ -220,8 +220,24 @@ class ProcessController {
     try {
       const { idFlow } = req.params;
 
+      const offset = parseInt(req.query.offset) || 0;
+      const limit = parseInt(req.query.limit) || 10;
+
       const processes = await Database.connection.query(
         'SELECT * FROM \
+        "flowProcess" \
+        JOIN "process" ON \
+        "flowProcess".record = process.record \
+        WHERE "flowProcess"."idFlow" = ? \
+        OFFSET ? \
+        LIMIT ?',
+        {
+          replacements: [idFlow, offset, limit],
+          type: QueryTypes.SELECT,
+        }
+      );
+      const countQuery = await Database.connection.query(
+        'SELECT COUNT(*) as total FROM \
         "flowProcess" \
         JOIN "process" ON \
         "flowProcess".record = process.record \
@@ -231,8 +247,11 @@ class ProcessController {
           type: QueryTypes.SELECT,
         }
       );
+      
+      const totalCount = countQuery[0].total;
+      const totalPages = Math.ceil(totalCount / limit) || 0;
 
-      return res.status(200).json(processes);
+      return res.status(200).json({ processes, totalPages });
     } catch (error) {
       return res
         .status(500)
@@ -272,9 +291,9 @@ class ProcessController {
       const startingProcess =
         process.status === "notStarted" && status === "inProgress"
           ? {
-              idStage: flowStages[0].idStageA,
-              effectiveDate: new Date(),
-            }
+            idStage: flowStages[0].idStageA,
+            effectiveDate: new Date(),
+          }
           : {};
       let tempProgress = [];
       if (process.status === "notStarted" && status === "inProgress") {
@@ -286,7 +305,7 @@ class ProcessController {
         const stageEndDate = new Date(stageStartDate);
         stageEndDate.setDate(
           stageEndDate.getDate() +
-            handleVerifyDate(stageStartDate, currentStage.duration)
+          handleVerifyDate(stageStartDate, currentStage.duration)
         );
 
         const progressData = {
@@ -411,7 +430,7 @@ class ProcessController {
       const stageEndDate = new Date(stageStartDate);
       stageEndDate.setDate(
         stageEndDate.getDate() +
-          handleVerifyDate(stageStartDate, currentToStage.duration)
+        handleVerifyDate(stageStartDate, currentToStage.duration)
       );
 
       maturityDate = stageEndDate;
