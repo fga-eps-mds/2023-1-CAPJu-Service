@@ -272,9 +272,9 @@ class ProcessController {
       const startingProcess =
         process.status === "notStarted" && status === "inProgress"
           ? {
-            idStage: flowStages[0].idStageA,
-            effectiveDate: new Date(),
-          }
+              idStage: flowStages[0].idStageA,
+              effectiveDate: new Date(),
+            }
           : {};
       let tempProgress = [];
       if (process.status === "notStarted" && status === "inProgress") {
@@ -286,7 +286,7 @@ class ProcessController {
         const stageEndDate = new Date(stageStartDate);
         stageEndDate.setDate(
           stageEndDate.getDate() +
-          handleVerifyDate(stageStartDate, currentStage.duration)
+            handleVerifyDate(stageStartDate, currentStage.duration)
         );
 
         const progressData = {
@@ -411,7 +411,7 @@ class ProcessController {
       const stageEndDate = new Date(stageStartDate);
       stageEndDate.setDate(
         stageEndDate.getDate() +
-        handleVerifyDate(stageStartDate, currentToStage.duration)
+          handleVerifyDate(stageStartDate, currentToStage.duration)
       );
 
       maturityDate = stageEndDate;
@@ -423,10 +423,12 @@ class ProcessController {
           vencimento: maturityDate,
         };
         tempProgress = currentProcess.progress;
-        const index = tempProgress.findIndex(x => x.idStage == to);
-        index === -1 && tempProgress.push(progressData)
+        const index = tempProgress.findIndex((x) => x.idStage == to);
+        index === -1 && tempProgress.push(progressData);
       } else {
-        tempProgress = Array.isArray(currentProcess.progress) ? currentProcess.progress : [currentProcess.progres];
+        tempProgress = Array.isArray(currentProcess.progress)
+          ? currentProcess.progress
+          : [currentProcess.progres];
         tempProgress.pop();
         tempProgress[tempProgress.length - 1] = {
           idStage: to,
@@ -435,7 +437,7 @@ class ProcessController {
         };
       }
 
-      console.log("FROM TO", currentProcess.idStage, from, to)
+      console.log("FROM TO", currentProcess.idStage, from, to);
 
       const process = await Process.update(
         {
