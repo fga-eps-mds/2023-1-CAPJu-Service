@@ -7,6 +7,7 @@ import Stage from "../models/Stage.js";
 import Database from "../database/index.js";
 import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
+import { filterByNicknameAndRecord } from "../utils/filters.js"
 
 const isRecordValid = (record) => {
   const regex = /^\d{20}$/;
@@ -49,7 +50,11 @@ class ProcessController {
       let where;
       if (req.headers.test !== "ok") {
         const { idUnit, idRole } = await tokenToUser(req);
-        where = idRole === 5 ? {} : { idUnit };
+        const unitFilter = idRole === 5 ? {} : { idUnit };
+        where = {
+          ...filterByNicknameAndRecord(req),
+          ...unitFilter,
+        };
       } else {
         where = {};
       }
@@ -247,7 +252,7 @@ class ProcessController {
           type: QueryTypes.SELECT,
         }
       );
-      
+
       const totalCount = countQuery[0].total;
       const totalPages = Math.ceil(totalCount / limit) || 0;
 
