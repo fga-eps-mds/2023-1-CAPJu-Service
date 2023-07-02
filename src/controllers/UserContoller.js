@@ -2,6 +2,7 @@ import { tokenToUser } from "../middleware/authMiddleware.js";
 import { Op } from "sequelize";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import { filterByFullName } from "../utils/filters.js"
 
 const cpfFilter = (cpf) => cpf.replace(/[^0-9]/g, "");
 const jwtToken = process.env.JWT_SECRET || "ABC";
@@ -11,6 +12,7 @@ const generateToken = (id) => {
     expiresIn: "3d",
   });
 };
+
 class UserController {
   async login(req, res) {
     try {
@@ -81,7 +83,11 @@ class UserController {
       let where;
       if (req.headers.test !== "ok") {
         const { idUnit, idRole } = await tokenToUser(req);
-        where = idRole === 5 ? {} : { idUnit };
+        const unitFilter = idRole === 5 ? {} : { idUnit };
+        where = {
+          ...filterByFullName(req),
+          ...unitFilter,
+        };
       } else {
         where = {};
       }
