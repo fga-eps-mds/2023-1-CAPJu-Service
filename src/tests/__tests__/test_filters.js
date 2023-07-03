@@ -3,6 +3,7 @@ import { Op } from "sequelize";
 import {
   filterByName,
   filterByNicknameAndRecord,
+  filterByFullName,
 } from "../../utils/filters.js";
 
 describe("filter test", () => {
@@ -33,5 +34,18 @@ describe("filter test", () => {
       },
     };
     expect(filterByName(sendedObject)).toEqual(expectFilter);
+  });
+
+  test("test filterByFullname", async () => {
+    const filter = "Teste silva";
+    const expectFilter = {
+      [Op.or]: [{ fullName: { [Op.like]: `%${filter}%` } }],
+    };
+    const sendedObject = {
+      query: {
+        filter: filter,
+      },
+    };
+    expect(filterByFullName(sendedObject)).toEqual(expectFilter);
   });
 });
