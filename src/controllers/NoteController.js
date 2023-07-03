@@ -10,20 +10,15 @@ class NoteController {
       } else {
         return res
           .status(204)
-          .json({ message: 'Nenhuma observação encontrada.' });
+          .json({ message: "Nenhuma observação encontrada." });
       }
     } catch (error) {
-      return res.status(500).json({ message: 'Erro ao buscar obervação.' });
+      return res.status(500).json({ message: "Erro ao buscar obervação." });
     }
   };
 
   newNote = async (req, res) => {
-    const {
-      commentary,
-      record,
-      idStageA,
-      idStageB,
-    } = req.body;
+    const { commentary, record, idStageA, idStageB } = req.body;
     try {
       const note = await Note.create({
         commentary,
@@ -33,7 +28,9 @@ class NoteController {
       });
       return res.status(200).json(note);
     } catch (error) {
-      return res.status(500).json({ message: `Erro ao criar observação: ${error}` });
+      return res
+        .status(500)
+        .json({ message: `Erro ao criar observação: ${error}` });
     }
   };
 
@@ -45,15 +42,19 @@ class NoteController {
         return res.status(400).json({ error: `idNote ${idNote} não existe!` });
       } else {
         await role.destroy();
-        return res.status(200).json({ message: "Observação deletada com sucesso." });
+        return res
+          .status(200)
+          .json({ message: "Observação deletada com sucesso." });
       }
     } catch (error) {
-      return res.status(500).json({ message: `Erro ao deletar observação: ${error}` });
+      return res
+        .status(500)
+        .json({ message: `Erro ao deletar observação: ${error}` });
     }
-  }
+  };
 
   async update(req, res) {
-    const { commentary, } = req.body;
+    const { commentary } = req.body;
     const { idNote } = req.params;
 
     try {
@@ -63,10 +64,14 @@ class NoteController {
       } else {
         role.set({ commentary });
         await role.save();
-        return res.status(200).json({ message: "Observação atualizada com sucesso." });
+        return res
+          .status(200)
+          .json({ message: "Observação atualizada com sucesso." });
       }
     } catch (error) {
-      return res.status(500).json({ message: `Erro ao atualizar observação: ${error}` });
+      return res
+        .status(500)
+        .json({ message: `Erro ao atualizar observação: ${error}` });
     }
   }
 }
