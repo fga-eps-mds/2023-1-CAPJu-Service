@@ -137,6 +137,10 @@ routes.post("/login", UserContoller.login);
 
 // TODO: Mover para User
 routes.put("/updateUser/:id", UserContoller.updateUser);
+routes.put(
+  "/updateUserEmailAndPassword/:id",
+  UserContoller.updateUserEmailAndPassword
+);
 
 // TODO: Mover para User
 routes.post("/updateUserPassword/:id", UserContoller.editPassword);
