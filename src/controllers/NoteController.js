@@ -36,6 +36,21 @@ class NoteController {
       return res.status(500).json({ message: `Erro ao criar observação: ${error}` });
     }
   };
+
+  delete = async (req, res) => {
+    const { idNote } = req.params;
+    try {
+      const note = await Note.findByPk(idNote);
+      if (!note) {
+        return res.status(400).json({ error: `idNote ${idNote} não existe!` });
+      } else {
+        await role.destroy();
+        return res.status(200).json({ message: "Observação deletada com sucesso." });
+      }
+    } catch (error) {
+      return res.status(500).json({ message: `Erro ao deletar observação: ${error}` });
+    }
+  }
 }
 
 export default new NoteController();
