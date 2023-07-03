@@ -774,6 +774,32 @@ describe("user endpoints", () => {
     expect(response.body.message).toBe("Usuário inexistente");
   });
 
+  it("should return error for wrong password", async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "aaa@bb.com",
+      password: "spw123456",
+      idUnit: 1,
+      idRole: 3,
+    };
+
+    await supertest(app).post("/newUser").send(testUser);
+
+    await supertest(app).post(`/acceptRequest/${testUser.cpf}`);
+
+    const response = await supertest(app)
+      .post("/login")
+      .send({
+        cpf: testUser.cpf,
+        password: "senha_qualquer",
+      })
+      .expect(401);
+
+    expect(response.body.message).toBe("Senha ou usuário incorretos");
+    expect(response.body.error).toBe("Impossível autenticar");
+  });
+
   test("get all users", async () => {
     const testUser = {
       fullName: "Nomenni Nomesos",
