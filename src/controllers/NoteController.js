@@ -16,6 +16,26 @@ class NoteController {
       return res.status(500).json({ message: 'Erro ao buscar obervação.' });
     }
   };
+
+  newNote = async (req, res) => {
+    const {
+      commentary,
+      record,
+      idStageA,
+      idStageB,
+    } = req.body;
+    try {
+      const note = await Note.create({
+        commentary,
+        record,
+        idStageA,
+        idStageB,
+      });
+      return res.status(200).json(note);
+    } catch (error) {
+      return res.status(500).json({ message: `Erro ao criar observação: ${error}` });
+    }
+  };
 }
 
 export default new NoteController();
