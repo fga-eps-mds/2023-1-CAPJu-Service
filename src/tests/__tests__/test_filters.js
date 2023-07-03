@@ -1,51 +1,89 @@
-import "sequelize";
 import { Op } from "sequelize";
 import {
-  filterByName,
   filterByNicknameAndRecord,
+  filterByName,
   filterByFullName,
 } from "../../utils/filters.js";
 
-describe("filter test", () => {
-  test("test filterByNicknameAndRecord", async () => {
-    const filter = "123";
-    const expectFilter = {
-      [Op.or]: [
-        { record: { [Op.like]: `%${filter}%` } },
-        { nickname: { [Op.like]: `%${filter}%` } },
-      ],
-    };
-    const sendedObject = {
-      query: {
-        filter: filter,
-      },
-    };
-    expect(filterByNicknameAndRecord(sendedObject)).toEqual(expectFilter);
+describe("filters", () => {
+  describe("filterByNicknameAndRecord", () => {
+    it("should return the correct filter object when filter is provided", () => {
+      const req = {
+        query: {
+          filter: "John",
+        },
+      };
+
+      const result = filterByNicknameAndRecord(req);
+
+      expect(result).toEqual({
+        [Op.or]: [
+          { record: { [Op.like]: "%John%" } },
+          { nickname: { [Op.like]: "%John%" } },
+        ],
+      });
+    });
+
+    it("should return an empty object when filter is not provided", () => {
+      const req = {
+        query: {},
+      };
+
+      const result = filterByNicknameAndRecord(req);
+
+      expect(result).toEqual({});
+    });
   });
 
-  test("test filterByName", async () => {
-    const filter = "teste";
-    const expectFilter = {
-      [Op.or]: [{ name: { [Op.like]: `%${filter}%` } }],
-    };
-    const sendedObject = {
-      query: {
-        filter: filter,
-      },
-    };
-    expect(filterByName(sendedObject)).toEqual(expectFilter);
+  describe("filterByName", () => {
+    it("should return the correct filter object when filter is provided", () => {
+      const req = {
+        query: {
+          filter: "Smith",
+        },
+      };
+
+      const result = filterByName(req);
+
+      expect(result).toEqual({
+        [Op.or]: [{ name: { [Op.like]: "%Smith%" } }],
+      });
+    });
+
+    it("should return an empty object when filter is not provided", () => {
+      const req = {
+        query: {},
+      };
+
+      const result = filterByName(req);
+
+      expect(result).toEqual({});
+    });
   });
 
-  test("test filterByFullname", async () => {
-    const filter = "Teste silva";
-    const expectFilter = {
-      [Op.or]: [{ fullName: { [Op.like]: `%${filter}%` } }],
-    };
-    const sendedObject = {
-      query: {
-        filter: filter,
-      },
-    };
-    expect(filterByFullName(sendedObject)).toEqual(expectFilter);
+  describe("filterByFullName", () => {
+    it("should return the correct filter object when filter is provided", () => {
+      const req = {
+        query: {
+          filter: "John Doe",
+        },
+      };
+
+      const result = filterByFullName(req);
+
+      expect(result).toEqual({
+        [Op.or]: [{ fullName: { [Op.like]: "%John Doe%" } }],
+      });
+    });
+
+    it("should return an empty object when filter is not provided", () => {
+      const req = {
+        query: {},
+      };
+
+      const result = filterByFullName(req);
+
+      expect(result).toEqual({});
+    });
   });
 });
