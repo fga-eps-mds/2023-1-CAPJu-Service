@@ -6,7 +6,7 @@ import FlowUser from "../models/FlowUser.js";
 import FlowProcess from "../models/FlowProcess.js";
 import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
-import { filterByName } from "../utils/filters.js"
+import { filterByName } from "../utils/filters.js";
 
 class FlowController {
   static #stagesSequencesFromFlowStages(flowStages) {
@@ -157,13 +157,13 @@ class FlowController {
 
       const flows = limit
         ? await Flow.findAll({
-          where,
-          offset: parseInt(offset),
-          limit: parseInt(limit),
-        })
+            where,
+            offset: parseInt(offset),
+            limit: parseInt(limit),
+          })
         : await Flow.findAll({
-          where,
-        });
+            where,
+          });
       const totalCount = await Flow.count({ where });
       const totalPages = Math.ceil(totalCount / limit);
 

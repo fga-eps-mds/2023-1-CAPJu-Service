@@ -2,7 +2,7 @@ import { tokenToUser } from "../middleware/authMiddleware.js";
 import { Op } from "sequelize";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
-import { filterByFullName } from "../utils/filters.js"
+import { filterByFullName } from "../utils/filters.js";
 
 const cpfFilter = (cpf) => cpf.replace(/[^0-9]/g, "");
 const jwtToken = process.env.JWT_SECRET || "ABC";

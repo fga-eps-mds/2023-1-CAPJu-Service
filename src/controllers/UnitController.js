@@ -1,7 +1,7 @@
 import Unit from "../models/Unit.js";
 import User from "../models/User.js";
 import { ROLE } from "../schemas/role.js";
-import { filterByName } from "../utils/filters.js"
+import { filterByName } from "../utils/filters.js";
 
 class UnitController {
   async index(req, res) {

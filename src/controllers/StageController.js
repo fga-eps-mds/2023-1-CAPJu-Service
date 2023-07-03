@@ -2,7 +2,7 @@ import Stage from "../models/Stage.js";
 import FlowStage from "../models/FlowStage.js";
 import { Op } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
-import { filterByName } from "../utils/filters.js"
+import { filterByName } from "../utils/filters.js";
 
 class StageController {
   async index(req, res) {

@@ -7,7 +7,7 @@ import Stage from "../models/Stage.js";
 import Database from "../database/index.js";
 import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
-import { filterByNicknameAndRecord } from "../utils/filters.js"
+import { filterByNicknameAndRecord } from "../utils/filters.js";
 
 const isRecordValid = (record) => {
   const regex = /^\d{20}$/;
@@ -296,9 +296,9 @@ class ProcessController {
       const startingProcess =
         process.status === "notStarted" && status === "inProgress"
           ? {
-            idStage: flowStages[0].idStageA,
-            effectiveDate: new Date(),
-          }
+              idStage: flowStages[0].idStageA,
+              effectiveDate: new Date(),
+            }
           : {};
       let tempProgress = [];
       if (process.status === "notStarted" && status === "inProgress") {
@@ -310,7 +310,7 @@ class ProcessController {
         const stageEndDate = new Date(stageStartDate);
         stageEndDate.setDate(
           stageEndDate.getDate() +
-          handleVerifyDate(stageStartDate, currentStage.duration)
+            handleVerifyDate(stageStartDate, currentStage.duration)
         );
 
         const progressData = {
@@ -435,7 +435,7 @@ class ProcessController {
       const stageEndDate = new Date(stageStartDate);
       stageEndDate.setDate(
         stageEndDate.getDate() +
-        handleVerifyDate(stageStartDate, currentToStage.duration)
+          handleVerifyDate(stageStartDate, currentToStage.duration)
       );
 
       maturityDate = stageEndDate;
