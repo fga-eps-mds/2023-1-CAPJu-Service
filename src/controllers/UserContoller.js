@@ -67,6 +67,7 @@ class UserController {
           accepted: userRaw.accepted,
           idUnit: userRaw.idUnit,
           idRole: userRaw.idRole,
+          firstLogin: userRaw.firstLogin,
         };
         return res.status(200).json(user);
       }
@@ -333,6 +334,29 @@ class UserController {
       return res.status(500).json({
         error,
         message: "Erro ao negar pedido do usuário",
+      });
+    }
+  }
+
+  async updateUserEmailAndPassword(req, res) {
+    try {
+      const { email, password } = req.body;
+      const { id } = req.params;
+
+      const user = await User.findByPk(id);
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "Nenhum usuário foi encontrado" });
+      } else {
+        user.set({ email: email, password: password, firstLogin: false });
+        await user.save();
+        return res.status(200).json(user);
+      }
+    } catch (error) {
+      return res.status(500).json({
+        error,
+        message: "Impossível atualizar email",
       });
     }
   }
