@@ -6,6 +6,7 @@ import FlowUser from "../models/FlowUser.js";
 import FlowProcess from "../models/FlowProcess.js";
 import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
+import { filterByName } from "../utils/filters.js";
 
 class FlowController {
   static #stagesSequencesFromFlowStages(flowStages) {
@@ -143,10 +144,15 @@ class FlowController {
       let where;
       if (req.headers.test !== "ok") {
         const { idUnit, idRole } = await tokenToUser(req);
-        where = idRole === 5 ? {} : { idUnit };
+        const unitFilter = idRole === 5 ? {} : { idUnit };
+        where = {
+          ...filterByName(req),
+          ...unitFilter,
+        };
       } else {
         where = {};
       }
+
       const { limit, offset } = req.query;
 
       const flows = limit

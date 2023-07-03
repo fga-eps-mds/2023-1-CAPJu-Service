@@ -1,11 +1,16 @@
 import Unit from "../models/Unit.js";
 import User from "../models/User.js";
 import { ROLE } from "../schemas/role.js";
+import { filterByName } from "../utils/filters.js";
 
 class UnitController {
   async index(req, res) {
     try {
+      const where = {
+        ...filterByName(req),
+      };
       const units = await Unit.findAll({
+        where,
         offset: req.query.offset,
         limit: req.query.limit,
       });

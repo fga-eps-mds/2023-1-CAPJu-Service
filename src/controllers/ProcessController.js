@@ -7,6 +7,7 @@ import Stage from "../models/Stage.js";
 import Database from "../database/index.js";
 import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
+import { filterByNicknameAndRecord } from "../utils/filters.js";
 
 const isRecordValid = (record) => {
   const regex = /^\d{20}$/;
@@ -49,7 +50,11 @@ class ProcessController {
       let where;
       if (req.headers.test !== "ok") {
         const { idUnit, idRole } = await tokenToUser(req);
-        where = idRole === 5 ? {} : { idUnit };
+        const unitFilter = idRole === 5 ? {} : { idUnit };
+        where = {
+          ...filterByNicknameAndRecord(req),
+          ...unitFilter,
+        };
       } else {
         where = {};
       }
@@ -247,7 +252,7 @@ class ProcessController {
           type: QueryTypes.SELECT,
         }
       );
-      
+
       const totalCount = countQuery[0].total;
       const totalPages = Math.ceil(totalCount / limit) || 0;
 
@@ -291,9 +296,9 @@ class ProcessController {
       const startingProcess =
         process.status === "notStarted" && status === "inProgress"
           ? {
-            idStage: flowStages[0].idStageA,
-            effectiveDate: new Date(),
-          }
+              idStage: flowStages[0].idStageA,
+              effectiveDate: new Date(),
+            }
           : {};
       let tempProgress = [];
       if (process.status === "notStarted" && status === "inProgress") {
@@ -305,7 +310,7 @@ class ProcessController {
         const stageEndDate = new Date(stageStartDate);
         stageEndDate.setDate(
           stageEndDate.getDate() +
-          handleVerifyDate(stageStartDate, currentStage.duration)
+            handleVerifyDate(stageStartDate, currentStage.duration)
         );
 
         const progressData = {
@@ -347,7 +352,6 @@ class ProcessController {
 
       return res.status(200).json({ process, flows: flowProcesses });
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -430,7 +434,7 @@ class ProcessController {
       const stageEndDate = new Date(stageStartDate);
       stageEndDate.setDate(
         stageEndDate.getDate() +
-        handleVerifyDate(stageStartDate, currentToStage.duration)
+          handleVerifyDate(stageStartDate, currentToStage.duration)
       );
 
       maturityDate = stageEndDate;
@@ -482,7 +486,6 @@ class ProcessController {
         message: `Impossível atualizar processo '${record}' para etapa '${to}`,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Erro ao atualizar processo '${record}' para etapa '${to}`,
