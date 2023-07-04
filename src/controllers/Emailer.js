@@ -25,7 +25,6 @@ export async function getMailContents() {
     });
     return mailContents;
   } catch (error) {
-    console.log(error);
     return {
       error,
       message: "Erro ao obter conteúdo dos emails",
@@ -40,11 +39,9 @@ export async function sendEmail() {
   json = await getMailContents();
 
   if (json.length == 0) {
-    console.log("Não há processos atrasados");
     return true;
   }
   if (!senha) {
-    console.log("Não há senha");
     return false;
   }
 
@@ -199,7 +196,6 @@ export async function sendEmail() {
       transport.sendMail(message);
       process = [];
     } catch (err) {
-      console.log("Error occurred. " + err.message);
       return false;
     }
   }

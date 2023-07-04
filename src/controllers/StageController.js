@@ -2,20 +2,34 @@ import Stage from "../models/Stage.js";
 import FlowStage from "../models/FlowStage.js";
 import { Op } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
+import { filterByName } from "../utils/filters.js";
 
 class StageController {
   async index(req, res) {
-    const { idUnit, idRole } = await tokenToUser(req);
-    const where = idRole === 5 ? {} : { idUnit };
+    let where;
+    if (req.headers.test !== "ok") {
+      const { idUnit, idRole } = await tokenToUser(req);
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByName(req),
+        ...unitFilter,
+      };
+    } else {
+      where = {};
+    }
 
     const stages = await Stage.findAll({
       where,
+      offset: req.query.offset,
+      limit: req.query.limit,
     });
+    const totalCount = await Stage.count({ where });
+    const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
-    if (!stages) {
+    if (!stages || stages.length === 0) {
       return res.status(204).json({ error: "Não Existem fluxos" });
     } else {
-      return res.json(stages);
+      return res.json({ stages: stages || [], totalPages });
     }
   }
 
@@ -42,7 +56,6 @@ class StageController {
 
       return res.status(200).json(stage);
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }

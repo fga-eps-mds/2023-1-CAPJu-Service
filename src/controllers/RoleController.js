@@ -63,7 +63,6 @@ class RoleController {
       });
       return res.json(role);
     } catch (error) {
-      console.log(error);
       return res.status(408).json(error);
     }
   }

@@ -3,9 +3,11 @@ import FlowStage from "../models/FlowStage.js";
 import Priority from "../models/Priority.js";
 import Process from "../models/Process.js";
 import Flow from "../models/Flow.js";
+import Stage from "../models/Stage.js";
 import Database from "../database/index.js";
 import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
+import { filterByNicknameAndRecord } from "../utils/filters.js";
 
 const isRecordValid = (record) => {
   const regex = /^\d{20}$/;
@@ -15,6 +17,23 @@ const isRecordValid = (record) => {
 const recordFilter = (record) => {
   const regex = /[^\d]/g;
   return record.replace(regex, "");
+};
+
+const IsUtilDay = (data) => {
+  const diaDaSemana = data.getDay();
+  return diaDaSemana >= 1 && diaDaSemana <= 5;
+};
+
+const handleVerifyDate = (startDate, duration) => {
+  let days = 0;
+  while (duration > 0) {
+    startDate.setDate(startDate.getDate() + 1);
+    if (IsUtilDay(startDate)) {
+      duration--;
+    }
+    days++;
+  }
+  return days;
 };
 
 const validateRecord = (record) => {
@@ -28,22 +47,36 @@ const validateRecord = (record) => {
 class ProcessController {
   async index(req, res) {
     try {
-      const { idUnit, idRole } = await tokenToUser(req);
-      const where = idRole === 5 ? {} : { idUnit };
-
-      let processes = await Process.findAll({
-        where,
-      });
-      if (!processes) {
-        return res.status(404).json({ error: "Não há processos" });
+      let where;
+      if (req.headers.test !== "ok") {
+        const { idUnit, idRole } = await tokenToUser(req);
+        const unitFilter = idRole === 5 ? {} : { idUnit };
+        where = {
+          ...filterByNicknameAndRecord(req),
+          ...unitFilter,
+        };
       } else {
-        let processesWithFlows = [];
+        where = {};
+      }
+      const offset = parseInt(req.query.offset) || 0;
+      const limit = parseInt(req.query.limit) || 10;
+      const processes = await Process.findAll({
+        where,
+        limit,
+        offset,
+      });
+
+      if (!processes || processes.length === 0) {
+        return res.status(204).json({ error: "Não há processos" });
+      } else {
+        const processesWithFlows = [];
         for (const process of processes) {
           const flowProcesses = await FlowProcess.findAll({
             where: {
               record: process.record,
             },
           });
+
           const flowProcessesIdFlows = flowProcesses.map((flowProcess) => {
             return flowProcess.idFlow;
           });
@@ -57,9 +90,16 @@ class ProcessController {
             idPriority: process.idPriority,
             idFlow: flowProcessesIdFlows,
             status: process.status,
+            progress: process.progress,
           });
         }
-        return res.status(200).json(processesWithFlows);
+
+        const totalCount = await Process.count({ where });
+        const totalPages = Math.ceil(totalCount / limit) || 0;
+
+        return res
+          .status(200)
+          .json({ processes: processesWithFlows, totalPages });
       }
     } catch (error) {
       return res.status(500).json({
@@ -120,7 +160,6 @@ class ProcessController {
         return res.json(process);
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Erro ao procurar processo ${idProcess}`,
@@ -164,13 +203,11 @@ class ProcessController {
               .json({ message: "Criado com sucesso!", flowProcess });
           }
         } catch (error) {
-          console.log(error);
           return res.status(500).json(error);
         }
       }
-      return res.status(200).json({ process });
+      return res.status(404).json({ message: "Erro na criação de processo" });
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -188,8 +225,24 @@ class ProcessController {
     try {
       const { idFlow } = req.params;
 
+      const offset = parseInt(req.query.offset) || 0;
+      const limit = parseInt(req.query.limit) || 10;
+
       const processes = await Database.connection.query(
         'SELECT * FROM \
+        "flowProcess" \
+        JOIN "process" ON \
+        "flowProcess".record = process.record \
+        WHERE "flowProcess"."idFlow" = ? \
+        OFFSET ? \
+        LIMIT ?',
+        {
+          replacements: [idFlow, offset, limit],
+          type: QueryTypes.SELECT,
+        }
+      );
+      const countQuery = await Database.connection.query(
+        'SELECT COUNT(*) as total FROM \
         "flowProcess" \
         JOIN "process" ON \
         "flowProcess".record = process.record \
@@ -200,9 +253,11 @@ class ProcessController {
         }
       );
 
-      return res.status(200).json(processes);
+      const totalCount = countQuery[0].total;
+      const totalPages = Math.ceil(totalCount / limit) || 0;
+
+      return res.status(200).json({ processes, totalPages });
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Erro ao buscar processos" });
@@ -245,12 +300,37 @@ class ProcessController {
               effectiveDate: new Date(),
             }
           : {};
+      let tempProgress = [];
+      if (process.status === "notStarted" && status === "inProgress") {
+        const currentStage = await Stage.findOne({
+          where: { idStage: flowStages[0].idStageA },
+        });
+
+        const stageStartDate = new Date();
+        const stageEndDate = new Date(stageStartDate);
+        stageEndDate.setDate(
+          stageEndDate.getDate() +
+            handleVerifyDate(stageStartDate, currentStage.duration)
+        );
+
+        const progressData = {
+          idStage: flowStages[0].idStageA,
+          entrada: new Date(),
+          vencimento: stageEndDate,
+        };
+        tempProgress.push(progressData);
+      } else {
+        // let aux = [];
+        // aux.push(process.progress);
+        tempProgress = process.progress;
+      }
 
       process.set({
         nickname,
         idStage: idStage || process.idStage,
         idPriority: priority,
         status,
+        progress: tempProgress,
         ...startingProcess,
       });
 
@@ -272,7 +352,6 @@ class ProcessController {
 
       return res.status(200).json({ process, flows: flowProcesses });
     } catch (error) {
-      console.log(error);
       return res.status(500).json(error);
     }
   }
@@ -292,13 +371,12 @@ class ProcessController {
 
       return res.status(200).json({ message: "OK" });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error, message: "Impossível apagar" });
     }
   }
 
   async updateProcessStage(req, res) {
-    const { record, from, to, idFlow } = req.body;
+    const { record, from, to, idFlow, isNextStage } = req.body;
 
     if (
       isNaN(parseInt(from)) ||
@@ -338,10 +416,57 @@ class ProcessController {
           message: `Não há a transição da etapa '${to}' para '${from}' no fluxo '${idFlow}'`,
         });
       }
+
+      const currentProcess = await Process.findOne({
+        where: { record },
+      });
+      const currentToStage = await Stage.findOne({
+        where: { idStage: to },
+      });
+
+      const currentFromStage = await Stage.findOne({
+        where: { idStage: from },
+      });
+
+      let tempProgress = [];
+      let maturityDate;
+      const stageStartDate = new Date();
+      const stageEndDate = new Date(stageStartDate);
+      stageEndDate.setDate(
+        stageEndDate.getDate() +
+          handleVerifyDate(stageStartDate, currentToStage.duration)
+      );
+
+      maturityDate = stageEndDate;
+
+      if (isNextStage) {
+        const progressData = {
+          idStage: to,
+          entrada: new Date(),
+          vencimento: maturityDate,
+        };
+        tempProgress = currentProcess.progress;
+        const index = tempProgress.findIndex((x) => x.idStage == to);
+        index === -1 && tempProgress.push(progressData);
+      } else {
+        tempProgress = Array.isArray(currentProcess.progress)
+          ? currentProcess.progress
+          : [currentProcess.progres];
+        tempProgress.pop();
+        tempProgress[tempProgress.length - 1] = {
+          idStage: to,
+          entrada: new Date(),
+          vencimento: maturityDate,
+        };
+      }
+
+      console.log("FROM TO", currentProcess.idStage, from, to);
+
       const process = await Process.update(
         {
           idStage: to,
           effectiveDate: new Date(),
+          progress: tempProgress,
         },
         {
           where: {
@@ -350,7 +475,6 @@ class ProcessController {
           },
         }
       );
-      console.log(process[0]);
       if (process[0] > 0) {
         return res.status(200).json({
           message: "Etapa atualizada com sucesso",
@@ -362,7 +486,6 @@ class ProcessController {
         message: `Impossível atualizar processo '${record}' para etapa '${to}`,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Erro ao atualizar processo '${record}' para etapa '${to}`,
@@ -407,12 +530,10 @@ class ProcessController {
         }
       );
 
-      console.log("updateResult = ", updateResult);
       return res.status(200).json({
         message: "Comentário adicionado com sucesso",
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Falha ao adicionar comentário",

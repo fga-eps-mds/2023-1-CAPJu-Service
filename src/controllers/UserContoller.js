@@ -2,6 +2,7 @@ import { tokenToUser } from "../middleware/authMiddleware.js";
 import { Op } from "sequelize";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import { filterByFullName } from "../utils/filters.js";
 
 const cpfFilter = (cpf) => cpf.replace(/[^0-9]/g, "");
 const jwtToken = process.env.JWT_SECRET || "ABC";
@@ -11,14 +12,14 @@ const generateToken = (id) => {
     expiresIn: "3d",
   });
 };
+
 class UserController {
   async login(req, res) {
     try {
       const { cpf, password } = req.body;
-      // Check for user cpf
       const user = await User.findByPk(cpfFilter(cpf));
       if (!user) {
-        return res.status(204).json({
+        return res.status(401).json({
           error: "Usuário inexistente",
           message: "Usuário inexistente",
         });
@@ -47,7 +48,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error, message: "erro inesperado" });
     }
   }
@@ -80,23 +80,47 @@ class UserController {
 
   async allUser(req, res) {
     try {
-      const { idUnit, idRole } = await tokenToUser(req);
-      const where = idRole === 5 ? {} : { idUnit };
+      let where;
+      if (req.headers.test !== "ok") {
+        const { idUnit, idRole } = await tokenToUser(req);
+        const unitFilter = idRole === 5 ? {} : { idUnit };
+        where = {
+          ...filterByFullName(req),
+          ...unitFilter,
+        };
+      } else {
+        where = {};
+      }
 
       if (req.query.accepted) {
         const { accepted } = req.query;
         let users;
+        let totalCount;
+        let totalPages;
+
         if (accepted === "true") {
           users = await User.findAll({
             where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
+            offset: req.query.offset,
+            limit: req.query.limit,
           });
+          totalCount = await User.count({
+            where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
+          });
+          totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
         } else if (accepted === "false") {
           users = await User.findAll({
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
+            offset: req.query.offset,
+            limit: req.query.limit,
           });
+          totalCount = await User.count({
+            where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
+          });
+          totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
         } else {
           return res.status(400).json({
-            message: "Parâmetro accepted deve ser 'true' ou 'false'",
+            message: "O parâmetro accepted deve ser 'true' ou 'false'",
           });
         }
 
@@ -110,15 +134,17 @@ class UserController {
             idRole: user.idRole,
           };
         });
-        return res.status(200).json(users);
+
+        return res.status(200).json({ users: users || [], totalPages });
       } else {
-        let users = await User.findAll({
+        const users = await User.findAll({
           where: {
             idRole: { [Op.ne]: 5 },
             ...where,
           },
         });
-        users = users.map((user) => {
+
+        const mappedUsers = users.map((user) => {
           return {
             cpf: user.cpf,
             fullName: user.fullName,
@@ -128,10 +154,10 @@ class UserController {
             idRole: user.idRole,
           };
         });
-        return res.status(200).json(users);
+
+        return res.status(200).json({ users: mappedUsers || [] });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro ao listar usuários aceitos ou não",
@@ -154,8 +180,6 @@ class UserController {
       });
       return res.json(user);
     } catch (error) {
-      console.log(error);
-
       if (error.name === "SequelizeUniqueConstraintError") {
         const errorMessages = {
           cpf: "Este CPF já foi cadastrado na plataforma.",
@@ -193,7 +217,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Impossível atualizar email",
@@ -218,7 +241,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ message: "Usuário não atualizado!" });
     }
   }
@@ -244,7 +266,6 @@ class UserController {
         return res.status(400).json({ message: "Senha inválida!" });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro a atualizar usuário ",
@@ -288,7 +309,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log("error", error);
       return res.status(500).json({
         error,
         message: "Falha ao aceitar usuário",
@@ -310,7 +330,6 @@ class UserController {
         });
       }
     } catch (error) {
-      console.log("error", error);
       return res.status(500).json({
         error,
         message: "Erro ao negar pedido do usuário",

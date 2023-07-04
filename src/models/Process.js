@@ -39,6 +39,10 @@ class Process extends Model {
           allowNull: false,
           defaultValue: "notStarted",
         },
+        progress: {
+          type: DataTypes.ARRAY(DataTypes.JSON),
+          allowNull: true,
+        },
       },
       {
         sequelize,

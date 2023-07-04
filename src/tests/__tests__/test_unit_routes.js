@@ -1,8 +1,8 @@
 import { Database } from "../TestDatabase.js";
 import "sequelize";
 import supertest from "supertest";
+import User from "../../models/User.js";
 import { app, injectDB } from "../TestApp";
-import Unit from "../../models/Unit.js";
 import { ROLE } from "../../schemas/role.js";
 
 describe("unit endpoints", () => {
@@ -33,8 +33,8 @@ describe("unit endpoints", () => {
     // this unit and FGA (initial unit)
     const expectedTestUnits = [initialUnit, testUnit];
 
-    expect(unitsResponse.body.length).toBe(2);
-    expect(unitsResponse.body).toEqual(
+    expect(unitsResponse.body.units.length).toBe(2);
+    expect(unitsResponse.body.units).toEqual(
       expect.arrayContaining(
         expectedTestUnits.map((expectedTestUnit) =>
           expect.objectContaining(expectedTestUnit)
@@ -65,8 +65,8 @@ describe("unit endpoints", () => {
 
     const unitsResponse = await supertest(app).get("/units");
     expect(unitsResponse.status).toBe(200);
-    expect(unitsResponse.body.length).toBe(1);
-    expect(unitsResponse.body).toEqual(
+    expect(unitsResponse.body.units.length).toBe(1);
+    expect(unitsResponse.body.units).toEqual(
       expect.arrayContaining([expect.objectContaining(initialUnit)])
     );
   });
@@ -173,6 +173,25 @@ describe("unit endpoints", () => {
       cpf: "75706593256",
       email: "email@example.com",
     };
+  });
+
+  test("create user and accept and add it as administrator of a new unit", async () => {
+    const testUser = {
+      fullName: "Francisco Duarte Lopes",
+      cpf: "75706593256",
+    };
+
+    const testUnit = {
+      name: "Unidade Teste",
+    };
+
+    const expectedTestUser = {
+      fullName: testUser.fullName,
+      cpf: testUser.cpf,
+      accepted: true,
+      idUnit: 2,
+      idRole: ROLE.ADMINISTRADOR,
+    };
 
     const testUserResponse = await supertest(app)
       .post("/newUser")
@@ -183,6 +202,77 @@ describe("unit endpoints", () => {
       `/acceptRequest/${testUser.cpf}`
     );
     expect(acceptResponse.status).toBe(404);
+
+    const newUnitResponse = await supertest(app)
+      .post("/newUnit")
+      .send(testUnit);
+    expect(newUnitResponse.status).toBe(200);
+
+    const setUserResponse = await supertest(app).put("/smetUnitAdin").send({
+      idUnit: 2,
+      cpf: testUser.cpf,
+    });
+    expect(setUserResponse.status).toBe(404);
+  });
+
+  it("should return an error message if the unit name is not provided", async () => {
+    const response = await supertest(app).post("/newUnit").send({}).expect(500);
+
+    expect(response.body.error).toBeDefined();
+    expect(response.body.message).toBe("Erro ao criar unidade");
+  });
+
+  it("should return an error message if the unit name is not provided when updating", async () => {
+    const response = await supertest(app)
+      .put("/updateUnit")
+      .send({})
+      .expect(404);
+
+    expect(response.body.message).toBe("Essa unidade não existe!");
+  });
+
+  it("should return an error message if listing units fails", async () => {
+    // Simule um erro ao listar unidades definindo um objeto inválido para offset e limit
+    const response = await supertest(app)
+      .get("/units")
+      .query({ offset: "invalid", limit: "invalid" })
+      .expect(500);
+
+    // Verifique se a resposta contém o corpo esperado
+    expect(response.body.error).toBeDefined();
+    expect(response.body.message).toBe("Erro ao listar unidades");
+  });
+
+  it("should return an error message if the unit name is not provided when deleting", async () => {
+    const response = await supertest(app)
+      .delete("/deleteunit")
+      .send({})
+      .expect(500);
+  });
+
+  test("removeUnitAdmin - Unidade inexistente", async () => {
+    const idUnit = 123;
+    const cpf = "75706593256";
+
+    const response = await supertest(app)
+      .put("/removeUnitAdmin")
+      .send({ idUnit, cpf });
+
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({
+      error: "Usuário não existe nesta unidade",
+    });
+  });
+
+  test("removeUnitAdmin - Usuário inexistente", async () => {
+    const idUnit = 1;
+    const cpf = "12345678901";
+
+    const response = await supertest(app)
+      .put("/removeUnitAdmin")
+      .send({ idUnit, cpf });
+
+    expect(response.status).toBe(200);
   });
 
   it("should return 200 when trying to delete a unit that does exist", async () => {
