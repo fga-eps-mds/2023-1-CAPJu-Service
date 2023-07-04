@@ -13,8 +13,8 @@ describe("role endpoints", () => {
 
   test("new note and list existing", async () => {
     const testNote = {
-      commentary: 'obs',
-      record: '123',
+      commentary: "obs",
+      record: "123",
       idStageA: 1,
       idStageB: 2,
     };
@@ -23,15 +23,15 @@ describe("role endpoints", () => {
     expect(response.status).toBe(200);
     expect(response.body.record).toBe(testNote.record);
 
-    response = await supertest(app).get(`/notes/${record}`);
+    response = await supertest(app).get(`/notes/${testNote.record}`);
     expect(response.status).toBe(200);
     expect(response.body.commentary).toBe(testNote.commentary);
   });
 
   test("new note and edit commentary", async () => {
     const testNote = {
-      commentary: 'obs',
-      record: '123',
+      commentary: "obs",
+      record: "123",
       idStageA: 1,
       idStageB: 2,
     };
@@ -39,17 +39,19 @@ describe("role endpoints", () => {
     let response = await supertest(app).post("/newNote").send(testNote);
     expect(response.status).toBe(200);
 
-    response = await supertest(app).put(`/updateNote/${response.body.idNote}`).send({
-      commentary: 'obs2',
-    })
+    response = await supertest(app)
+      .put(`/updateNote/${response.body.idNote}`)
+      .send({
+        commentary: "obs2",
+      });
     expect(response.status).toBe(200);
     expect(response.body.message).toEqual("Observação atualizada com sucesso.");
   });
 
   test("new note and delete it", async () => {
     const testNote = {
-      commentary: 'obs',
-      record: '123',
+      commentary: "obs",
+      record: "123",
       idStageA: 1,
       idStageB: 2,
     };
@@ -57,9 +59,10 @@ describe("role endpoints", () => {
     let response = await supertest(app).post("/newNote").send(testNote);
     expect(response.status).toBe(200);
 
-    response = await supertest(app).delete(`/deleteNote/${response.body.idNote}`)
+    response = await supertest(app).delete(
+      `/deleteNote/${response.body.idNote}`
+    );
     expect(response.status).toBe(200);
     expect(response.body.message).toEqual("Observação deletada com sucesso.");
   });
 });
-

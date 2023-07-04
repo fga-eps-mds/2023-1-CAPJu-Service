@@ -8,9 +8,7 @@ class NoteController {
       if (note) {
         return res.status(200).json(note);
       } else {
-        return res
-          .status(204)
-          .json({ message: "Nenhuma observação encontrada." });
+        return res.status(204).json([]);
       }
     } catch (error) {
       return res.status(500).json({ message: "Erro ao buscar obervação." });
@@ -41,7 +39,7 @@ class NoteController {
       if (!note) {
         return res.status(400).json({ error: `idNote ${idNote} não existe!` });
       } else {
-        await role.destroy();
+        await note.destroy();
         return res
           .status(200)
           .json({ message: "Observação deletada com sucesso." });
@@ -62,8 +60,8 @@ class NoteController {
       if (!note) {
         return res.status(400).json({ error: `idNote ${idNote} não existe!` });
       } else {
-        role.set({ commentary });
-        await role.save();
+        note.set({ commentary });
+        await note.save();
         return res
           .status(200)
           .json({ message: "Observação atualizada com sucesso." });
