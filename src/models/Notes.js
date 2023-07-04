@@ -30,8 +30,6 @@ class Note extends Model {
         tableName: "note",
       }
     );
-
-    return this;
   }
 
   static associate(models) {

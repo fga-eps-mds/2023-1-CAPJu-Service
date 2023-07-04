@@ -79,4 +79,90 @@ describe("role endpoints", () => {
       "Observação deletada com sucesso."
     );
   });
+
+  test("edit non-existent note (status 400)", async () => {
+    const nonExistentNoteId = 123;
+
+    Note.findByPk.mockResolvedValue(null);
+
+    const updateResponse = await supertest(app)
+      .put(`/updateNote/${nonExistentNoteId}`)
+      .send({
+        commentary: "obs2",
+      });
+    expect(updateResponse.status).toBe(400);
+    expect(updateResponse.body.error).toEqual(
+      `idNote ${nonExistentNoteId} não existe!`
+    );
+  });
+
+  test("delete non-existent note (status 400)", async () => {
+    const nonExistentNoteId = 123;
+
+    Note.findByPk.mockResolvedValue(null);
+
+    const deleteResponse = await supertest(app).delete(
+      `/deleteNote/${nonExistentNoteId}`
+    );
+    expect(deleteResponse.status).toBe(400);
+    expect(deleteResponse.body.error).toEqual(
+      `idNote ${nonExistentNoteId} não existe!`
+    );
+  });
+
+  test("new note - database error (status 500)", async () => {
+    const testNote = {
+      commentary: "obs",
+      record: "123",
+      idStageA: 1,
+      idStageB: 2,
+    };
+
+    const errorMessage = "Database error";
+
+    Note.create.mockRejectedValue(new Error(errorMessage));
+
+    const response = await supertest(app).post("/newNote").send(testNote);
+    expect(response.status).toBe(500);
+    expect(response.body.message).toEqual(
+      `Erro ao criar observação: Error: ${errorMessage}`
+    );
+  });
+
+  test("edit note - database error (status 500)", async () => {
+    const testNoteId = 123;
+    const updatedCommentary = "obs2";
+
+    const errorMessage = "Database error";
+
+    Note.findByPk.mockRejectedValue(new Error(errorMessage));
+
+    const updateResponse = await supertest(app)
+      .put(`/updateNote/${testNoteId}`)
+      .send({
+        commentary: updatedCommentary,
+      });
+    expect(updateResponse.status).toBe(500);
+    expect(updateResponse.body.message).toEqual(
+      `Erro ao atualizar observação: Error: ${errorMessage}`
+    );
+  });
+
+  test("delete note - database error (status 500)", async () => {
+    const testNoteId = 123;
+
+    const errorMessage = "Database error";
+
+    Note.findByPk.mockResolvedValue({
+      destroy: jest.fn().mockRejectedValue(new Error(errorMessage)),
+    });
+
+    const deleteResponse = await supertest(app).delete(
+      `/deleteNote/${testNoteId}`
+    );
+    expect(deleteResponse.status).toBe(500);
+    expect(deleteResponse.body.message).toEqual(
+      `Erro ao deletar observação: Error: ${errorMessage}`
+    );
+  });
 });
