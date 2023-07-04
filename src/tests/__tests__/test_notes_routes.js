@@ -1,14 +1,12 @@
-import { Database } from "../TestDatabase.js";
-import "sequelize";
 import supertest from "supertest";
-import { app, injectDB } from "../TestApp";
+import { app } from "../TestApp";
+import Note from "../../models/Notes.js";
+
+jest.mock("../../models/Notes.js");
 
 describe("role endpoints", () => {
-  beforeEach(async () => {
-    const database = new Database();
-    await database.migrate();
-    await database.seed();
-    injectDB(database);
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
   test("new note and list existing", async () => {
@@ -19,13 +17,16 @@ describe("role endpoints", () => {
       idStageB: 2,
     };
 
-    let response = await supertest(app).post("/newNote").send(testNote);
+    Note.create.mockResolvedValue(testNote);
+    Note.findOne.mockResolvedValue(testNote);
+
+    const response = await supertest(app).post("/newNote").send(testNote);
     expect(response.status).toBe(200);
     expect(response.body.record).toBe(testNote.record);
 
-    response = await supertest(app).get(`/notes/${testNote.record}`);
-    expect(response.status).toBe(200);
-    expect(response.body.commentary).toBe(testNote.commentary);
+    const getResponse = await supertest(app).get(`/notes/${testNote.record}`);
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body.commentary).toBe(testNote.commentary);
   });
 
   test("new note and edit commentary", async () => {
@@ -36,16 +37,24 @@ describe("role endpoints", () => {
       idStageB: 2,
     };
 
-    let response = await supertest(app).post("/newNote").send(testNote);
+    Note.create.mockResolvedValue(testNote);
+    Note.findByPk.mockResolvedValue({
+      set: jest.fn(),
+      save: jest.fn(),
+    });
+
+    const response = await supertest(app).post("/newNote").send(testNote);
     expect(response.status).toBe(200);
 
-    response = await supertest(app)
+    const updateResponse = await supertest(app)
       .put(`/updateNote/${response.body.idNote}`)
       .send({
         commentary: "obs2",
       });
-    expect(response.status).toBe(200);
-    expect(response.body.message).toEqual("Observação atualizada com sucesso.");
+    expect(updateResponse.status).toBe(200);
+    expect(updateResponse.body.message).toEqual(
+      "Observação atualizada com sucesso."
+    );
   });
 
   test("new note and delete it", async () => {
@@ -56,13 +65,18 @@ describe("role endpoints", () => {
       idStageB: 2,
     };
 
-    let response = await supertest(app).post("/newNote").send(testNote);
+    Note.create.mockResolvedValue(testNote);
+    Note.findByPk.mockResolvedValue({ destroy: jest.fn() });
+
+    const response = await supertest(app).post("/newNote").send(testNote);
     expect(response.status).toBe(200);
 
-    response = await supertest(app).delete(
+    const deleteResponse = await supertest(app).delete(
       `/deleteNote/${response.body.idNote}`
     );
-    expect(response.status).toBe(200);
-    expect(response.body.message).toEqual("Observação deletada com sucesso.");
+    expect(deleteResponse.status).toBe(200);
+    expect(deleteResponse.body.message).toEqual(
+      "Observação deletada com sucesso."
+    );
   });
 });
