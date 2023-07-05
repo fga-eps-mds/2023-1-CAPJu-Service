@@ -11,7 +11,9 @@ class NoteController {
         return res.status(204).json([]);
       }
     } catch (error) {
-      return res.status(500).json({ message: `Erro ao buscar obervação: ${error}` });
+      return res
+        .status(500)
+        .json({ message: `Erro ao buscar obervação: ${error}` });
     }
   };
 
