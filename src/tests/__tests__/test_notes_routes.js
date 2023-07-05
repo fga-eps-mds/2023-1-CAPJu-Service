@@ -1,8 +1,8 @@
 import supertest from "supertest";
 import { app } from "../TestApp";
-import Note from "../../models/Notes.js";
+import Note from "../../models/Note.js";
 
-jest.mock("../../models/Notes.js");
+jest.mock("../../models/Note.js");
 
 describe("role endpoints", () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe("role endpoints", () => {
     };
 
     Note.create.mockResolvedValue(testNote);
-    Note.findOne.mockResolvedValue(testNote);
+    Note.findAll.mockResolvedValue(testNote);
 
     const response = await supertest(app).post("/newNote").send(testNote);
     expect(response.status).toBe(200);
