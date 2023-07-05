@@ -27,7 +27,7 @@ class StageController {
     const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
     if (!stages || stages.length === 0) {
-      return res.status(204).json({ error: "Não Existem fluxos" });
+      return res.status(200).json({ error: "Não Existem fluxos" });
     } else {
       return res.json({ stages: stages || [], totalPages });
     }
@@ -56,7 +56,7 @@ class StageController {
 
       return res.status(200).json(stage);
     } catch (error) {
-      return res.status(500).json(error);
+      return res.status(400).json(error);
     }
   }
 
