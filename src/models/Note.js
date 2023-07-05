@@ -13,7 +13,6 @@ class Note extends Model {
         commentary: DataTypes.STRING(100),
         record: {
           type: DataTypes.STRING(20),
-          foreignKey: true,
           allowNull: false,
         },
         idStageA: {
@@ -30,10 +29,8 @@ class Note extends Model {
         tableName: "note",
       }
     );
-  }
 
-  static associate(models) {
-    this.belongsTo(models.Process, { foreignKey: "record", as: "process" });
+    return this;
   }
 }
 
