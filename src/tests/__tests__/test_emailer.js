@@ -89,17 +89,9 @@ describe("Test for function sendEmail", () => {
     const result = sendEmail();
     expect(result).toBeTruthy();
   });
-  it("Retorno dos console.log", async () => {
-    const mockGetMailContents = jest.fn().mockResolvedValue([]);
-    console.log = jest.fn();
-    await sendEmail(mockGetMailContents);
-    expect(console.log).toHaveBeenCalledTimes(2);
-  });
   it("should log 'Não há senha' and return false if password is not set", async () => {
     process.env.CAPJU_EMAIL_PASSWORD = "";
-    console.log = jest.fn();
     const result = await sendEmail();
-    expect(console.log).toHaveBeenCalledWith("Não há senha");
     expect(result).toBe(false);
     delete process.env.CAPJU_EMAIL_PASSWORD;
   });

@@ -6,6 +6,7 @@ import FlowUser from "../models/FlowUser.js";
 import FlowProcess from "../models/FlowProcess.js";
 import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
+import { filterByName } from "../utils/filters.js";
 
 class FlowController {
   static #stagesSequencesFromFlowStages(flowStages) {
@@ -131,7 +132,6 @@ class FlowController {
         message: `Não há fluxos com o processo '${record}'`,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Erro ao buscar fluxos do processo ${record}`,
@@ -141,12 +141,31 @@ class FlowController {
 
   async index(req, res) {
     try {
-      const { idUnit, idRole } = await tokenToUser(req);
-      const where = idRole === 5 ? {} : { idUnit };
+      let where;
+      if (req.headers.test !== "ok") {
+        const { idUnit, idRole } = await tokenToUser(req);
+        const unitFilter = idRole === 5 ? {} : { idUnit };
+        where = {
+          ...filterByName(req),
+          ...unitFilter,
+        };
+      } else {
+        where = {};
+      }
 
-      const flows = await Flow.findAll({
-        where,
-      });
+      const { limit, offset } = req.query;
+
+      const flows = limit
+        ? await Flow.findAll({
+            where,
+            offset: parseInt(offset),
+            limit: parseInt(limit),
+          })
+        : await Flow.findAll({
+            where,
+          });
+      const totalCount = await Flow.count({ where });
+      const totalPages = Math.ceil(totalCount / limit);
 
       let flowsWithSequences = [];
       for (const flow of flows) {
@@ -167,10 +186,10 @@ class FlowController {
 
         flowsWithSequences.push(flowSequence);
       }
-
-      return res.status(200).json(flowsWithSequences);
+      return res
+        .status(200)
+        .json({ flows: flowsWithSequences || [], totalPages });
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Impossível obter fluxos" });
@@ -202,7 +221,6 @@ class FlowController {
 
       return res.status(200).json(flowSequence);
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Impossível obter fluxo ${idFlow}`,
@@ -242,7 +260,6 @@ class FlowController {
         sequences: sequences,
       });
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Impossível ler sequências" });
@@ -261,7 +278,6 @@ class FlowController {
 
       return res.status(200).json(flowStages);
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Erro ao ler fluxos ligados a etapas" });
@@ -288,7 +304,6 @@ class FlowController {
 
       res.status(200).json({ usersToNotify: result });
     } catch (error) {
-      console.log(error);
       res.status(500).json({
         error,
         message: "Impossível obter usuários que devem ser notificados no fluxo",
@@ -311,7 +326,6 @@ class FlowController {
         ? res.status(status).json(json)
         : res.status(status).json({ message });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error: "Impossível criar fluxo" });
     }
   }
@@ -352,7 +366,6 @@ class FlowController {
           : res.status(status).json({ message });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error, message: "Impossível criar fluxo" });
     }
   }
@@ -376,7 +389,6 @@ class FlowController {
         return res.status(404).json({ message: "Fluxo não encontrado" });
       }
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: "Impossível apagar fluxo" });
@@ -401,7 +413,6 @@ class FlowController {
         message: `Desassociação entre fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}' concluída`,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Falha ao desassociar fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}'`,

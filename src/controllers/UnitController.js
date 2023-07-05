@@ -1,15 +1,27 @@
 import Unit from "../models/Unit.js";
 import User from "../models/User.js";
 import { ROLE } from "../schemas/role.js";
+import { filterByName } from "../utils/filters.js";
 
 class UnitController {
   async index(req, res) {
-    const units = await Unit.findAll();
-
-    if (!units) {
-      return res.status(401).json({ message: "Não Existe unidades" });
-    } else {
-      return res.status(200).json(units);
+    try {
+      const where = {
+        ...filterByName(req),
+      };
+      const units = await Unit.findAll({
+        where,
+        offset: req.query.offset,
+        limit: req.query.limit,
+      });
+      const totalCount = await Unit.count({ where });
+      const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
+      return res.json({ units: units || [], totalPages });
+    } catch (error) {
+      return res.status(500).json({
+        error,
+        message: "Erro ao listar unidades",
+      });
     }
   }
 
@@ -21,7 +33,6 @@ class UnitController {
       });
       return res.json(unit);
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro ao criar unidade",
@@ -119,7 +130,6 @@ class UnitController {
         };
         return res.status(200).json(userNoPassword);
       } catch (error) {
-        console.log(error);
         return res.status(500).json({
           error,
           message: "Erro ao configurar usuário como administrador",
@@ -146,7 +156,6 @@ class UnitController {
         await user.save();
         return res.status(200).json(user);
       } catch (error) {
-        console.log(error);
         return res.status(500).json({
           error: "Erro ao configurar usuário como administrador",
         });

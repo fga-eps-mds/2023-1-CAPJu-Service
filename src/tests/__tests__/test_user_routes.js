@@ -4,6 +4,8 @@ import { Op } from "sequelize";
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
 import User from "../../models/User.js";
+import { tokenToUser } from "../../middleware/authMiddleware.js";
+import jwt from "jsonwebtoken";
 
 let where;
 
@@ -79,8 +81,6 @@ describe("user endpoints", () => {
 
     expect(usersDb.length).toBe(testUsers.length + 2);
 
-    console.info(usersDb);
-
     expect(usersDb).toEqual(
       expect.arrayContaining(
         expectedTestUsers.map((etu) => {
@@ -139,8 +139,6 @@ describe("user endpoints", () => {
     const acceptedUsersDb = await User.findAll({
       where: { accepted: true, idRole: 5 },
     });
-
-    console.info(acceptedUsersDb[0].dataValues.cpf);
 
     // Only the administrator is accepted
     expect(acceptedUsersDb.length).toBe(1);
@@ -382,6 +380,114 @@ describe("user endpoints", () => {
     expect(response.body.cpf).toEqual(expectedUser.cpf);
   });
 
+  test("new user and edit email", async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "sss@example.com",
+      password: "spw123456",
+      idUnit: 1,
+      idRole: 3,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+    };
+
+    const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(userResponse.status).toBe(200);
+    expect(expectedUser).toEqual(userResponse.body);
+
+    const response = await supertest(app)
+      .put(`/updateUser/${testUser.cpf}`)
+      .send({
+        email: "sss@example.com",
+      });
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: "Email atualizado com sucesso",
+    });
+  });
+
+  test("new user and delete inexistent user", async () => {
+    const testUser = {
+      fullName: "Nomenni Nomesos",
+      cpf: "26585841212",
+      email: "sss@example.com",
+      password: "sfwJ23456",
+      idUnit: 1,
+      idRole: 4,
+    };
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const response = await supertest(app).delete(`/deleteUser/12345678900`);
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: "Usuário não existe!" });
+  });
+
+  test("test", async () => {
+    const testUser = {
+      fullName: "Nomenni Nomesos",
+      cpf: "26585841212",
+      email: "testemail@example.com ",
+    };
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(500);
+
+    const response = await supertest(app).delete(
+      `/deleteRequest/${testUser.cpf}`
+    );
+    expect(response.status).toBe(404);
+  });
+
+  test("try editing password of inexistent user", async () => {
+    const expectedUser = {
+      cpf: "55490433353",
+      email: "teseo@email.com",
+      fullName: "Asdfgo Iopqwerty",
+    };
+
+    const response = await supertest(app)
+      .post(`/updateUserPassword/${expectedUser.cpf}`)
+      .send({
+        email: "test@email.com",
+      });
+    expect(response.status).toBe(404);
+  });
+
   test("new user tries to login", async () => {
     const testUser = {
       fullName: "Nomen Nomes",
@@ -486,5 +592,247 @@ describe("user endpoints", () => {
     const checkUserResponse = await supertest(app).get(`/user/${testUser.cpf}`);
     expect(checkUserResponse.status).toBe(404);
     expect(checkUserResponse.body).toEqual({ error: "Usuário não existe" });
+  });
+
+  test("test", async () => {
+    const testUser = {
+      cpf: "12345678901",
+      password: "123Teste",
+    };
+    const login = await supertest(app)
+      .post("/login")
+      .send(testUser, tokenToUser);
+    const req = {
+      headers: { authorization: `Bearer ${login.body.token}` },
+    };
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      try {
+        // Get token from header
+        const token = req.headers.authorization.split(" ")[1];
+
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Get user from the token
+        req.user = await User.findByPk(decoded.id);
+        if (req.user.accepted === false) {
+          throw new Error();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const stagesResponse = await supertest(app)
+      .get("/allUser")
+      .set("test", `ok`);
+    expect(stagesResponse.status).toBe(200);
+    expect(stagesResponse.body.users.length).toBe(1);
+  });
+
+  test("Get all rejected users", async () => {
+    // Create a test user with accepted=false
+    const testUser = {
+      cpf: "98765432109",
+      password: "456Teste",
+      fullName: "Rejected User",
+      email: "rejected@example.com",
+      accepted: false,
+      idUnit: 1,
+      idRole: 2,
+    };
+    await User.create(testUser);
+
+    // Login to get the JWT token
+    const loginResponse = await supertest(app).post("/login").send({
+      cpf: testUser.cpf,
+      password: testUser.password,
+    });
+    const token = loginResponse.body.token;
+
+    // Set the Authorization header with the JWT token
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    // Make the request to get all rejected users
+    const response = await supertest(app)
+      .get("/allUser")
+      .set("test", "ok")
+      .set(headers)
+      .query({ accepted: false });
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.users)).toBe(true);
+    expect(response.body.users.length).toBe(2);
+    expect(response.body.users[0].accepted).toBe(false);
+  });
+
+  test("Unauthorized access without JWT token", async () => {
+    // Make the request to get all users without JWT token
+    const response = await supertest(app).get("/allUser").set("test", "ok");
+
+    expect(response.status).toBe(200);
+  });
+
+  test("Unauthorized access with invalid JWT token", async () => {
+    // Set an invalid JWT token
+    const headers = {
+      Authorization: "Bearer invalid-token",
+    };
+
+    // Make the request to get all users with an invalid JWT token
+    const response = await supertest(app)
+      .get("/allUser")
+      .set("test", "ok")
+      .set(headers);
+
+    expect(response.status).toBe(200);
+  });
+
+  test("new users and list existing accepted and unaccepted", async () => {
+    const testUsers = [
+      {
+        fullName: "Francisco Duarte Lopes",
+        cpf: "75706593256",
+        email: "francisco.dl@gmail.com",
+        password: "fdl123456",
+        idUnit: 1,
+        idRole: 1,
+      },
+      {
+        fullName: "Antonio Pereira Soares",
+        cpf: "70102089213",
+        email: "antps@yahoo.com",
+        password: "ffl123456",
+        idUnit: 1,
+        idRole: 2,
+      },
+      {
+        fullName: "Lucas Barbosa",
+        cpf: "05363418770",
+        email: "lbarb@gmail.com",
+        password: "fd78D23456",
+        idUnit: 1,
+        idRole: 3,
+      },
+    ];
+
+    const adminUser = {
+      cpf: "12345678901",
+      fullName: "Usuário Administrador Inicial",
+      email: "admin@example.com",
+      idUnit: 1,
+      accepted: true,
+      idRole: 5,
+    };
+
+    for (const testUser of testUsers) {
+      const testUserResponse = await supertest(app)
+        .post("/newUser")
+        .send(testUser);
+      expect(testUserResponse.status).toBe(200);
+    }
+
+    const acceptedUsersDb = await User.findAll({
+      where: {
+        accepted: true,
+        idRole: adminUser.idRole,
+      },
+    });
+
+    // Only the administrator is accepted
+    expect(acceptedUsersDb.length).toBe(1);
+    expect(acceptedUsersDb[0].cpf).toEqual(adminUser.cpf);
+
+    const rejectedUsersDb = await User.findAll({
+      where: {
+        accepted: false,
+        idRole: {
+          [Op.not]: adminUser.idRole,
+        },
+      },
+    });
+
+    // The three created above + initial unaccepted user
+    expect(rejectedUsersDb.length).toBe(4);
+  });
+
+  it("should return error for non-existent user", async () => {
+    const response = await supertest(app)
+      .post("/login")
+      .send({
+        cpf: "cpf_inexistente",
+        password: "senha_qualquer",
+      })
+      .expect(401);
+
+    expect(response.body.error).toBe("Usuário inexistente");
+    expect(response.body.message).toBe("Usuário inexistente");
+  });
+
+  it("should return error for wrong password", async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "aaa@bb.com",
+      password: "spw123456",
+      idUnit: 1,
+      idRole: 3,
+    };
+
+    await supertest(app).post("/newUser").send(testUser);
+
+    await supertest(app).post(`/acceptRequest/${testUser.cpf}`);
+
+    const response = await supertest(app)
+      .post("/login")
+      .send({
+        cpf: testUser.cpf,
+        password: "senha_qualquer",
+      })
+      .expect(401);
+
+    expect(response.body.message).toBe("Senha ou usuário incorretos");
+    expect(response.body.error).toBe("Impossível autenticar");
+  });
+
+  test("get all users", async () => {
+    const testUser = {
+      fullName: "Nomenni Nomesos",
+      cpf: "26585841212",
+      email: "email@gmail.com",
+    };
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(500);
+
+    const response = await supertest(app).get("/allUser");
+    expect(response.status).toBe(500);
+
+    const deleteUserResponse = await supertest(app).delete(
+      `/deleteUser/${testUser.cpf}`
+    );
+    expect(deleteUserResponse.status).toBe(404);
+  });
+
+  it("should return the total count and total pages for accepted users", async () => {
+    const response = await supertest(app)
+      .get("/allUser?accepted=true")
+      .set("test", "ok")
+      .expect(200);
   });
 });

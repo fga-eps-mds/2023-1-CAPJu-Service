@@ -5,12 +5,13 @@ import StageController from "./controllers/StageController.js";
 import UnitController from "./controllers/UnitController.js";
 import RoleController from "./controllers/RoleController.js";
 import UserContoller from "./controllers/UserContoller.js";
+import NoteController from "./controllers/NoteController.js";
 import { protect, authRole } from "./middleware/authMiddleware.js";
 import { ROLE } from "./schemas/role.js";
 
 const routes = Router();
 
-routes.get("/", (req, res) => {
+routes.get("/", (_req, res) => {
   res.json({
     status: "OK",
     message: "Up and running",
@@ -21,6 +22,7 @@ routes.get("/priorities", ProcessController.getPriorities);
 
 //Rotas de processos
 routes.get("/processes", ProcessController.index);
+routes.get("/processes/:filter", ProcessController.index);
 routes.get(
   "/processes/:idFlow",
   protect,
@@ -68,6 +70,8 @@ routes.get("/flows/process/:record", FlowController.indexByRecord);
 
 routes.get("/flows", FlowController.index);
 
+routes.get("/flows/:filter", FlowController.index);
+
 routes.get("/flow/:idFlow", FlowController.getById);
 
 routes.get("/flowStages", FlowController.getFlowStages);
@@ -88,6 +92,8 @@ routes.post("/newStage", StageController.store);
 
 routes.get("/stages", StageController.index);
 
+routes.get("/stages/:filter", StageController.index);
+
 routes.get("/stage/:id", StageController.getById);
 
 routes.delete("/deleteStage/:id", StageController.delete);
@@ -96,6 +102,8 @@ routes.delete("/deleteStage/:id", StageController.delete);
 routes.post("/newUnit", UnitController.store);
 
 routes.get("/units", UnitController.index);
+
+routes.get("/units/:filter", UnitController.index);
 
 routes.put("/setUnitAdmin", UnitController.setUnitAdmin);
 routes.put("/removeUnitAdmin", UnitController.removeUnitAdmin);
@@ -146,5 +154,14 @@ routes.post("/newUser", UserContoller.store);
 routes.get("/user/:id", UserContoller.getByIdParam);
 
 routes.delete("/deleteUser/:id", UserContoller.deleteByParam);
+
+// Rotas de Notes
+routes.get("/notes/:record", NoteController.index);
+
+routes.post("/newNote", NoteController.newNote);
+
+routes.put("/updateNote/:idNote", NoteController.update);
+
+routes.delete("/deleteNote/:idNote", NoteController.delete);
 
 export default routes;
