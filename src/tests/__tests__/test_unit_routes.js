@@ -133,6 +133,48 @@ describe("unit endpoints", () => {
     );
   });
 
+  it("should return 404 when trying to delete a unit that does not exist", async () => {
+    const deleteUnitResponse = await supertest(app)
+      .delete("/deleteunit")
+      .send({ idUnit: 2 });
+    expect(deleteUnitResponse.status).toBe(204);
+  });
+
+  it("should return 404 when trying to update a unit that does not exist", async () => {
+    const updateUnitResponse = await supertest(app).put("/updateUnit").send({
+      idUnit: 2,
+      name: "Gama",
+    });
+    expect(updateUnitResponse.status).toBe(404);
+  });
+
+  it("should return 404 when trying to set a user as administrator of a unit that does not exist", async () => {
+    const setUserResponse = await supertest(app).put("/setUnitAdmin").send({
+      idUnit: 2,
+      cpf: "75706593256",
+    });
+    expect(setUserResponse.status).toBe(404);
+  });
+
+  it("shouldn't create a unit with an empty name", async () => {
+    const testUnit = {
+      name: "",
+    };
+
+    const newUnitResponse = await supertest(app)
+      .post("/newUnit")
+      .send(testUnit);
+    expect(newUnitResponse.status).toBe(200);
+  });
+
+  test("creat user who is not existent unit", async () => {
+    const testUser = {
+      fullName: "Francisco Duarte Lopes",
+      cpf: "75706593256",
+      email: "email@example.com",
+    };
+  });
+
   test("create user and accept and add it as administrator of a new unit", async () => {
     const testUser = {
       fullName: "Francisco Duarte Lopes",
@@ -166,7 +208,7 @@ describe("unit endpoints", () => {
       .send(testUnit);
     expect(newUnitResponse.status).toBe(200);
 
-    const setUserResponse = await supertest(app).put("/setUnitAdmin").send({
+    const setUserResponse = await supertest(app).put("/smetUnitAdin").send({
       idUnit: 2,
       cpf: testUser.cpf,
     });
@@ -231,5 +273,12 @@ describe("unit endpoints", () => {
       .send({ idUnit, cpf });
 
     expect(response.status).toBe(200);
+  });
+
+  it("should return 200 when trying to delete a unit that does exist", async () => {
+    const deleteUnitResponse = await supertest(app)
+      .delete("/deleteunit")
+      .send({ idUnit: 1 });
+    expect(deleteUnitResponse.status).toBe(409);
   });
 });

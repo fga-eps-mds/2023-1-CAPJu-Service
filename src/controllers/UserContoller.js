@@ -191,7 +191,7 @@ class UserController {
           errorMessages[duplicatedField] || "Já existe um registro duplicado.";
 
         return res
-          .status(409)
+          .status(400)
           .json({ error: "Campo duplicado.", message: errorMessage });
       }
 
