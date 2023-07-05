@@ -5,15 +5,11 @@ class NoteController {
     const record = req.params.record;
     try {
       const note = await Note.findAll({ where: { record } });
-      if (note) {
-        return res.status(200).json(note);
-      } else {
-        return res.status(204).json([]);
-      }
+      return res.status(200).json(note);
     } catch (error) {
       return res
         .status(500)
-        .json({ message: `Erro ao buscar obervação: ${error}` });
+        .json({ message: `Erro ao buscar observação: ${error}` });
     }
   };
 

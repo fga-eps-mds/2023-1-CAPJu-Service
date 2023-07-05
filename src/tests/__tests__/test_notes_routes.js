@@ -29,6 +29,17 @@ describe("role endpoints", () => {
     expect(getResponse.body.commentary).toBe(testNote.commentary);
   });
 
+  test("catch error when listing notes (status 500)", async () => {
+    const errorMessage = "Database error";
+    Note.findAll.mockRejectedValue(new Error(errorMessage));
+    const record = "123";
+    const getResponse = await supertest(app).get(`/notes/${record}`);
+    expect(getResponse.status).toBe(500);
+    expect(getResponse.body.message).toEqual(
+      `Erro ao buscar observação: Error: ${errorMessage}`
+    );
+  });
+
   test("new note and edit commentary", async () => {
     const testNote = {
       commentary: "obs",
