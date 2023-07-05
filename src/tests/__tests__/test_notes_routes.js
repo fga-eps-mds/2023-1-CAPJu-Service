@@ -1,8 +1,8 @@
 import supertest from "supertest";
 import { app } from "../TestApp";
-import Note from "../../models/Notes.js";
+import Note from "../../models/Note.js";
 
-jest.mock("../../models/Notes.js");
+jest.mock("../../models/Note.js");
 
 describe("role endpoints", () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe("role endpoints", () => {
     };
 
     Note.create.mockResolvedValue(testNote);
-    Note.findOne.mockResolvedValue(testNote);
+    Note.findAll.mockResolvedValue(testNote);
 
     const response = await supertest(app).post("/newNote").send(testNote);
     expect(response.status).toBe(200);
@@ -27,6 +27,17 @@ describe("role endpoints", () => {
     const getResponse = await supertest(app).get(`/notes/${testNote.record}`);
     expect(getResponse.status).toBe(200);
     expect(getResponse.body.commentary).toBe(testNote.commentary);
+  });
+
+  test("catch error when listing notes (status 500)", async () => {
+    const errorMessage = "Database error";
+    Note.findAll.mockRejectedValue(new Error(errorMessage));
+    const record = "123";
+    const getResponse = await supertest(app).get(`/notes/${record}`);
+    expect(getResponse.status).toBe(500);
+    expect(getResponse.body.message).toEqual(
+      `Erro ao buscar observação: Error: ${errorMessage}`
+    );
   });
 
   test("new note and edit commentary", async () => {

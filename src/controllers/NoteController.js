@@ -1,17 +1,15 @@
-import Note from "../models/Notes.js";
+import Note from "../models/Note.js";
 
 class NoteController {
   index = async (req, res) => {
-    const { record } = req.params;
+    const record = req.params.record;
     try {
-      const note = await Note.findOne({ where: { record } });
-      if (note) {
-        return res.status(200).json(note);
-      } else {
-        return res.status(204).json([]);
-      }
+      const note = await Note.findAll({ where: { record } });
+      return res.status(200).json(note);
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao buscar obervação." });
+      return res
+        .status(500)
+        .json({ message: `Erro ao buscar observação: ${error}` });
     }
   };
 
