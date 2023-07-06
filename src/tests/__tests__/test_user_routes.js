@@ -951,4 +951,31 @@ describe("user endpoints", () => {
       .set("test", "ok")
       .expect(200);
   });
+  it("login without initial users ", async () => {
+    const testUser = {
+      fullName: "Nome Nome",
+      cpf: "07859382903",
+      email: "aaa@bb.com",
+      password: "apw123456",
+      accepted: false,
+      idUnit: 1,
+      idRole: 2,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const userAccepted = await supertest(app).post(`/acceptRequest/${testUser.cpf}`).send({
+      cpf: testUser.cpf,
+      password: testUser.password,
+    });
+
+    const response = await supertest(app).post("/login").send({
+      cpf: testUser.cpf,
+      password: testUser.password,
+    });
+    expect(response.status).toBe(200);
+  })
 });
