@@ -5,6 +5,7 @@ import StageController from "./controllers/StageController.js";
 import UnitController from "./controllers/UnitController.js";
 import RoleController from "./controllers/RoleController.js";
 import UserContoller from "./controllers/UserContoller.js";
+import NoteController from "./controllers/NoteController.js";
 import { protect, authRole } from "./middleware/authMiddleware.js";
 import { ROLE } from "./schemas/role.js";
 
@@ -157,5 +158,14 @@ routes.post("/newUser", UserContoller.store);
 routes.get("/user/:id", UserContoller.getByIdParam);
 
 routes.delete("/deleteUser/:id", UserContoller.deleteByParam);
+
+// Rotas de Notes
+routes.get("/notes/:record", NoteController.index);
+
+routes.post("/newNote", NoteController.newNote);
+
+routes.put("/updateNote/:idNote", NoteController.update);
+
+routes.delete("/deleteNote/:idNote", NoteController.delete);
 
 export default routes;

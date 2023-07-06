@@ -2,6 +2,8 @@ import { Database } from "../TestDatabase.js";
 import "sequelize";
 import supertest from "supertest";
 import { app, injectDB } from "../TestApp";
+import Unit from "../../models/Unit.js";
+import Role from "../../models/Role.js";
 
 describe("role endpoints", () => {
   beforeEach(async () => {
@@ -20,6 +22,28 @@ describe("role endpoints", () => {
     const response = await supertest(app).post("/newRole").send(testRole);
     expect(response.status).toBe(200);
     expect(response.body.name).toBe(testRole.name);
+  });
+
+  test("new role 3", async () => {
+    const testRole = {
+      accessLevel: 3,
+    };
+
+    const response = await supertest(app).post("/newRole").send(testRole);
+    expect(response.status).toBe(408);
+  });
+
+  test("new role 4", async () => {
+    const testRole = {
+      name: "nome",
+      idRole: 7,
+      accessLevel: 4,
+    };
+    const role = await Role.findByPk(testRole.idRole);
+    console.log(role);
+
+    const response = await supertest(app).post("/updateRole").send({});
+    expect(response.status).toBe(404);
   });
 
   test("new roles and list existing", async () => {
@@ -122,5 +146,53 @@ describe("role endpoints", () => {
       .send(newRoleResponse.body);
     expect(response.status).toBe(200);
     expect(response.body.idRole).toEqual(newRoleResponse.body.idRole);
+  });
+
+  test("status 204 if get role that doesnt exist", async () => {
+    let testRole = await Role.findOne({ where: { name: "Diretor" } });
+    console.log(testRole);
+
+    let response = await supertest(app)
+      .delete("/deleteRole/")
+      .send(testRole.dataValues);
+    expect(response.status).toBe(200);
+    expect(response.body.idRole).toBe(testRole.dataValues.idRole);
+
+    const finalResponse = await supertest(app).get(
+      `/roleAdmins/${testRole.dataValues.idRole}`
+    );
+    expect(finalResponse.status).toBe(204);
+  });
+
+  test("status 204 if update role that doesnt exist", async () => {
+    let testRole = await Role.findOne({ where: { name: "Diretor" } });
+    console.log(testRole);
+
+    let response = await supertest(app)
+      .delete("/deleteRole/")
+      .send(testRole.dataValues);
+    expect(response.status).toBe(200);
+    expect(response.body.idRole).toBe(testRole.dataValues.idRole);
+
+    const finalResponse = await supertest(app)
+      .put(`/updateRole/`)
+      .send(testRole.dataValues);
+    expect(finalResponse.status).toBe(204);
+  });
+
+  test("status 204 if delete role that doesnt exist", async () => {
+    let testRole = await Role.findOne({ where: { name: "Diretor" } });
+    console.log(testRole);
+
+    let response = await supertest(app)
+      .delete("/deleteRole/")
+      .send(testRole.dataValues);
+    expect(response.status).toBe(200);
+    expect(response.body.idRole).toBe(testRole.dataValues.idRole);
+
+    let finalResponse = await supertest(app)
+      .delete("/deleteRole/")
+      .send(testRole.dataValues);
+    expect(finalResponse.status).toBe(204);
   });
 });

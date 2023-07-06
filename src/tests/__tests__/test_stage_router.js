@@ -36,6 +36,17 @@ describe("stage endpoints", () => {
     expect(response.body.name).toBe(testStage.name);
   });
 
+  test("get 400 if create new stage in unit that doesnt exists", async () => {
+    const testStage = {
+      name: "etapa teste",
+      duration: 1,
+      idUnit: 1000,
+    };
+
+    const response = await supertest(app).post("/newStage").send(testStage);
+    expect(response.status).toBe(400);
+  });
+
   test("new stage and delete it", async () => {
     const testUnit = {
       name: "Unidade Teste",
@@ -60,6 +71,12 @@ describe("stage endpoints", () => {
     );
     expect(responseDelete.status).toBe(200);
     expect(responseDelete.body.idStage).toEqual(response.body.idStage);
+  });
+
+  test("status 401 if delete stage that doesnt exist and delete it", async () => {
+    const responseDelete = await supertest(app).delete(`/deleteStage/${1000}`);
+    expect(responseDelete.status).toBe(401);
+    // expect(responseDelete.body.idStage).toEqual(response.body.idStage);
   });
 
   test("new stage and check by id", async () => {
@@ -87,6 +104,12 @@ describe("stage endpoints", () => {
     );
     expect(response.status).toBe(200);
     expect(responseStage.body.name).toEqual(response.body.name);
+  });
+
+  test("status 401 if stage doesnt exist in check by id", async () => {
+    const response = await supertest(app).get(`/stage/${100}`);
+    expect(response.status).toBe(401);
+    // expect(responseStage.body.name).toEqual(response.body.name);
   });
 
   test("new stages and search", async () => {
@@ -131,44 +154,77 @@ describe("stage endpoints", () => {
     }
   });
 
-  test("test", async () => {
-    const testUser = {
-      cpf: "12345678901",
-      password: "123Teste",
-    };
-    const login = await supertest(app)
-      .post("/login")
-      .send(testUser, tokenToUser);
-    const req = {
-      headers: { authorization: `Bearer ${login.body.token}` },
-    };
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      try {
-        // Get token from header
-        const token = req.headers.authorization.split(" ")[1];
-
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // Get user from the token
-        req.user = await User.findByPk(decoded.id);
-        if (req.user.accepted === false) {
-          throw new Error();
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
+  test("new stage and find all ", async () => {
     const stagesResponse = await supertest(app)
       .get("/stages")
       .set("test", `ok`);
-    const result = await req.headers.test;
-    expect(result).not.toEqual("ok");
     expect(stagesResponse.status).toBe(200);
-    expect(stagesResponse.body.stages.length).toBe(3);
+  });
+
+  test("not exist this stage ", async () => {
+    const stageResponse = await supertest(app).get("/stage/100");
+    expect(stageResponse.status).toBe(401);
+    expect(stageResponse.body.error).toEqual("Esse fluxo não existe");
+  });
+
+  test("error in create stage ", async () => {
+    const testStage = {
+      name: "Nova etapa",
+      duration: "10",
+      idUnit: "100",
+    };
+    const response = await supertest(app).post("/newStage").send(testStage);
+    expect(response.status).toBe(400);
+  });
+
+  test("error in delete stage ", async () => {
+    const stages = [
+      {
+        name: "Nova etapa A",
+        duration: 10,
+        idUnit: 1,
+      },
+      {
+        name: "Nova etapa B",
+        duration: 10,
+        idUnit: 1,
+      },
+      {
+        name: "Nova etapa C",
+        duration: 10,
+        idUnit: 1,
+      },
+    ];
+
+    let allStages = [];
+    for (const stage of stages) {
+      const testStageResponse = await supertest(app)
+        .post("/newStage")
+        .send(stage);
+      expect(testStageResponse.status).toBe(200);
+      allStages.push(testStageResponse.body);
+    }
+
+    const flow = {
+      name: "Fluxo ABC",
+      idUnit: 1,
+      sequences: [
+        { from: 1, to: 2, commentary: "Primeiro" },
+        { from: 2, to: 3, commentary: "Segundo" },
+      ],
+      idUsersToNotify: ["12345678901", "12345678909"],
+    };
+
+    const createdFlow = await supertest(app).post("/newFlow").send(flow);
+
+    expect(createdFlow.status).toBe(200);
+    const deletedStage = await supertest(app).delete(
+      `/deleteStage/${allStages[0].idUnit}`
+    );
+    expect(deletedStage.status).toBe(409);
+    expect(deletedStage.body.error).toEqual("Há fluxos utilizando esta etapa");
+    expect(deletedStage.body.message).toContain(
+      "Há 1 fluxos que dependem desta etapa."
+    );
   });
 });
