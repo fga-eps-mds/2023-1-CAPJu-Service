@@ -249,7 +249,6 @@ describe("process endpoints", () => {
   test("get process with priority ", async () => {
     const idFlow = 1;
 
-
     const testUser = {
       cpf: "98765432109",
       password: "456Teste",
@@ -269,8 +268,7 @@ describe("process endpoints", () => {
     });
     const token = loginResponse.body.token;
 
-    console.log("tokennn", loginResponse.body.token)
-
+    console.log("tokennn", loginResponse.body.token);
 
     const testProcess = {
       record: "12345678901234567890",
@@ -282,15 +280,13 @@ describe("process endpoints", () => {
 
     const newProcessResponse = await supertest(app)
       .post("/newProcess")
-      .set('Authorization', `Bearer ${token}`)
+      .set("Authorization", `Bearer ${token}`)
       .send(testProcess);
 
-
-    console.log("newProcessResponse", newProcessResponse.body)
+    console.log("newProcessResponse", newProcessResponse.body);
 
     expect(newProcessResponse.status).toBe(200);
-    const processInFlow = await supertest(app)
-      .get(`/processes/${idFlow}`);
+    const processInFlow = await supertest(app).get(`/processes/${idFlow}`);
 
     expect(processInFlow.status).toBe(500);
     expect(processInFlow.body.message).toEqual("Erro ao buscar processos");
@@ -331,7 +327,6 @@ describe("process endpoints", () => {
     );
     expect(updatedProcess.body.process.status).toEqual(processData.status);
     expect(updatedProcess.body.process.idStage).toEqual(processData.idStage);
-
 
     const processStageData = {
       idFlow: 1,
@@ -443,7 +438,6 @@ describe("process endpoints", () => {
 
     const processStageData = {
       idFlow: 1,
-    }
+    };
   });
 });
-

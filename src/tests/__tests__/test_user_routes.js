@@ -967,17 +967,19 @@ describe("user endpoints", () => {
       .send(testUser);
     expect(newUserResponse.status).toBe(200);
 
-    const userAccepted = await supertest(app).post(`/acceptRequest/${testUser.cpf}`).send({
-      cpf: testUser.cpf,
-      password: testUser.password,
-    });
+    const userAccepted = await supertest(app)
+      .post(`/acceptRequest/${testUser.cpf}`)
+      .send({
+        cpf: testUser.cpf,
+        password: testUser.password,
+      });
 
     const response = await supertest(app).post("/login").send({
       cpf: testUser.cpf,
       password: testUser.password,
     });
     expect(response.status).toBe(200);
-  })
+  });
 
   it("user already exists", async () => {
     const testUser = {
@@ -996,7 +998,9 @@ describe("user endpoints", () => {
 
     expect(newUserResponse.status).toBe(400);
     expect(newUserResponse.body.error).toEqual("Campo duplicado.");
-    expect(newUserResponse.body.message).toEqual("Este CPF já foi cadastrado na plataforma.");
+    expect(newUserResponse.body.message).toEqual(
+      "Este CPF já foi cadastrado na plataforma."
+    );
   });
 
   it("error in update user role", async () => {
@@ -1011,7 +1015,7 @@ describe("user endpoints", () => {
 
     expect(newUserResponse.status).toBe(404);
     expect(newUserResponse.body.error).toEqual("Usuário não existe");
-  })
+  });
 
   it("error in update user password", async () => {
     const testUser = {
@@ -1039,5 +1043,16 @@ describe("user endpoints", () => {
 
     expect(newPasswordResponse.status).toBe(400);
     expect(newPasswordResponse.body.message).toEqual("Senha inválida!");
-  })  
+  });
+  it("error accepted request ", async () => {
+    const testUser = {
+      cpf: "12345678905",
+    };
+
+    const newRequestResponse = await supertest(app)
+      .post(`/acceptRequest/${testUser.cpf}`)
+      .send(testUser);
+    expect(newRequestResponse.status).toBe(404);
+    expect(newRequestResponse.body.error).toEqual("Usuário não existe");
+  });
 });
