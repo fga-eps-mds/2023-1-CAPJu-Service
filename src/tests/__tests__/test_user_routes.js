@@ -169,6 +169,7 @@ describe("user endpoints", () => {
       accepted: false,
       idUnit: 1,
       idRole: 2,
+      firstLogin: true,
     };
 
     const newUserResponse = await supertest(app)
@@ -210,6 +211,7 @@ describe("user endpoints", () => {
       accepted: false,
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
+      firstLogin: true || false,
       idRole: testUser.idRole,
     };
 
@@ -251,6 +253,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const acceptResponse = await supertest(app).post(
@@ -304,6 +307,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: expectedRole,
+      firstLogin: true || false,
     };
 
     const updateResponse = await supertest(app).put(`/updateUserRole`).send({
@@ -358,6 +362,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const acceptResponse = await supertest(app).post(
@@ -402,6 +407,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
@@ -435,6 +441,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const newUserResponse = await supertest(app)
@@ -460,6 +467,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const newUserResponse = await supertest(app)
@@ -510,6 +518,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
@@ -542,6 +551,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const newUserResponse = await supertest(app)
@@ -574,6 +584,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const newUserResponse = await supertest(app)
@@ -592,6 +603,100 @@ describe("user endpoints", () => {
     const checkUserResponse = await supertest(app).get(`/user/${testUser.cpf}`);
     expect(checkUserResponse.status).toBe(404);
     expect(checkUserResponse.body).toEqual({ error: "Usuário não existe" });
+  });
+
+  test("should return 500 when trying to update a user", async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "www@example.com",
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(500);
+
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+      firstLogin: true || false,
+    };
+
+    const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(userResponse.status).toBe(404);
+
+    const response = await supertest(app).post("/login").send({
+      cpf: expectedUser.cpf,
+      password: testUser.password,
+    });
+    expect(response.status).toBe(401);
+    expect(response.body.message).toEqual("Usuário inexistente");
+    expect(response.body.error).toEqual("Usuário inexistente");
+  });
+
+  it("should return 200 when trying to update a user", async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "www@example.com",
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(500);
+
+    const expectedUser = {
+      cpf: testUser.cpf,
+      email: testUser.email,
+      accepted: false,
+      fullName: testUser.fullName,
+      idUnit: testUser.idUnit,
+      idRole: testUser.idRole,
+      firstLogin: true || false,
+    };
+
+    const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(userResponse.status).toBe(404);
+    expect(expectedUser).toEqual({
+      accepted: false,
+      cpf: "86891382424",
+      email: "www@example.com",
+      fullName: "Nomen Nomes",
+      idRole: undefined,
+      idUnit: undefined,
+      firstLogin: true || false,
+    });
+
+    const response = await supertest(app)
+      .put(`/updateUser/${testUser.cpf}`)
+      .send({
+        fullName: "Nomen Nomes",
+        cpf: "86891382424",
+        email: "www@example.com",
+      });
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      error: "Usuário não existe",
+    });
+  });
+
+  it("should return 500 when we are listing all users", async () => {
+    const testUser = {
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "www@example.com",
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(500);
   });
 
   test("test", async () => {
@@ -643,6 +748,7 @@ describe("user endpoints", () => {
       accepted: false,
       idUnit: 1,
       idRole: 2,
+      firstLogin: true || false,
     };
     await User.create(testUser);
 
@@ -815,6 +921,16 @@ describe("user endpoints", () => {
       idRole: testUser.idRole,
     };
 
+    const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
+    expect(userResponse.status).toBe(404);
+    expect(expectedUser).toEqual({
+      accepted: false,
+      fullName: "Nomenni Nomesos",
+      cpf: "26585841212",
+      email: "email@gmail.com",
+      idRole: undefined,
+      idUnit: undefined,
+    });
     const newUserResponse = await supertest(app)
       .post("/newUser")
       .send(testUser);

@@ -27,7 +27,7 @@ class StageController {
     const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
     if (!stages || stages.length === 0) {
-      return res.status(401).json({ error: "Não Existem fluxos" });
+      return res.status(200).json({ error: "Não Existem fluxos" });
     } else {
       return res.json({ stages: stages || [], totalPages });
     }
@@ -54,9 +54,9 @@ class StageController {
         duration,
       });
 
-      return res.json(stage);
+      return res.status(200).json(stage);
     } catch (error) {
-      return res.status(error).json(error);
+      return res.status(400).json(error);
     }
   }
 
@@ -83,7 +83,7 @@ class StageController {
         return res.status(401).json({ error: "Essa etapa não existe!" });
       } else {
         await stage.destroy();
-        return res.json(stage);
+        return res.status(200).json(stage);
       }
     } catch (error) {
       return res.status(400).json({ error });

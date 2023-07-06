@@ -32,6 +32,10 @@ class UserController {
       if (user.password === password) {
         let expiresIn = new Date();
         expiresIn.setDate(expiresIn.getDate() + 3);
+        if (!(user.email === "email@emaill.com" || "email@email.com")) {
+          user.set({ firstLogin: false });
+          await user.save();
+        }
         return res.status(200).json({
           cpf: user.cpf,
           fullName: user.fullName,
@@ -178,6 +182,7 @@ class UserController {
         accepted: false,
         idUnit,
         idRole,
+        firstLogin: true,
       });
       return res.json(user);
     } catch (error) {
@@ -192,7 +197,7 @@ class UserController {
           errorMessages[duplicatedField] || "Já existe um registro duplicado.";
 
         return res
-          .status(409)
+          .status(400)
           .json({ error: "Campo duplicado.", message: errorMessage });
       }
 

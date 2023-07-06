@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import Sequelize from "sequelize";
 import config from "../../config/database.js";
-// const config = require('../../config/database.js');
 import Flow from "../models/Flow.js";
 import FlowProcess from "../models/FlowProcess.js";
 import FlowStage from "../models/FlowStage.js";
@@ -12,24 +11,10 @@ import Stage from "../models/Stage.js";
 import Unit from "../models/Unit.js";
 import User from "../models/User.js";
 import FlowUser from "../models/FlowUser.js";
+import Note from "../models/Note.js";
 
 dotenv.config();
 
-// const models = [Unit, Role];
-const models = [
-  Flow,
-  FlowProcess,
-  FlowStage,
-  Priority,
-  Process,
-  Role,
-  Stage,
-  Unit,
-  User,
-  FlowUser,
-];
-
-// use sequelize-cli defaults
 const getDatabaseEnvironmentType = () => {
   return process.env.NODE_ENV || "development";
 };
@@ -53,6 +38,7 @@ class Database {
     Unit.init(this.connection);
     User.init(this.connection);
     FlowUser.init(this.connection);
+    Note.init(this.connection);
 
     Flow.associate(this.connection.models);
     FlowProcess.associate(this.connection.models);

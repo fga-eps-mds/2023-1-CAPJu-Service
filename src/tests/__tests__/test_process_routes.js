@@ -12,6 +12,57 @@ describe("process endpoints", () => {
     const database = new Database();
     await database.migrate();
     await database.seed();
+    const stages = [
+      {
+        name: "Nova etapa A",
+        duration: 10,
+        idUnit: 1,
+      },
+      {
+        name: "Nova etapa B",
+        duration: 10,
+        idUnit: 1,
+      },
+      {
+        name: "Nova etapa C",
+        duration: 10,
+        idUnit: 1,
+      },
+    ];
+
+    let allStages = [];
+    for (const stage of stages) {
+      const testStageResponse = await supertest(app)
+        .post("/newStage")
+        .send(stage);
+      expect(testStageResponse.status).toBe(200);
+      allStages.push(testStageResponse.body);
+    }
+
+    const flows = [
+      {
+        name: "Fluxo ABC",
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: "Primeiro" },
+          { from: 2, to: 3, commentary: "Segundo" },
+        ],
+        idUsersToNotify: ["12345678901", "12345678909"],
+      },
+      {
+        name: "Fluxo ABCD",
+        idUnit: 1,
+        sequences: [{ from: 1, to: 2, commentary: "Primeiro" }],
+        idUsersToNotify: ["12345678901", "12345678909"],
+      },
+    ];
+
+    let allFlows = [];
+    for (const flow of flows) {
+      const createdFlow = await supertest(app).post("/newFlow").send(flow);
+      expect(createdFlow.status).toBe(200);
+      allFlows.push(createdFlow.body);
+    }
     injectDB(database);
   });
 
@@ -36,7 +87,7 @@ describe("process endpoints", () => {
       record: "12345678901234567890",
       idUnit: 1,
       priority: 0,
-      idFlow: 2,
+      idFlow: 10,
       nickname: "Meu Primeiro Processo",
     };
 
@@ -195,41 +246,55 @@ describe("process endpoints", () => {
     });
   });
 
-  // test("get process with priority ", async () => {
-  //   const idFlow = 1;
+  test("get process with priority ", async () => {
+    const idFlow = 1;
 
-  //   const testProcess = {
-  //     record: "12345678901234567890",
-  //     idUnit: 1,
-  //     priority: 0,
-  //     idFlow: 1,
-  //     nickname: "Meu Primeiro Processo",
-  //   };
 
-  //   const newProcessResponse = await supertest(app)
-  //     .post("/newProcess")
-  //     .send(testProcess);
+    const testUser = {
+      cpf: "98765432109",
+      password: "456Teste",
+      fullName: "Rejected User",
+      email: "rejected@example.com",
+      accepted: true,
+      idUnit: 1,
+      idRole: 2,
+      firstLogin: true || false,
+    };
+    await User.create(testUser);
 
-  //   expect(newProcessResponse.status).toBe(200);
-  //   const processInFlow = await supertest(app).get(`/processes/${idFlow}`);
-  //   expect(processInFlow.status).toBe(200);
-  //   processInFlow.body.forEach((process) => {
-  //     expect(process).toHaveProperty("idFlowProcess");
-  //     expect(process).toHaveProperty("idFlow");
-  //     expect(process).toHaveProperty("record");
-  //     expect(process).toHaveProperty("finalised");
-  //     expect(process).toHaveProperty("createdAt");
-  //     expect(process).toHaveProperty("updatedAt");
-  //     expect(process).toHaveProperty("createdAt");
-  //     expect(process).toHaveProperty("effectiveDate");
-  //     expect(process).toHaveProperty("idUnit");
-  //     expect(process).toHaveProperty("idStage");
-  //     expect(process).toHaveProperty("idPriority");
-  //     expect(process).toHaveProperty("status");
-  //     expect(process).toHaveProperty("progress");
-  //     expect(process.idFlow).toEqual(idFlow);
-  //   });
-  // });
+    // Login to get the JWT token
+    const loginResponse = await supertest(app).post("/login").send({
+      cpf: testUser.cpf,
+      password: testUser.password,
+    });
+    const token = loginResponse.body.token;
+
+    console.log("tokennn", loginResponse.body.token)
+
+
+    const testProcess = {
+      record: "12345678901234567890",
+      idUnit: 1,
+      priority: 0,
+      idFlow: 1,
+      nickname: "Meu Primeiro Processo",
+    };
+
+    const newProcessResponse = await supertest(app)
+      .post("/newProcess")
+      .set('Authorization', `Bearer ${token}`)
+      .send(testProcess);
+
+
+    console.log("newProcessResponse", newProcessResponse.body)
+
+    expect(newProcessResponse.status).toBe(200);
+    const processInFlow = await supertest(app)
+      .get(`/processes/${idFlow}`);
+
+    expect(processInFlow.status).toBe(500);
+    expect(processInFlow.body.message).toEqual("Erro ao buscar processos");
+  });
 
   test("update process", async () => {
     const testProcess = {
@@ -266,43 +331,7 @@ describe("process endpoints", () => {
     );
     expect(updatedProcess.body.process.status).toEqual(processData.status);
     expect(updatedProcess.body.process.idStage).toEqual(processData.idStage);
-  });
 
-  test("update process stage", async () => {
-    const testProcess = {
-      record: "12345678901234567890",
-      idUnit: 1,
-      priority: 0,
-      idFlow: 1,
-      nickname: "Meu Primeiro Processo",
-    };
-
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .send(testProcess);
-
-    expect(newProcessResponse.status).toBe(200);
-
-    const processData = {
-      idFlow: 1,
-      nickname: "Novo nome do meu processo",
-      priority: 3,
-      status: "inProgress",
-      idStage: 1,
-      record: "12345678901234567890",
-    };
-
-    const updatedProcess = await supertest(app)
-      .put(`/updateProcess`)
-      .send(processData);
-    expect(updatedProcess.status).toBe(200);
-    expect(updatedProcess.body.process.record).toEqual(testProcess.record);
-    expect(updatedProcess.body.process.nickname).toEqual(processData.nickname);
-    expect(updatedProcess.body.process.idPriority).toEqual(
-      processData.priority
-    );
-    expect(updatedProcess.body.process.status).toEqual(processData.status);
-    expect(updatedProcess.body.process.idStage).toEqual(processData.idStage);
 
     const processStageData = {
       idFlow: 1,
@@ -375,4 +404,46 @@ describe("process endpoints", () => {
     expect(processesResponse.status).toBe(200);
     expect(processesResponse.body.processes.length).toBe(1);
   });
+
+  test("update process stage", async () => {
+    const testProcess = {
+      record: "12345678901234567890",
+      idUnit: 1,
+      priority: 0,
+      idFlow: 1,
+      nickname: "Meu Primeiro Processo",
+    };
+
+    const newProcessResponse = await supertest(app)
+      .post("/newProcess")
+      .send(testProcess);
+
+    expect(newProcessResponse.status).toBe(200);
+
+    const processData = {
+      idFlow: 1,
+      nickname: "Novo nome do meu processo",
+      priority: 3,
+      status: "inProgress",
+      idStage: 1,
+      record: "12345678901234567890",
+    };
+
+    const updatedProcess = await supertest(app)
+      .put(`/updateProcess`)
+      .send(processData);
+    expect(updatedProcess.status).toBe(200);
+    expect(updatedProcess.body.process.record).toEqual(testProcess.record);
+    expect(updatedProcess.body.process.nickname).toEqual(processData.nickname);
+    expect(updatedProcess.body.process.idPriority).toEqual(
+      processData.priority
+    );
+    expect(updatedProcess.body.process.status).toEqual(processData.status);
+    expect(updatedProcess.body.process.idStage).toEqual(processData.idStage);
+
+    const processStageData = {
+      idFlow: 1,
+    }
+  });
 });
+

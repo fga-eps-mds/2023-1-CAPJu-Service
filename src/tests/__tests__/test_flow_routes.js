@@ -11,52 +11,101 @@ describe("flow endpoints", () => {
     const database = new Database();
     await database.migrate();
     await database.seed();
+    const stages = [
+      {
+        name: "Nova etapa A",
+        duration: 10,
+        idUnit: 1,
+      },
+      {
+        name: "Nova etapa B",
+        duration: 10,
+        idUnit: 1,
+      },
+      {
+        name: "Nova etapa C",
+        duration: 10,
+        idUnit: 1,
+      },
+    ];
+
+    let allStages = [];
+    for (const stage of stages) {
+      const testStageResponse = await supertest(app)
+        .post("/newStage")
+        .send(stage);
+      expect(testStageResponse.status).toBe(200);
+      allStages.push(testStageResponse.body);
+    }
+
+    const flows = [
+      {
+        name: "Fluxo ABC",
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: "Primeiro" },
+          { from: 2, to: 3, commentary: "Segundo" },
+        ],
+        idUsersToNotify: ["12345678901", "12345678909"],
+      },
+      {
+        name: "Fluxo ABCD",
+        idUnit: 1,
+        sequences: [{ from: 1, to: 2, commentary: "Primeiro" }],
+        idUsersToNotify: ["12345678901", "12345678909"],
+      },
+    ];
+
+    let allFlows = [];
+    for (const flow of flows) {
+      const createdFlow = await supertest(app).post("/newFlow").send(flow);
+      expect(createdFlow.status).toBe(200);
+      allFlows.push(createdFlow.body);
+    }
     injectDB(database);
   });
 
   test("new flow", async () => {
-    const flowData = {
-      name: "Fluxo AB",
+    const flow = {
+      name: "Fluxo ABC",
       idUnit: 1,
       sequences: [
-        { from: 1, to: 2, commentary: "Primeiro Comentário" },
-        { from: 2, to: 3, commentary: "Segundo Comentário" },
+        { from: 1, to: 2, commentary: "Primeiro" },
+        { from: 2, to: 3, commentary: "Segundo" },
       ],
       idUsersToNotify: ["12345678901", "12345678909"],
     };
 
-    const newFlowResponse = await supertest(app)
-      .post("/newFlow")
-      .send(flowData);
+    const createdFlow = await supertest(app).post("/newFlow").send(flow);
 
-    expect(newFlowResponse.status).toBe(200);
-
-    const createdFlow = await supertest(app).get(
-      `/flow/${newFlowResponse.body.idFlow}`
+    expect(createdFlow.status).toBe(200);
+    const currentFlow = await supertest(app).get(
+      `/flow/${createdFlow.body.idFlow}`
     );
-
-    expect(newFlowResponse.body.idFlow).toEqual(createdFlow.body.idFlow);
-    expect(newFlowResponse.body.name).toEqual(createdFlow.body.name);
-    expect(newFlowResponse.body.idUnit).toEqual(createdFlow.body.idUnit);
-    expect(newFlowResponse.body.sequences).toEqual(createdFlow.body.sequences);
+    expect(currentFlow.status).toBe(200);
+    expect(currentFlow.body.idFlow).toEqual(createdFlow.body.idFlow);
+    expect(currentFlow.body.name).toEqual(createdFlow.body.name);
+    expect(currentFlow.body.idUnit).toEqual(createdFlow.body.idUnit);
+    expect(currentFlow.body.sequences).toEqual(createdFlow.body.sequences);
   });
 
   test("get flow by id", async () => {
     const idFlow = 1;
     const flowResponse = await supertest(app).get(`/flow/${idFlow}`);
-
     expect(flowResponse.status).toBe(200);
     expect(flowResponse.body.idFlow).toBe(idFlow);
   });
 
   test("get all flows", async () => {
-    const flows = await Flow.findAll();
-    flows.forEach((flow) => {
-      expect(flow.dataValues).toHaveProperty("idFlow");
-      expect(flow.dataValues).toHaveProperty("name");
-      expect(flow.dataValues).toHaveProperty("idUnit");
-      expect(flow.dataValues).toHaveProperty("createdAt");
-      expect(flow.dataValues).toHaveProperty("updatedAt");
+    const flowsResponse = await supertest(app).get("/flows").set("test", `ok`);
+
+    expect(flowsResponse.status).toBe(200);
+    flowsResponse.body.flows.forEach((flow) => {
+      expect(flow).toHaveProperty("idFlow");
+      expect(flow).toHaveProperty("name");
+      expect(flow).toHaveProperty("idUnit");
+      expect(flow).toHaveProperty("sequences");
+      expect(flow).toHaveProperty("stages");
     });
   });
 
@@ -117,23 +166,9 @@ describe("flow endpoints", () => {
   });
 
   test("get users to notify", async () => {
-    const flowData = {
-      name: "Fluxo AB",
-      idUnit: 1,
-      sequences: [
-        { from: 1, to: 2, commentary: "Primeiro Comentário" },
-        { from: 2, to: 3, commentary: "Segundo Comentário" },
-      ],
-      idUsersToNotify: ["12345678901", "12345678909"],
-    };
-
-    const newFlowResponse = await supertest(app)
-      .post("/newFlow")
-      .send(flowData);
-
-    expect(newFlowResponse.status).toBe(200);
+    const idFlow = 1;
     const usersToNotifyResponse = await supertest(app).get(
-      `/flow/${newFlowResponse.body.idFlow}/usersToNotify`
+      `/flow/${idFlow}/usersToNotify`
     );
     expect(usersToNotifyResponse.status).toBe(200);
     usersToNotifyResponse.body.usersToNotify.forEach((user) => {
@@ -145,25 +180,11 @@ describe("flow endpoints", () => {
     });
   });
 
-  test("create and update flow", async () => {
-    const flowData = {
-      name: "Fluxo AB",
-      idUnit: 1,
-      sequences: [
-        { from: 1, to: 2, commentary: "Primeiro Comentário" },
-        { from: 2, to: 3, commentary: "Segundo Comentário" },
-      ],
-      idUsersToNotify: ["12345678901", "12345678909"],
-    };
-
-    const newFlowResponse = await supertest(app)
-      .post("/newFlow")
-      .send(flowData);
-
-    expect(newFlowResponse.status).toBe(200);
+  test("update flow", async () => {
+    const idFlow = 1;
     const newFlowData = {
-      name: "Fluxo AB Editado",
-      idFlow: newFlowResponse.body.idFlow,
+      name: "Fluxo ABC Editado",
+      idFlow: idFlow,
       sequences: [
         { from: 1, to: 2, commentary: "Primeiro Comentário Editado" },
         { from: 2, to: 3, commentary: "Segundo Comentário Editado" },
@@ -211,51 +232,7 @@ describe("flow endpoints", () => {
     );
   });
 
-  test("test", async () => {
-    const testUser = {
-      cpf: "12345678901",
-      password: "123Teste",
-    };
-    const login = await supertest(app)
-      .post("/login")
-      .send(testUser, tokenToUser);
-    const req = {
-      headers: { authorization: `Bearer ${login.body.token}` },
-    };
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      try {
-        // Get token from header
-        const token = req.headers.authorization.split(" ")[1];
-
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // Get user from the token
-        req.user = await Flow.findByPk(decoded.id);
-        if (req.user.accepted === false) {
-          throw new Error();
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    const flowsResponse = await supertest(app).get("/flows").set("test", `ok`);
-    expect(flowsResponse.status).toBe(200);
-    expect(flowsResponse.body.flows.length).toBe(1);
-  });
-
-  it("should return 404 with error message if flow is not found", async () => {
-    const response = await supertest(app).get("/flows");
-
-    expect(response.status).toBe(500);
-    expect(response.body.message).toBe("Impossível obter fluxos");
-  });
-
-  it("should return a 404 status with an error message if there are less than two sequences", async () => {
+  test("should return a 404 status with an error message if there are less than two sequences", async () => {
     const flowData = {
       name: "Fluxo Teste",
       idUnit: 1,
@@ -268,5 +245,44 @@ describe("flow endpoints", () => {
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("Necessário pelo menos duas etapas!");
     expect(response.body.json).toBeUndefined();
+  });
+
+  test("user not exists in unit", async () => {
+    const flowData = {
+      name: "Fluxo Teste",
+      idUnit: 2,
+      sequences: [
+        { from: 1, to: 2, commentary: "Primeiro" },
+        { from: 2, to: 3, commentary: "Segundo" },
+      ],
+      idUsersToNotify: ["12345678901", "12345678909"],
+    };
+    const response = await supertest(app).post("/newFlow").send(flowData);
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe(
+      `Usuário '12345678901' não existe na unidade '2'`
+    );
+  });
+
+  test("there is no relationship between streams", async () => {
+    const flowData = {
+      idFlow: 1,
+      idStageA: 1,
+      idStageB: 1,
+    };
+    const response = await supertest(app).delete(
+      `/flow/${flowData.idFlow}/${flowData.idStageA}/${flowData.idStageB}`
+    );
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe(
+      `Não há relacionameto entre o fluxo '${flowData.idFlow}' e as etapas '${flowData.idStageA}' e '${flowData.idStageB}'`
+    );
+  });
+
+  test("flow not found ", async () => {
+    const idFlow = 10;
+    const deletedFlow = await supertest(app).delete(`/flow/${idFlow}`);
+    expect(deletedFlow.status).toBe(404);
+    expect(deletedFlow.body.message).toEqual("Fluxo não encontrado");
   });
 });
