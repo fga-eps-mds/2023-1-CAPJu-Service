@@ -169,6 +169,7 @@ describe("user endpoints", () => {
       accepted: false,
       idUnit: 1,
       idRole: 2,
+      firstLogin: true,
     };
 
     const newUserResponse = await supertest(app)
@@ -210,6 +211,7 @@ describe("user endpoints", () => {
       accepted: false,
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
+      firstLogin: true || false,
       idRole: testUser.idRole,
     };
 
@@ -251,6 +253,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const acceptResponse = await supertest(app).post(
@@ -304,6 +307,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: expectedRole,
+      firstLogin: true || false,
     };
 
     const updateResponse = await supertest(app).put(`/updateUserRole`).send({
@@ -358,6 +362,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const acceptResponse = await supertest(app).post(
@@ -402,6 +407,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
@@ -435,6 +441,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const newUserResponse = await supertest(app)
@@ -460,6 +467,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const newUserResponse = await supertest(app)
@@ -510,6 +518,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
@@ -542,6 +551,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const newUserResponse = await supertest(app)
@@ -574,6 +584,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const newUserResponse = await supertest(app)
@@ -594,7 +605,7 @@ describe("user endpoints", () => {
     expect(checkUserResponse.body).toEqual({ error: "Usuário não existe" });
   });
 
-  it("should return 500 when trying to update a user", async () => {
+  test("should return 500 when trying to update a user", async () => {
     const testUser = {
       fullName: "Nomen Nomes",
       cpf: "86891382424",
@@ -613,6 +624,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
@@ -646,6 +658,7 @@ describe("user endpoints", () => {
       fullName: testUser.fullName,
       idUnit: testUser.idUnit,
       idRole: testUser.idRole,
+      firstLogin: true || false,
     };
 
     const userResponse = await supertest(app).get(`/user/${testUser.cpf}`);
@@ -657,6 +670,7 @@ describe("user endpoints", () => {
       fullName: "Nomen Nomes",
       idRole: undefined,
       idUnit: undefined,
+      firstLogin: true || false,
     });
 
     const response = await supertest(app)
@@ -734,6 +748,7 @@ describe("user endpoints", () => {
       accepted: false,
       idUnit: 1,
       idRole: 2,
+      firstLogin: true || false,
     };
     await User.create(testUser);
 

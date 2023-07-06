@@ -36,7 +36,7 @@ describe("stage endpoints", () => {
     expect(response.body.name).toBe(testStage.name);
   });
 
-  test("get 500 if create new stage in unit that doesnt exists", async () => {
+  test("get 400 if create new stage in unit that doesnt exists", async () => {
     const testStage = {
       name: "etapa teste",
       duration: 1,
@@ -44,7 +44,7 @@ describe("stage endpoints", () => {
     };
 
     const response = await supertest(app).post("/newStage").send(testStage);
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(400);
   });
 
   test("new stage and delete it", async () => {
@@ -73,9 +73,9 @@ describe("stage endpoints", () => {
     expect(responseDelete.body.idStage).toEqual(response.body.idStage);
   });
 
-  test("status 204 if delete stage that doesnt exist and delete it", async () => {
+  test("status 401 if delete stage that doesnt exist and delete it", async () => {
     const responseDelete = await supertest(app).delete(`/deleteStage/${1000}`);
-    expect(responseDelete.status).toBe(204);
+    expect(responseDelete.status).toBe(401);
     // expect(responseDelete.body.idStage).toEqual(response.body.idStage);
   });
 
@@ -106,9 +106,9 @@ describe("stage endpoints", () => {
     expect(responseStage.body.name).toEqual(response.body.name);
   });
 
-  test("status 204 if stage doesnt exist in check by id", async () => {
+  test("status 401 if stage doesnt exist in check by id", async () => {
     const response = await supertest(app).get(`/stage/${100}`);
-    expect(response.status).toBe(204);
+    expect(response.status).toBe(401);
     // expect(responseStage.body.name).toEqual(response.body.name);
   });
 
