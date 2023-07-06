@@ -1070,4 +1070,22 @@ describe("user endpoints", () => {
 
     expect(newPasswordAndEmailResponse.status).toBe(200);
   });
+  it("error in update user email and password", async () => {
+    const cpf = "12345678905";
+    const testUser = {
+      email: "novoemail@email.com",
+      password: "1234Teste",
+    };
+
+    const newPasswordAndEmailResponse = await supertest(app)
+      .put(`/updateUserEmailAndPassword/${cpf}`)
+      .send(testUser);
+
+    console.log("first", newPasswordAndEmailResponse.body);
+
+    expect(newPasswordAndEmailResponse.status).toBe(404);
+    expect(newPasswordAndEmailResponse.body.message).toEqual(
+      "Nenhum usuário foi encontrado"
+    );
+  });
 });
