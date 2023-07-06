@@ -32,7 +32,10 @@ class UserController {
       if (user.password === password) {
         let expiresIn = new Date();
         expiresIn.setDate(expiresIn.getDate() + 3);
-        if (!(user.email === "email@emaill.com" || "email@email.com")) {
+        if (
+          user.email !== "email@emaill.com" &&
+          user.email !== "email@email.com"
+        ) {
           user.set({ firstLogin: false });
           await user.save();
         }
