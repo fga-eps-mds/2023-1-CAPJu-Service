@@ -978,4 +978,24 @@ describe("user endpoints", () => {
     });
     expect(response.status).toBe(200);
   })
+
+  it("user already exists", async () => {
+    const testUser = {
+      fullName: "Nome Nome",
+      cpf: "12345678901",
+      email: "aaa@bb.com",
+      password: "apw123456",
+      accepted: false,
+      idUnit: 1,
+      idRole: 2,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+
+    expect(newUserResponse.status).toBe(400);
+    expect(newUserResponse.body.error).toEqual("Campo duplicado.");
+    expect(newUserResponse.body.message).toEqual("Este CPF já foi cadastrado na plataforma.");
+  });
 });
