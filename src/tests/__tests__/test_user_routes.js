@@ -1055,4 +1055,19 @@ describe("user endpoints", () => {
     expect(newRequestResponse.status).toBe(404);
     expect(newRequestResponse.body.error).toEqual("Usuário não existe");
   });
+  it("update user email and password", async () => {
+    const cpf = "12345678901";
+    const testUser = {
+      email: "novoemail@email.com",
+      password: "1234Teste",
+    };
+
+    const newPasswordAndEmailResponse = await supertest(app)
+      .put(`/updateUserEmailAndPassword/${cpf}`)
+      .send(testUser);
+
+    console.log("first", newPasswordAndEmailResponse.body);
+
+    expect(newPasswordAndEmailResponse.status).toBe(200);
+  });
 });
