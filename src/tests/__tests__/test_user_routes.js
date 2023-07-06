@@ -1012,4 +1012,32 @@ describe("user endpoints", () => {
     expect(newUserResponse.status).toBe(404);
     expect(newUserResponse.body.error).toEqual("Usuário não existe");
   })
+
+  it("error in update user password", async () => {
+    const testUser = {
+      fullName: "Nome Nome",
+      cpf: "12345678905",
+      email: "aaa@bb.com",
+      password: "apw123456",
+      accepted: false,
+      idUnit: 1,
+      idRole: 2,
+    };
+
+    const newPassword = {
+      oldPassword: "apw1234567",
+      newPassword: "apw12345678910",
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+
+    const newPasswordResponse = await supertest(app)
+      .post(`/updateUserPassword/${testUser.cpf}`)
+      .send(newPassword);
+
+    expect(newPasswordResponse.status).toBe(400);
+    expect(newPasswordResponse.body.message).toEqual("Senha inválida!");
+  })  
 });
