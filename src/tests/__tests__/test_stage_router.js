@@ -162,12 +162,10 @@ describe("stage endpoints", () => {
   });
 
   test("not exist this stage ", async () => {
-    const stageResponse = await supertest(app)
-      .get("/stage/100")
+    const stageResponse = await supertest(app).get("/stage/100");
     expect(stageResponse.status).toBe(401);
     expect(stageResponse.body.error).toEqual("Esse fluxo não existe");
   });
-
 
   test("error in create stage ", async () => {
     const testStage = {
@@ -180,7 +178,6 @@ describe("stage endpoints", () => {
   });
 
   test("error in delete stage ", async () => {
-
     const stages = [
       {
         name: "Nova etapa A",
@@ -196,7 +193,7 @@ describe("stage endpoints", () => {
         name: "Nova etapa C",
         duration: 10,
         idUnit: 1,
-      }
+      },
     ];
 
     let allStages = [];
@@ -209,25 +206,25 @@ describe("stage endpoints", () => {
     }
 
     const flow = {
-      "name": "Fluxo ABC",
-      "idUnit": 1,
-      "sequences": [
-        { "from": 1, "to": 2, "commentary": "Primeiro" },
-        { "from": 2, "to": 3, "commentary": "Segundo" }
+      name: "Fluxo ABC",
+      idUnit: 1,
+      sequences: [
+        { from: 1, to: 2, commentary: "Primeiro" },
+        { from: 2, to: 3, commentary: "Segundo" },
       ],
-      "idUsersToNotify": ["12345678901", "12345678909"]
-    }
+      idUsersToNotify: ["12345678901", "12345678909"],
+    };
 
-    const createdFlow = await supertest(app)
-      .post("/newFlow")
-      .send(flow);
+    const createdFlow = await supertest(app).post("/newFlow").send(flow);
 
     expect(createdFlow.status).toBe(200);
-    const deletedStage = await supertest(app)
-      .delete(`/deleteStage/${allStages[0].idUnit}`);
+    const deletedStage = await supertest(app).delete(
+      `/deleteStage/${allStages[0].idUnit}`
+    );
     expect(deletedStage.status).toBe(409);
     expect(deletedStage.body.error).toEqual("Há fluxos utilizando esta etapa");
-    expect(deletedStage.body.message).toContain("Há 1 fluxos que dependem desta etapa.");
+    expect(deletedStage.body.message).toContain(
+      "Há 1 fluxos que dependem desta etapa."
+    );
   });
-
 });
