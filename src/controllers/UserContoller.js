@@ -178,6 +178,7 @@ class UserController {
         accepted: false,
         idUnit,
         idRole,
+        firstLogin: true
       });
       return res.json(user);
     } catch (error) {

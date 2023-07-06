@@ -94,12 +94,12 @@ describe("unit endpoints", () => {
 
   test("create user and accept and add it as administrator of the default unit", async () => {
     const testUser = {
-      fullName: "Francisco Duarte Lopes",
-      cpf: "75706593256",
-      email: "francisco.dl@gmail.com",
-      password: "fdl123456",
+      fullName: "Nomen Nomes",
+      cpf: "86891382424",
+      email: "aaa@bb.com",
+      password: "spw123456",
       idUnit: 1,
-      idRole: 1,
+      idRole: 3,
     };
 
     const expectedTestUser = {
@@ -113,6 +113,7 @@ describe("unit endpoints", () => {
     const testUserResponse = await supertest(app)
       .post("/newUser")
       .send(testUser);
+
     expect(testUserResponse.status).toBe(200);
 
     const acceptResponse = await supertest(app).post(
