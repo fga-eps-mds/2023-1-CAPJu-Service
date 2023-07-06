@@ -951,4 +951,93 @@ describe("user endpoints", () => {
       .set("test", "ok")
       .expect(200);
   });
+  it("login without initial users ", async () => {
+    const testUser = {
+      fullName: "Nome Nome",
+      cpf: "07859382903",
+      email: "aaa@bb.com",
+      password: "apw123456",
+      accepted: false,
+      idUnit: 1,
+      idRole: 2,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+    expect(newUserResponse.status).toBe(200);
+
+    const userAccepted = await supertest(app).post(`/acceptRequest/${testUser.cpf}`).send({
+      cpf: testUser.cpf,
+      password: testUser.password,
+    });
+
+    const response = await supertest(app).post("/login").send({
+      cpf: testUser.cpf,
+      password: testUser.password,
+    });
+    expect(response.status).toBe(200);
+  })
+
+  it("user already exists", async () => {
+    const testUser = {
+      fullName: "Nome Nome",
+      cpf: "12345678901",
+      email: "aaa@bb.com",
+      password: "apw123456",
+      accepted: false,
+      idUnit: 1,
+      idRole: 2,
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+
+    expect(newUserResponse.status).toBe(400);
+    expect(newUserResponse.body.error).toEqual("Campo duplicado.");
+    expect(newUserResponse.body.message).toEqual("Este CPF já foi cadastrado na plataforma.");
+  });
+
+  it("error in update user role", async () => {
+    const testUser = {
+      cpf: "12345678905",
+      idRole: 2,
+    };
+
+    const newUserResponse = await supertest(app)
+      .put("/updateUserRole")
+      .send(testUser);
+
+    expect(newUserResponse.status).toBe(404);
+    expect(newUserResponse.body.error).toEqual("Usuário não existe");
+  })
+
+  it("error in update user password", async () => {
+    const testUser = {
+      fullName: "Nome Nome",
+      cpf: "12345678905",
+      email: "aaa@bb.com",
+      password: "apw123456",
+      accepted: false,
+      idUnit: 1,
+      idRole: 2,
+    };
+
+    const newPassword = {
+      oldPassword: "apw1234567",
+      newPassword: "apw12345678910",
+    };
+
+    const newUserResponse = await supertest(app)
+      .post("/newUser")
+      .send(testUser);
+
+    const newPasswordResponse = await supertest(app)
+      .post(`/updateUserPassword/${testUser.cpf}`)
+      .send(newPassword);
+
+    expect(newPasswordResponse.status).toBe(400);
+    expect(newPasswordResponse.body.message).toEqual("Senha inválida!");
+  })  
 });
