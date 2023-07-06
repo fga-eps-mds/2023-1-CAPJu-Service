@@ -998,4 +998,18 @@ describe("user endpoints", () => {
     expect(newUserResponse.body.error).toEqual("Campo duplicado.");
     expect(newUserResponse.body.message).toEqual("Este CPF já foi cadastrado na plataforma.");
   });
+
+  it("error in update user role", async () => {
+    const testUser = {
+      cpf: "12345678905",
+      idRole: 2,
+    };
+
+    const newUserResponse = await supertest(app)
+      .put("/updateUserRole")
+      .send(testUser);
+
+    expect(newUserResponse.status).toBe(404);
+    expect(newUserResponse.body.error).toEqual("Usuário não existe");
+  })
 });
