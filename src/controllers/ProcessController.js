@@ -41,16 +41,12 @@ class ProcessController {
   async index(req, res) {
     try {
       let where;
-      if (req.headers.test !== "ok") {
-        const { idUnit, idRole } = await tokenToUser(req);
-        const unitFilter = idRole === 5 ? {} : { idUnit };
-        where = {
-          ...filterByNicknameAndRecord(req),
-          ...unitFilter,
-        };
-      } else {
-        where = {};
-      }
+      const { idUnit, idRole } = await tokenToUser(req);
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByNicknameAndRecord(req),
+        ...unitFilter,
+      };
       const offset = parseInt(req.query.offset) || 0;
       const limit = parseInt(req.query.limit) || 10;
       const processes = await Process.findAll({
