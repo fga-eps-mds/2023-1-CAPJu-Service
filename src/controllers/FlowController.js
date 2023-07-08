@@ -142,16 +142,12 @@ class FlowController {
   async index(req, res) {
     try {
       let where;
-      if (req.headers.test !== "ok") {
-        const { idUnit, idRole } = await tokenToUser(req);
-        const unitFilter = idRole === 5 ? {} : { idUnit };
-        where = {
-          ...filterByName(req),
-          ...unitFilter,
-        };
-      } else {
-        where = {};
-      }
+      const { idUnit, idRole } = await tokenToUser(req);
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByName(req),
+        ...unitFilter,
+      };
 
       const { limit, offset } = req.query;
 
