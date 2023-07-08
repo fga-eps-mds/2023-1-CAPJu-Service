@@ -21,7 +21,7 @@ class Role extends Model {
         allowedActions: {
           type: DataTypes.ARRAY(DataTypes.STRING),
           allowNull: false,
-        }
+        },
       },
       {
         sequelize,
