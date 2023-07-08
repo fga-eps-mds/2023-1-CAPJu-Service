@@ -16,7 +16,7 @@ class UnitController {
       });
       const totalCount = await Unit.count({ where });
       const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
-      return res.json({ units: units || [], totalPages });
+      return res.status(200).json({ units: units || [], totalPages });
     } catch (error) {
       return res.status(500).json({
         error,
@@ -104,20 +104,20 @@ class UnitController {
   async setUnitAdmin(req, res) {
     const { idUnit, cpf } = req.body;
 
-    const user = await User.findOne({
-      where: {
-        cpf: cpf,
-        idUnit: idUnit,
-        accepted: true,
-      },
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        message: "Usuário aceito não existe nesta unidade",
+    try {
+      const user = await User.findOne({
+        where: {
+          cpf: cpf,
+          idUnit: idUnit,
+          accepted: true,
+        },
       });
-    } else {
-      try {
+
+      if (!user) {
+        return res.status(404).json({
+          message: "Usuário aceito não existe nesta unidade",
+        });
+      } else {
         user.set({ idRole: ROLE.ADMINISTRADOR });
         await user.save();
         const userNoPassword = {
@@ -129,37 +129,37 @@ class UnitController {
           idRole: user.idRole,
         };
         return res.status(200).json(userNoPassword);
-      } catch (error) {
-        return res.status(500).json({
-          error,
-          message: "Erro ao configurar usuário como administrador",
-        });
       }
+    } catch (error) {
+      return res.status(500).json({
+        error,
+        message: "Erro ao configurar usuário como administrador",
+      });
     }
   }
 
   async removeUnitAdmin(req, res) {
     const { idUnit, cpf } = req.body;
-    const user = await User.findOne({
-      where: {
-        cpf: cpf,
-        idUnit: idUnit,
-      },
-    });
-    if (!user) {
-      return res.status(401).json({
-        error: "Usuário não existe nesta unidade",
+    try {
+      const user = await User.findOne({
+        where: {
+          cpf: cpf,
+          idUnit: idUnit,
+        },
       });
-    } else {
-      try {
+      if (!user) {
+        return res.status(404).json({
+          error: "Usuário não existe nesta unidade",
+        });
+      } else {
         user.set({ idRole: 2 });
         await user.save();
         return res.status(200).json(user);
-      } catch (error) {
-        return res.status(500).json({
-          error: "Erro ao configurar usuário como administrador",
-        });
       }
+    } catch (error) {
+      return res.status(500).json({
+        error: "Erro ao configurar usuário como administrador",
+      });
     }
   }
 }

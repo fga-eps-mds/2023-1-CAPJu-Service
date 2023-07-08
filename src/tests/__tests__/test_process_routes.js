@@ -1,443 +1,584 @@
-import { Database } from "../TestDatabase.js";
-import "sequelize";
-import supertest from "supertest";
+import ProcessController from "../../controllers/ProcessController.js";
 import Process from "../../models/Process.js";
-import { app, injectDB } from "../TestApp";
-import { tokenToUser } from "../../middleware/authMiddleware.js";
-import jwt from "jsonwebtoken";
-import User from "../../models/User.js";
+import Priority from "../../models/Priority.js";
+import FlowProcess from "../../models/FlowProcess.js";
+import FlowStage from "../../models/FlowStage.js";
+import Flow from "../../models/Flow.js";
+import Stage from "../../models/Stage.js";
+import Database from "../../database/index.js";
+
+import * as middleware from "../../middleware/authMiddleware.js";
+import { Error } from "sequelize";
+
+jest.mock("axios");
+
+const reqMock = {};
+const resMock = {
+  status: jest.fn().mockReturnThis(),
+  json: jest.fn(),
+};
 
 describe("process endpoints", () => {
-  beforeEach(async () => {
-    const database = new Database();
-    await database.migrate();
-    await database.seed();
-    const stages = [
-      {
-        name: "Nova etapa A",
-        duration: 10,
-        idUnit: 1,
-      },
-      {
-        name: "Nova etapa B",
-        duration: 10,
-        idUnit: 1,
-      },
-      {
-        name: "Nova etapa C",
-        duration: 10,
-        idUnit: 1,
-      },
-    ];
-
-    let allStages = [];
-    for (const stage of stages) {
-      const testStageResponse = await supertest(app)
-        .post("/newStage")
-        .send(stage);
-      expect(testStageResponse.status).toBe(200);
-      allStages.push(testStageResponse.body);
-    }
-
-    const flows = [
-      {
-        name: "Fluxo ABC",
-        idUnit: 1,
-        sequences: [
-          { from: 1, to: 2, commentary: "Primeiro" },
-          { from: 2, to: 3, commentary: "Segundo" },
-        ],
-        idUsersToNotify: ["12345678901", "12345678909"],
-      },
-      {
-        name: "Fluxo ABCD",
-        idUnit: 1,
-        sequences: [{ from: 1, to: 2, commentary: "Primeiro" }],
-        idUsersToNotify: ["12345678901", "12345678909"],
-      },
-    ];
-
-    let allFlows = [];
-    for (const flow of flows) {
-      const createdFlow = await supertest(app).post("/newFlow").send(flow);
-      expect(createdFlow.status).toBe(200);
-      allFlows.push(createdFlow.body);
-    }
-    injectDB(database);
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  test("new process", async () => {
-    const testProcess = {
-      record: "12345678901234567890",
+  test("index - there are no processes (204)", async () => {
+    jest.spyOn(middleware, "tokenToUser").mockReturnValue({
       idUnit: 1,
-      priority: 0,
-      idFlow: 1,
-      nickname: "Meu Primeiro Processo",
+      idRole: 5,
+    });
+    Process.findAll = jest.fn().mockReturnValue([]);
+
+    reqMock.query = {
+      limit: 10,
+      offset: 0,
+      filter: 0,
     };
+    await ProcessController.index(reqMock, resMock);
 
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .send(testProcess);
-
-    expect(newProcessResponse.status).toBe(200);
+    expect(resMock.json).toHaveBeenCalledWith([]);
+    expect(resMock.status).toHaveBeenCalledWith(204);
   });
 
-  test("Error in create new process", async () => {
-    const testProcess = {
-      record: "12345678901234567890",
+  test("index - returning processesWithFlows (200))", async () => {
+    const processes = [
+      {
+        idFlow: 10,
+        nickname: "Meu Primeiro Processo",
+        idPriority: 0,
+        status: "inProgress",
+        idStage: 1,
+        record: "12345678901234567890",
+        idUnit: 1,
+        effectiveDate: new Date(),
+        progress: [],
+      },
+    ];
+    const flowProcesses = [
+      {
+        idFlowProcess: 1,
+        idFlow: 10,
+        record: "12345678901234567890",
+        finalised: false,
+      },
+    ];
+
+    jest.spyOn(middleware, "tokenToUser").mockReturnValue({
       idUnit: 1,
-      priority: 0,
+      idRole: 5,
+    });
+    Process.findAll = jest.fn().mockReturnValue(processes);
+    FlowProcess.findAll = jest.fn().mockReturnValue(flowProcesses);
+    Process.count = jest.fn().mockReturnValue(1);
+
+    reqMock.query = {
+      limit: 10,
+      offset: 0,
+      filter: 0,
+    };
+    await ProcessController.index(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("index - internal server error (500))", async () => {
+    const error = new Error("Internal Server Error");
+    jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+      idUnit: 1,
+      idRole: 5,
+    });
+    Process.findAll = jest.fn().mockRejectedValue(error);
+
+    reqMock.query = {
+      limit: 10,
+      offset: 0,
+      filter: 0,
+    };
+    await ProcessController.index(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: "Erro ao buscar processos",
+    });
+  });
+
+  test("getPriorities - there are no priorities (204))", async () => {
+    Priority.findAll = jest.fn().mockReturnValue(false);
+
+    await ProcessController.getPriorities(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith([]);
+    expect(resMock.status).toHaveBeenCalledWith(204);
+  });
+
+  test("getPriorities - returning all priorities (200))", async () => {
+    Priority.findAll = jest.fn().mockReturnValue([]);
+
+    await ProcessController.getPriorities(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith([]);
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("getPriorities - internal server error (500))", async () => {
+    const error = new Error("Internal Server Error");
+    Priority.findAll = jest.fn().mockRejectedValue(error);
+
+    await ProcessController.getPriorities(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith(error);
+  });
+
+  test("getPriorityProcess - there are no priorities processes (204))", async () => {
+    Process.findAll = jest.fn().mockReturnValue(false);
+
+    await ProcessController.getPriorityProcess(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(204);
+    expect(resMock.json).toHaveBeenCalledWith([]);
+  });
+
+  test("getPriorityProcess - returning priorities processes (200))", async () => {
+    Process.findAll = jest.fn().mockReturnValue([]);
+
+    await ProcessController.getPriorityProcess(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith([]);
+  });
+
+  test("getById - process does not exist (204))", async () => {
+    Process.findByPk = jest.fn().mockReturnValue(false);
+
+    reqMock.params = { id: 1 };
+    await ProcessController.getById(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({});
+    expect(resMock.status).toHaveBeenCalledWith(204);
+  });
+
+  test("getById - returning process (200))", async () => {
+    Process.findByPk = jest.fn().mockReturnValue([]);
+
+    reqMock.params = { id: 1 };
+    await ProcessController.getById(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith([]);
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("getById - internal server error (500))", async () => {
+    const error = new Error("Internal Server Error");
+    const idProcess = 1;
+    Process.findByPk = jest.fn().mockRejectedValue(error);
+
+    reqMock.params = { id: idProcess };
+    await ProcessController.getById(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: `Erro ao procurar processo ${idProcess}`,
+    });
+  });
+
+  test("store - record needs to be CNJ (400))", async () => {
+    const process = {
       idFlow: 10,
       nickname: "Meu Primeiro Processo",
+      priority: 0,
+      record: "123",
     };
 
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .send(testProcess);
+    reqMock.body = process;
+    await ProcessController.store(reqMock, resMock);
 
-    expect(newProcessResponse.status).toBe(404);
+    expect(resMock.status).toHaveBeenCalledWith(400);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Registro fora do padrão CNJ",
+      message: `Registro '${process.record}' está fora do padrão CNJ`,
+    });
   });
 
-  test("new process and search", async () => {
-    let processMock = [
-      {
-        record: "12345678901234567891",
-        idUnit: 1,
-        priority: 0,
-        idFlow: 1,
-        nickname: "Meu Primeiro Processo",
-      },
-      {
-        record: "12345678901234567892",
-        idUnit: 1,
-        priority: 0,
-        idFlow: 1,
-        nickname: "Meu Segundo Processo",
-      },
+  test("store - create process (200))", async () => {
+    const process = {
+      idFlow: 10,
+      nickname: "Meu Primeiro Processo",
+      priority: 0,
+      record: "12345678901234567890",
+    };
+    const flow = {
+      idFlow: 10,
+      name: "Fluxo AB",
+      idUnit: 1,
+      sequences: [
+        { from: 1, to: 2, commentary: "Primeiro Comentário" },
+        { from: 2, to: 3, commentary: "Segundo Comentário" },
+      ],
+      idUsersToNotify: ["12345678901", "12345678909"],
+    };
+
+    reqMock.body = process;
+    Flow.findByPk = jest.fn().mockReturnValue(flow);
+    Process.create = jest.fn().mockResolvedValue();
+    FlowProcess.create = jest.fn().mockResolvedValue({});
+
+    await ProcessController.store(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({});
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("store - failed to create process (500))", async () => {
+    const process = {
+      idFlow: 10,
+      nickname: "Meu Primeiro Processo",
+      priority: 0,
+      record: "12345678901234567890",
+    };
+
+    reqMock.body = process;
+    Flow.findByPk = jest.fn().mockReturnValue(false);
+
+    await ProcessController.store(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test("store - internal server error (500))", async () => {
+    const process = {
+      idFlow: 10,
+      nickname: "Meu Primeiro Processo",
+      priority: 0,
+      record: "12345678901234567890",
+    };
+
+    reqMock.body = process;
+    const error = new Error("Internal Server Error");
+    Flow.findByPk = jest.fn().mockRejectedValue(error);
+
+    await ProcessController.store(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith(error);
+  });
+
+  test("processesInFlows - list processes (200))", async () => {
+    const processes = [
+      { id: 1, name: "Process 1" },
+      { id: 2, name: "Process 2" },
     ];
 
-    const allProcesses = [];
-    for (const process of processMock) {
-      const newProcessResponse = await supertest(app)
-        .post("/newProcess")
-        .send(process);
-      expect(newProcessResponse.status).toBe(200);
-      expect(newProcessResponse.body.message).toEqual("Criado com sucesso!");
-      allProcesses.push(newProcessResponse.body);
-    }
-    let processes = await Process.findAll();
-    for (let index = 0; index < processes.length; index++) {
-      expect(processes[index]?.dataValues?.record).toEqual(
-        processMock[index]?.record
-      );
-    }
+    Database.connection = {
+      query: jest.fn().mockResolvedValueOnce(processes),
+    };
+    Database.connection.query.mockResolvedValueOnce([{ total: 2 }]);
+
+    reqMock.params = { idFlow: 1 };
+    await ProcessController.processesInFlow(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      processes: processes,
+      totalPages: 1,
+    });
+    expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  test("new process and delete it", async () => {
-    let processMock = {
-      record: "12345678901234567891",
-      idUnit: 1,
-      priority: 0,
-      idFlow: 1,
+  test("processesInFlows - internal server error (500))", async () => {
+    reqMock.params = { idFlow: 1 };
+    const error = new Error("Internal Server Error");
+    Database.connection = {
+      query: jest.fn().mockRejectedValue(error),
+    };
+
+    await ProcessController.processesInFlow(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith(error);
+  });
+
+  test("updateProcess - record needs to be CNJ (400))", async () => {
+    const process = {
+      idFlow: 10,
       nickname: "Meu Primeiro Processo",
-    };
-
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .send(processMock);
-
-    expect(newProcessResponse.status).toBe(200);
-
-    const responseDelete = await supertest(app).delete(
-      `/deleteProcess/${newProcessResponse.body.flowProcess.record}`
-    );
-
-    expect(responseDelete.body.message).toEqual("OK");
-    expect(responseDelete.status).toBe(200);
-  });
-
-  test("new sprocess and check by id", async () => {
-    let processMock = {
-      record: "12345678901234567891",
-      idUnit: 1,
       priority: 0,
-      idFlow: 1,
+      status: "inProgress",
+      idStage: 1,
+      record: "123",
+    };
+
+    reqMock.body = process;
+    await ProcessController.updateProcess(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Registro fora do padrão CNJ",
+      message: `Registro '${process.record}' está fora do padrão CNJ`,
+    });
+    expect(resMock.status).toHaveBeenCalledWith(400);
+  });
+
+  test("updateProcess - there are no stages (404))", async () => {
+    Process.findByPk = jest.fn().mockResolvedValue([]);
+    FlowStage.findAll = jest.fn().mockResolvedValue([]);
+
+    reqMock.body = {
+      idFlow: 10,
       nickname: "Meu Primeiro Processo",
+      priority: 0,
+      status: "inProgress",
+      idStage: 1,
+      record: "12345678901234567890",
     };
+    await ProcessController.updateProcess(reqMock, resMock);
 
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .send(processMock);
-
-    expect(newProcessResponse.status).toBe(200);
-
-    let process = await Process.findOne({
-      where: {
-        record: newProcessResponse.body.flowProcess.record,
-      },
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Não há etapas neste fluxo",
     });
-
-    const response = await supertest(app).get(
-      `/getOneProcess/${process.record}`
-    );
-    expect(response.status).toBe(200);
-    expect(response.body.record).toEqual(processMock.record);
+    expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
-  test("get priorities ", async () => {
-    const prioritiesResponse = await supertest(app).get("/priorities");
+  test("updateProcess - there are no processes (404))", async () => {
+    Process.findByPk = jest.fn().mockResolvedValue(false);
+    FlowStage.findAll = jest.fn().mockResolvedValue([{}]);
 
-    expect(prioritiesResponse.status).toBe(200);
-    expect(prioritiesResponse.body).toHaveLength(8);
-    prioritiesResponse.body.forEach((priority) => {
-      expect(priority).toHaveProperty("idPriority");
-      expect(priority).toHaveProperty("description");
-      expect(priority).toHaveProperty("createdAt");
-      expect(priority).toHaveProperty("updatedAt");
-    });
-  });
-
-  test("get process with priority ", async () => {
-    let processMock = [
-      {
-        record: "12345678901234567891",
-        idUnit: 1,
-        priority: 0,
-        idFlow: 1,
-        nickname: "Meu Primeiro Processo",
-      },
-      {
-        record: "12345678901234567892",
-        idUnit: 1,
-        priority: 1,
-        idFlow: 1,
-        nickname: "Meu Segundo Processo",
-      },
-    ];
-
-    const allProcesses = [];
-    for (const process of processMock) {
-      const newProcessResponse = await supertest(app)
-        .post("/newProcess")
-        .send(process);
-      expect(newProcessResponse.status).toBe(200);
-      expect(newProcessResponse.body.message).toEqual("Criado com sucesso!");
-      allProcesses.push(newProcessResponse.body);
-    }
-
-    const priorities = [1, 2, 3, 4, 5, 6, 7, 8];
-
-    const priorityProcesses = await Process.findAll({
-      where: {
-        idPriority: priorities,
-      },
-    });
-
-    priorityProcesses.forEach((process) => {
-      expect(process).toHaveProperty("record");
-      expect(process).toHaveProperty("nickname");
-      expect(process).toHaveProperty("effectiveDate");
-      expect(process).toHaveProperty("idUnit");
-      expect(process).toHaveProperty("idStage");
-      expect(process).toHaveProperty("idPriority");
-      expect(process).toHaveProperty("createdAt");
-      expect(process).toHaveProperty("updatedAt");
-      expect(priorities).toContain(process.idPriority);
-    });
-  });
-
-  test("get process with priority ", async () => {
-    const idFlow = 1;
-
-    const testUser = {
-      cpf: "98765432109",
-      password: "456Teste",
-      fullName: "Rejected User",
-      email: "rejected@example.com",
-      accepted: true,
-      idUnit: 1,
-      idRole: 2,
-      firstLogin: true || false,
+    reqMock.body = {
+      idFlow: 10,
+      nickname: "Meu Primeiro Processo",
+      priority: 0,
+      status: "inProgress",
+      idStage: 1,
+      record: "12345678901234567890",
     };
-    await User.create(testUser);
+    await ProcessController.updateProcess(reqMock, resMock);
 
-    // Login to get the JWT token
-    const loginResponse = await supertest(app).post("/login").send({
-      cpf: testUser.cpf,
-      password: testUser.password,
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "processo inexistente",
     });
-    const token = loginResponse.body.token;
+    expect(resMock.status).toHaveBeenCalledWith(404);
+  });
 
-    console.log("tokennn", loginResponse.body.token);
-
-    const testProcess = {
+  test("updateProcess - return process and flowProcesses (200))", async () => {
+    const process = {
+      idFlow: 10,
+      nickname: "Meu Primeiro Processo",
+      idPriority: 0,
+      status: "inProgress",
+      idStage: 1,
       record: "12345678901234567890",
       idUnit: 1,
-      priority: 0,
-      idFlow: 1,
-      nickname: "Meu Primeiro Processo",
+      effectiveDate: new Date(),
+      progress: [],
+      set: jest.fn(),
+      save: jest.fn(),
+    };
+    const flowStage = {
+      idFlowStage: 1,
+      idStageA: 1,
+      idStageB: 2,
+      idFlow: 10,
+      commentary: "",
+    };
+    const stage = {
+      idStage: 1,
+      name: "Stage A",
+      idUnit: 1,
+      duration: 1,
+    };
+    const flowProcess = {
+      set: jest.fn(),
+      save: jest.fn(),
     };
 
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .set("Authorization", `Bearer ${token}`)
-      .send(testProcess);
+    Process.findByPk = jest.fn().mockResolvedValue(process);
+    FlowStage.findAll = jest.fn().mockResolvedValue([flowStage]);
+    Stage.findOne = jest.fn().mockResolvedValue(stage);
+    FlowProcess.findAll = jest.fn().mockResolvedValue([flowProcess]);
 
-    console.log("newProcessResponse", newProcessResponse.body);
+    reqMock.body = process;
+    await ProcessController.updateProcess(reqMock, resMock);
 
-    expect(newProcessResponse.status).toBe(200);
-    const processInFlow = await supertest(app).get(`/processes/${idFlow}`);
-
-    expect(processInFlow.status).toBe(500);
-    expect(processInFlow.body.message).toEqual("Erro ao buscar processos");
+    expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  test("update process", async () => {
-    const testProcess = {
-      record: "12345678901234567890",
-      idUnit: 1,
-      priority: 0,
-      idFlow: 1,
+  test("updateProcess - internal server error (500))", async () => {
+    const process = {
+      idFlow: 10,
       nickname: "Meu Primeiro Processo",
-    };
-
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .send(testProcess);
-
-    expect(newProcessResponse.status).toBe(200);
-
-    const processData = {
-      idFlow: 1,
-      nickname: "Novo nome do meu processo",
-      priority: 3,
+      priority: 0,
       status: "inProgress",
       idStage: 1,
       record: "12345678901234567890",
     };
 
-    const updatedProcess = await supertest(app)
-      .put(`/updateProcess`)
-      .send(processData);
-    expect(updatedProcess.status).toBe(200);
-    expect(updatedProcess.body.process.record).toEqual(testProcess.record);
-    expect(updatedProcess.body.process.nickname).toEqual(processData.nickname);
-    expect(updatedProcess.body.process.idPriority).toEqual(
-      processData.priority
-    );
-    expect(updatedProcess.body.process.status).toEqual(processData.status);
-    expect(updatedProcess.body.process.idStage).toEqual(processData.idStage);
+    const error = new Error("Internal Server Error");
 
-    const processStageData = {
-      idFlow: 1,
+    Process.findByPk = jest.fn().mockRejectedValue(error);
+
+    reqMock.body = process;
+    await ProcessController.updateProcess(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(error);
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test("deleteProcess - process not found (404))", async () => {
+    FlowProcess.destroy = jest.fn().mockResolvedValue({});
+    Process.destroy = jest.fn().mockResolvedValue(0);
+
+    reqMock.params = { record: "123" };
+    await ProcessController.deleteProcess(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Não há registro 123!",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(404);
+  });
+
+  test("deleteProcess - process deleted (200))", async () => {
+    FlowProcess.destroy = jest.fn().mockResolvedValue({});
+    Process.destroy = jest.fn().mockResolvedValue(1);
+
+    reqMock.params = { record: "123" };
+    await ProcessController.deleteProcess(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({ message: "OK" });
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("deleteProcess - internal server error (500))", async () => {
+    const error = new Error("Internal Server Error");
+
+    FlowProcess.destroy = jest.fn().mockRejectedValue(error);
+
+    reqMock.params = { record: "123" };
+    await ProcessController.deleteProcess(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(error);
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test("updateProcessStage - from, to or idFlow are invalid (400))", async () => {
+    reqMock.body = {
+      record: "12345678901234567890",
+      from: NaN,
+      to: NaN,
+      idFlow: NaN,
+      isNextStage: true,
+    };
+    await ProcessController.updateProcessStage(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Identificadores inválidos",
+      message: "Identificadores 'NaN', 'NaN' ou 'NaN' são inválidos",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(400);
+  });
+
+  test("updateProcessStage - it is not possible to advance (409))", async () => {
+    FlowStage.findAll = jest.fn().mockResolvedValue([]);
+
+    reqMock.body = {
       record: "12345678901234567890",
       from: 1,
       to: 2,
+      idFlow: 1,
+      isNextStage: true,
     };
+    await ProcessController.updateProcessStage(reqMock, resMock);
 
-    const updatedProcessStage = await supertest(app)
-      .put(`/processUpdateStage`)
-      .send(processStageData);
-
-    expect(updatedProcessStage.body.message).toEqual(
-      "Etapa atualizada com sucesso"
-    );
-    expect(updatedProcessStage.status).toBe(200);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Transição impossível",
+      message: "Não há a transição da etapa '2' para '1' no fluxo '1'",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(409);
   });
 
-  test("test", async () => {
-    const testUser = {
-      cpf: "12345678901",
-      password: "123Teste",
-    };
-    const login = await supertest(app)
-      .post("/login")
-      .send(testUser, tokenToUser);
-    const req = {
-      headers: { authorization: `Bearer ${login.body.token}` },
-    };
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      try {
-        // Get token from header
-        const token = req.headers.authorization.split(" ")[1];
-
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // Get user from the token
-        req.user = await User.findByPk(decoded.id);
-        if (req.user.accepted === false) {
-          throw new Error();
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    const testProcess = {
-      record: "12345678901234567890",
-      idUnit: 1,
-      priority: 0,
-      idFlow: 1,
-      nickname: "Meu Primeiro Processo",
-    };
-
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .send(testProcess);
-
-    expect(newProcessResponse.status).toBe(200);
-
-    const processesResponse = await supertest(app)
-      .get("/processes")
-      .set("test", `ok`);
-    const result = await req.headers.test;
-    expect(result).not.toEqual("ok");
-    expect(processesResponse.status).toBe(200);
-    expect(processesResponse.body.processes.length).toBe(1);
-  });
-
-  test("update process stage", async () => {
-    const testProcess = {
-      record: "12345678901234567890",
-      idUnit: 1,
-      priority: 0,
-      idFlow: 1,
-      nickname: "Meu Primeiro Processo",
-    };
-
-    const newProcessResponse = await supertest(app)
-      .post("/newProcess")
-      .send(testProcess);
-
-    expect(newProcessResponse.status).toBe(200);
-
-    const processData = {
-      idFlow: 1,
-      nickname: "Novo nome do meu processo",
-      priority: 3,
-      status: "inProgress",
+  test("updateProcessStage - stage was updated (200))", async () => {
+    FlowStage.findAll = jest.fn().mockResolvedValue([
+      {
+        idFlowStage: 1,
+        idStageA: 1,
+        idStageB: 2,
+      },
+    ]);
+    Process.findOne = jest.fn().mockResolvedValue({
       idStage: 1,
+      progress: [],
+    });
+    Stage.findOne = jest.fn().mockResolvedValue({
+      duration: 1,
+    });
+    Process.update = jest.fn().mockResolvedValue([2]);
+
+    reqMock.body = {
       record: "12345678901234567890",
-    };
-
-    const updatedProcess = await supertest(app)
-      .put(`/updateProcess`)
-      .send(processData);
-    expect(updatedProcess.status).toBe(200);
-    expect(updatedProcess.body.process.record).toEqual(testProcess.record);
-    expect(updatedProcess.body.process.nickname).toEqual(processData.nickname);
-    expect(updatedProcess.body.process.idPriority).toEqual(
-      processData.priority
-    );
-    expect(updatedProcess.body.process.status).toEqual(processData.status);
-    expect(updatedProcess.body.process.idStage).toEqual(processData.idStage);
-
-    const processStageData = {
+      from: 1,
+      to: 2,
       idFlow: 1,
+      isNextStage: true,
     };
+    await ProcessController.updateProcessStage(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Etapa atualizada com sucesso",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("updateProcessStage - failed to update stage (409))", async () => {
+    const record = "12345678901234567890";
+    const to = 2;
+
+    FlowStage.findAll = jest.fn().mockResolvedValue([
+      {
+        idFlowStage: 1,
+        idStageA: 1,
+        idStageB: 2,
+      },
+    ]);
+    Process.findOne = jest.fn().mockResolvedValue({
+      idStage: 1,
+      progress: [],
+    });
+    Stage.findOne = jest.fn().mockResolvedValue({
+      duration: 1,
+    });
+    Process.update = jest.fn().mockResolvedValue([0]);
+
+    reqMock.body = {
+      record: record,
+      from: 1,
+      to: to,
+      idFlow: 1,
+      isNextStage: true,
+    };
+    await ProcessController.updateProcessStage(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Impossível atualizar etapa",
+      message: `Impossível atualizar processo '${record}' para etapa '${to}`,
+    });
+    expect(resMock.status).toHaveBeenCalledWith(409);
+  });
+
+  test("updateProcessStage - internal server error (500))", async () => {
+    const error = new Error("Internal Server Error");
+
+    FlowStage.findAll = jest.fn().mockRejectedValue(error);
+
+    reqMock.body = {
+      record: "12345678901234567890",
+      from: 1,
+      to: 2,
+      idFlow: 1,
+      isNextStage: true,
+    };
+    await ProcessController.updateProcessStage(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(error);
+    expect(resMock.status).toHaveBeenCalledWith(500);
   });
 });

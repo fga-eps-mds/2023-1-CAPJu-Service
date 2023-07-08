@@ -19,10 +19,7 @@ class UserController {
       const { cpf, password } = req.body;
       const user = await User.findByPk(cpfFilter(cpf));
       if (!user) {
-        return res.status(401).json({
-          error: "Usuário inexistente",
-          message: "Usuário inexistente",
-        });
+        return res.status(204).json({});
       }
       if (!user.accepted) {
         return res.status(401).json({
@@ -65,7 +62,7 @@ class UserController {
       const userRaw = await User.findByPk(cpf);
 
       if (!userRaw) {
-        return res.status(404).json({ error: "Usuário não existe" });
+        return res.status(204).json({ error: "Usuário não existe" });
       } else {
         const user = {
           cpf: userRaw.cpf,
@@ -89,16 +86,13 @@ class UserController {
   async allUser(req, res) {
     try {
       let where;
-      if (req.headers.test !== "ok") {
-        const { idUnit, idRole } = await tokenToUser(req);
-        const unitFilter = idRole === 5 ? {} : { idUnit };
-        where = {
-          ...filterByFullName(req),
-          ...unitFilter,
-        };
-      } else {
-        where = {};
-      }
+
+      const { idUnit, idRole } = await tokenToUser(req);
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByFullName(req),
+        ...unitFilter,
+      };
 
       if (req.query.accepted) {
         const { accepted } = req.query;
@@ -187,7 +181,7 @@ class UserController {
         idRole,
         firstLogin: true,
       });
-      return res.json(user);
+      return res.status(200).json(user);
     } catch (error) {
       if (error.name === "SequelizeUniqueConstraintError") {
         const errorMessages = {
@@ -204,7 +198,7 @@ class UserController {
           .json({ error: "Campo duplicado.", message: errorMessage });
       }
 
-      return res.status(500).json({ error });
+      return res.status(500).json(error);
     }
   }
 
@@ -215,9 +209,7 @@ class UserController {
       const newEmail = req.body.email;
 
       if (!user) {
-        return res.status(404).json({
-          error: "Usuário não existe",
-        });
+        return res.status(204).json({});
       } else {
         user.set({ email: newEmail });
         await user.save();
@@ -239,9 +231,7 @@ class UserController {
       const user = await User.findByPk(cpf);
 
       if (!user) {
-        return res.status(404).json({
-          error: "Usuário não existe",
-        });
+        return res.status(204).json({});
       } else {
         user.set({ idRole: idRole });
         await user.save();
@@ -260,9 +250,7 @@ class UserController {
       const { oldPassword, newPassword } = req.body;
       const user = await User.findByPk(cpf);
       if (!user) {
-        return res
-          .status(404)
-          .json({ message: "Nenhum usuário foi encontrado" });
+        return res.status(204).json({});
       }
 
       if (oldPassword === user.password) {

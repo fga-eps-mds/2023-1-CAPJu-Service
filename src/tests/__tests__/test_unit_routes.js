@@ -1,285 +1,308 @@
-import { Database } from "../TestDatabase.js";
-import "sequelize";
-import supertest from "supertest";
-import User from "../../models/User.js";
-import { app, injectDB } from "../TestApp";
 import { ROLE } from "../../schemas/role.js";
+import UnitController from "../../controllers/UnitController.js";
+import Unit from "../../models/Unit.js";
+import User from "../../models/User.js";
+
+jest.mock("axios");
+
+const reqMock = {};
+const resMock = {
+  status: jest.fn().mockReturnThis(),
+  json: jest.fn(),
+};
 
 describe("unit endpoints", () => {
-  beforeEach(async () => {
-    const database = new Database();
-    await database.migrate();
-    await database.seed();
-    injectDB(database);
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  test("new unit and list", async () => {
-    const testUnit = {
-      name: "Unidade Teste",
+  test("index - list all units", async () => {
+    Unit.findAll = jest.fn().mockResolvedValue([]);
+    Unit.count = jest.fn().mockResolvedValue(0);
+
+    reqMock.query = {
+      limit: 1,
+      offset: 0,
+      filter: 0,
     };
+    await UnitController.index(reqMock, resMock);
 
-    const initialUnit = {
-      name: "FGA",
-    };
-
-    const newUnitResponse = await supertest(app)
-      .post("/newUnit")
-      .send(testUnit);
-    expect(newUnitResponse.status).toBe(200);
-
-    const unitsResponse = await supertest(app).get("/units");
-    expect(unitsResponse.status).toBe(200);
-
-    // this unit and FGA (initial unit)
-    const expectedTestUnits = [initialUnit, testUnit];
-
-    expect(unitsResponse.body.units.length).toBe(2);
-    expect(unitsResponse.body.units).toEqual(
-      expect.arrayContaining(
-        expectedTestUnits.map((expectedTestUnit) =>
-          expect.objectContaining(expectedTestUnit)
-        )
-      )
-    );
+    expect(resMock.json).toHaveBeenCalledWith({ units: [], totalPages: 0 });
+    expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  test("create unit and delete it", async () => {
-    const testUnit = {
-      name: "Unidade Teste",
-    };
+  test("index - failed to list (500)", async () => {
+    const error = new Error("Internal Error");
+    Unit.findAll = jest.fn().mockRejectedValue(error);
 
-    const initialUnit = {
-      name: "FGA",
-    };
+    await UnitController.index(reqMock, resMock);
 
-    const newUnitResponse = await supertest(app)
-      .post("/newUnit")
-      .send(testUnit);
-    expect(newUnitResponse.status).toBe(200);
-
-    const deleteUnitResponse = await supertest(app)
-      .delete("/deleteunit")
-      .send({ idUnit: 2 });
-    expect(deleteUnitResponse.status).toBe(200);
-    expect(deleteUnitResponse.body).toEqual(expect.objectContaining(testUnit));
-
-    const unitsResponse = await supertest(app).get("/units");
-    expect(unitsResponse.status).toBe(200);
-    expect(unitsResponse.body.units.length).toBe(1);
-    expect(unitsResponse.body.units).toEqual(
-      expect.arrayContaining([expect.objectContaining(initialUnit)])
-    );
-  });
-
-  test("update initial unit", async () => {
-    const initialUnit = {
-      idUnit: 1,
-      name: "FGA",
-    };
-    const expectedName = "Gama";
-    const expectedUnit = {
-      idUnit: initialUnit.idUnit,
-      name: expectedName,
-    };
-
-    const updateUnitResponse = await supertest(app).put("/updateUnit").send({
-      idUnit: initialUnit.idUnit,
-      name: expectedName,
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: "Erro ao listar unidades",
     });
-    expect(updateUnitResponse.status).toBe(200);
-    expect(updateUnitResponse.body).toEqual(
-      expect.objectContaining(expectedUnit)
-    );
+    expect(resMock.status).toHaveBeenCalledWith(500);
   });
 
-  test("create user and accept and add it as administrator of the default unit", async () => {
+  test("store - create unit ", async () => {
+    const newUnit = {
+      idUnit: 1,
+      name: "New unit",
+    };
+    Unit.create = jest.fn().mockResolvedValue(newUnit);
+
+    reqMock.body = newUnit.name;
+    await UnitController.store(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(newUnit);
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("store - failed to create unit (500)", async () => {
+    const error = new Error("Internal Error");
+    Unit.create = jest.fn().mockRejectedValue(error);
+
+    reqMock.body = { name: "Unidade" };
+    await UnitController.store(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: "Erro ao criar unidade",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test("update - set new name", async () => {
+    const unit = {
+      idUnit: 1,
+      name: "New unit",
+      set: jest.fn(),
+      save: jest.fn(),
+    };
+    Unit.findByPk = jest.fn().mockResolvedValue(unit);
+
+    reqMock.body = {
+      idUnit: 1,
+      name: "Unidade",
+    };
+    await UnitController.update(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(unit);
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("update - failed to update unit (400)", async () => {
+    Unit.findByPk = jest.fn().mockResolvedValue(false);
+
+    reqMock.body = {
+      idUnit: 1,
+      name: "Unidade",
+    };
+    await UnitController.update(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Essa unidade não existe!",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(404);
+  });
+
+  test("delete - unit has users (409)", async () => {
     const testUser = {
-      fullName: "Nomen Nomes",
-      cpf: "86891382424",
-      email: "aaa@bb.com",
-      password: "spw123456",
+      fullName: "nome",
+      cpf: "12345678912",
+      email: "aa@bb.com",
+      password: "pw123456",
       idUnit: 1,
       idRole: 3,
     };
+    User.findAll = jest.fn().mockResolvedValue([testUser]);
 
-    const expectedTestUser = {
-      fullName: testUser.fullName,
-      cpf: testUser.cpf,
-      email: testUser.email,
-      accepted: true,
-      idUnit: testUser.idUnit,
-      idRole: ROLE.ADMINISTRADOR,
+    reqMock.body = { idUnit: 1 };
+    await UnitController.delete(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Há usuários na unidade",
+      message: `Há 1 usuários nesta unidade.`,
+    });
+    expect(resMock.status).toHaveBeenCalledWith(409);
+  });
+
+  test("delete - unit does not exist (204)", async () => {
+    User.findAll = jest.fn().mockResolvedValue([]);
+    Unit.findByPk = jest.fn().mockResolvedValue(false);
+
+    reqMock.body = { idUnit: 1 };
+    await UnitController.delete(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Essa unidade não existe!",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(204);
+  });
+
+  test("delete - unit removed (200)", async () => {
+    const unit = {
+      idUnit: 1,
+      name: "New unit",
+      destroy: jest.fn(),
     };
-    const testUserResponse = await supertest(app)
-      .post("/newUser")
-      .send(testUser);
+    User.findAll = jest.fn().mockResolvedValue([]);
+    Unit.findByPk = jest.fn().mockResolvedValue(unit);
 
-    expect(testUserResponse.status).toBe(200);
+    reqMock.body = { idUnit: unit.idUnit };
+    await UnitController.delete(reqMock, resMock);
 
-    const acceptResponse = await supertest(app).post(
-      `/acceptRequest/${testUser.cpf}`
-    );
-    expect(acceptResponse.status).toBe(200);
-    expect(acceptResponse.body).toEqual({
-      message: "Usuário aceito com sucesso",
+    expect(resMock.json).toHaveBeenCalledWith(unit);
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("delete - failed to delete unit (500)", async () => {
+    const error = new Error("Internal Error");
+    User.findAll = jest.fn().mockRejectedValue(error);
+
+    reqMock.body = { idUnit: 1 };
+    await UnitController.delete(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({ error });
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test("getAdminsByUnitId - there are no admins (204)", async () => {
+    User.findAll = jest.fn().mockResolvedValue(false);
+
+    reqMock.params = { id: 1 };
+    await UnitController.getAdminsByUnitId(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Não há administradores para essa unidade",
     });
-
-    const setUserResponse = await supertest(app).put("/setUnitAdmin").send({
-      idUnit: testUser.idUnit,
-      cpf: testUser.cpf,
-    });
-    expect(setUserResponse.status).toBe(200);
-    expect(setUserResponse.body).toEqual(
-      expect.objectContaining(expectedTestUser)
-    );
+    expect(resMock.status).toHaveBeenCalledWith(204);
   });
 
-  it("should return 404 when trying to delete a unit that does not exist", async () => {
-    const deleteUnitResponse = await supertest(app)
-      .delete("/deleteunit")
-      .send({ idUnit: 2 });
-    expect(deleteUnitResponse.status).toBe(204);
-  });
-
-  it("should return 404 when trying to update a unit that does not exist", async () => {
-    const updateUnitResponse = await supertest(app).put("/updateUnit").send({
-      idUnit: 2,
-      name: "Gama",
-    });
-    expect(updateUnitResponse.status).toBe(404);
-  });
-
-  it("should return 404 when trying to set a user as administrator of a unit that does not exist", async () => {
-    const setUserResponse = await supertest(app).put("/setUnitAdmin").send({
-      idUnit: 2,
-      cpf: "75706593256",
-    });
-    expect(setUserResponse.status).toBe(404);
-  });
-
-  it("shouldn't create a unit with an empty name", async () => {
-    const testUnit = {
-      name: "",
-    };
-
-    const newUnitResponse = await supertest(app)
-      .post("/newUnit")
-      .send(testUnit);
-    expect(newUnitResponse.status).toBe(200);
-  });
-
-  test("creat user who is not existent unit", async () => {
+  test("getAdminsByUnitId - there are admins (200)", async () => {
     const testUser = {
-      fullName: "Francisco Duarte Lopes",
-      cpf: "75706593256",
-      email: "email@example.com",
+      fullName: "nome",
+      cpf: "12345678912",
+      email: "aa@bb.com",
+      password: "pw123456",
+      idUnit: 1,
+      idRole: 1,
     };
+    User.findAll = jest.fn().mockResolvedValue([testUser]);
+
+    reqMock.params = { id: 1 };
+    await UnitController.getAdminsByUnitId(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith([testUser]);
+    expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  test("create user and accept and add it as administrator of a new unit", async () => {
-    const testUser = {
-      fullName: "Francisco Duarte Lopes",
-      cpf: "75706593256",
+  test("setUnitAdmin - There are no accepted users for the unit (404)", async () => {
+    User.findOne = jest.fn().mockResolvedValue(false);
+
+    reqMock.body = {
+      idUnit: 1,
+      cpf: "12345678912",
     };
+    await UnitController.setUnitAdmin(reqMock, resMock);
 
-    const testUnit = {
-      name: "Unidade Teste",
-    };
-
-    const expectedTestUser = {
-      fullName: testUser.fullName,
-      cpf: testUser.cpf,
-      accepted: true,
-      idUnit: 2,
-      idRole: ROLE.ADMINISTRADOR,
-    };
-
-    const testUserResponse = await supertest(app)
-      .post("/newUser")
-      .send(testUser);
-    expect(testUserResponse.status).toBe(500);
-
-    const acceptResponse = await supertest(app).post(
-      `/acceptRequest/${testUser.cpf}`
-    );
-    expect(acceptResponse.status).toBe(404);
-
-    const newUnitResponse = await supertest(app)
-      .post("/newUnit")
-      .send(testUnit);
-    expect(newUnitResponse.status).toBe(200);
-
-    const setUserResponse = await supertest(app).put("/smetUnitAdin").send({
-      idUnit: 2,
-      cpf: testUser.cpf,
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Usuário aceito não existe nesta unidade",
     });
-    expect(setUserResponse.status).toBe(404);
+    expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
-  it("should return an error message if the unit name is not provided", async () => {
-    const response = await supertest(app).post("/newUnit").send({}).expect(500);
+  test("setUnitAdmin - Set accepted user as admin (200)", async () => {
+    const testUser = {
+      fullName: "nome",
+      cpf: "12345678912",
+      email: "aa@bb.com",
+      password: "pw123456",
+      idUnit: 1,
+      idRole: 1,
+    };
+    User.findOne = jest.fn().mockResolvedValue({
+      ...testUser,
+      set: jest.fn(),
+      save: jest.fn(),
+    });
 
-    expect(response.body.error).toBeDefined();
-    expect(response.body.message).toBe("Erro ao criar unidade");
+    reqMock.body = {
+      idUnit: testUser.idUnit,
+      cpf: testUser.cpf,
+    };
+    await UnitController.setUnitAdmin(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      fullName: "nome",
+      cpf: "12345678912",
+      email: "aa@bb.com",
+      idUnit: 1,
+      idRole: 1,
+    });
+    expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  it("should return an error message if the unit name is not provided when updating", async () => {
-    const response = await supertest(app)
-      .put("/updateUnit")
-      .send({})
-      .expect(404);
+  test("setUnitAdmin - Failed to set new admin (500)", async () => {
+    const error = new Error("Internal Error");
+    User.findOne = jest.fn().mockRejectedValue(error);
 
-    expect(response.body.message).toBe("Essa unidade não existe!");
+    await UnitController.setUnitAdmin(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: "Erro ao configurar usuário como administrador",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
   });
 
-  it("should return an error message if listing units fails", async () => {
-    // Simule um erro ao listar unidades definindo um objeto inválido para offset e limit
-    const response = await supertest(app)
-      .get("/units")
-      .query({ offset: "invalid", limit: "invalid" })
-      .expect(500);
+  test("removeUnitAdmin - user not found (404)", async () => {
+    User.findOne = jest.fn().mockResolvedValue(false);
 
-    // Verifique se a resposta contém o corpo esperado
-    expect(response.body.error).toBeDefined();
-    expect(response.body.message).toBe("Erro ao listar unidades");
-  });
+    reqMock.body = {
+      idUnit: 1,
+      cpf: "12345678912",
+    };
+    await UnitController.removeUnitAdmin(reqMock, resMock);
 
-  it("should return an error message if the unit name is not provided when deleting", async () => {
-    const response = await supertest(app)
-      .delete("/deleteunit")
-      .send({})
-      .expect(500);
-  });
-
-  test("removeUnitAdmin - Unidade inexistente", async () => {
-    const idUnit = 123;
-    const cpf = "75706593256";
-
-    const response = await supertest(app)
-      .put("/removeUnitAdmin")
-      .send({ idUnit, cpf });
-
-    expect(response.status).toBe(401);
-    expect(response.body).toEqual({
+    expect(resMock.json).toHaveBeenCalledWith({
       error: "Usuário não existe nesta unidade",
     });
+    expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
-  test("removeUnitAdmin - Usuário inexistente", async () => {
-    const idUnit = 1;
-    const cpf = "12345678901";
+  test("removeUnitAdmin - user removed (200)", async () => {
+    const testUser = {
+      fullName: "nome",
+      cpf: "12345678912",
+      email: "aa@bb.com",
+      password: "pw123456",
+      idUnit: 1,
+      idRole: 1,
+      set: jest.fn(),
+      save: jest.fn(),
+    };
+    User.findOne = jest.fn().mockResolvedValue(testUser);
 
-    const response = await supertest(app)
-      .put("/removeUnitAdmin")
-      .send({ idUnit, cpf });
+    reqMock.body = {
+      idUnit: testUser.idUnit,
+      cpf: testUser.cpf,
+    };
+    await UnitController.removeUnitAdmin(reqMock, resMock);
 
-    expect(response.status).toBe(200);
+    expect(resMock.json).toHaveBeenCalledWith(testUser);
+    expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  it("should return 200 when trying to delete a unit that does exist", async () => {
-    const deleteUnitResponse = await supertest(app)
-      .delete("/deleteunit")
-      .send({ idUnit: 1 });
-    expect(deleteUnitResponse.status).toBe(409);
+  test("removeUnitAdmin - Failed to remove admin (500)", async () => {
+    const error = new Error("Internal Error");
+    User.findOne = jest.fn().mockRejectedValue(error);
+
+    await UnitController.removeUnitAdmin(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Erro ao configurar usuário como administrador",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
   });
 });

@@ -9,14 +9,15 @@ import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
 import { filterByNicknameAndRecord } from "../utils/filters.js";
 
-const isRecordValid = (record) => {
-  const regex = /^\d{20}$/;
-  return regex.test(record);
-};
+const validateRecord = (record) => {
+  const filteredRecord = record.replace(/[^\d]/g, "");
+  const regexFilter = /^\d{20}$/;
+  const isRecordValid = regexFilter.test(filteredRecord);
 
-const recordFilter = (record) => {
-  const regex = /[^\d]/g;
-  return record.replace(regex, "");
+  return {
+    filteredRecord,
+    valid: isRecordValid,
+  };
 };
 
 const IsUtilDay = (data) => {
@@ -36,28 +37,16 @@ const handleVerifyDate = (startDate, duration) => {
   return days;
 };
 
-const validateRecord = (record) => {
-  const filtered = recordFilter(record);
-  return {
-    filtered,
-    valid: isRecordValid(filtered),
-  };
-};
-
 class ProcessController {
   async index(req, res) {
     try {
       let where;
-      if (req.headers.test !== "ok") {
-        const { idUnit, idRole } = await tokenToUser(req);
-        const unitFilter = idRole === 5 ? {} : { idUnit };
-        where = {
-          ...filterByNicknameAndRecord(req),
-          ...unitFilter,
-        };
-      } else {
-        where = {};
-      }
+      const { idUnit, idRole } = await tokenToUser(req);
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByNicknameAndRecord(req),
+        ...unitFilter,
+      };
       const offset = parseInt(req.query.offset) || 0;
       const limit = parseInt(req.query.limit) || 10;
       const processes = await Process.findAll({
@@ -67,7 +56,7 @@ class ProcessController {
       });
 
       if (!processes || processes.length === 0) {
-        return res.status(204).json({ error: "Não há processos" });
+        return res.status(204).json([]);
       } else {
         const processesWithFlows = [];
         for (const process of processes) {
@@ -109,7 +98,7 @@ class ProcessController {
     }
   }
 
-  async getPriorities(req, res) {
+  async getPriorities(_req, res) {
     try {
       const priorities = await Priority.findAll({
         where: {
@@ -118,18 +107,16 @@ class ProcessController {
       });
 
       if (!priorities) {
-        return res
-          .status(404)
-          .json({ error: "Não foi encontrado prioridades" });
+        return res.status(204).json([]);
       } else {
         return res.status(200).json(priorities);
       }
     } catch (error) {
-      console.log(error);
+      return res.status(500).json(error);
     }
   }
 
-  async getPriorityProcess(req, res) {
+  async getPriorityProcess(_req, res) {
     const priorityProcesses = await Process.findAll({
       where: {
         idPriority: [1, 2, 3, 4, 5, 6, 7, 8],
@@ -137,9 +124,7 @@ class ProcessController {
     });
 
     if (!priorityProcesses) {
-      return res
-        .status(404)
-        .json({ error: "Não há processos com prioridade legal" });
+      return res.status(204).json([]);
     } else {
       return res.status(200).json(priorityProcesses);
     }
@@ -152,12 +137,9 @@ class ProcessController {
       const process = await Process.findByPk(idProcess);
 
       if (!process) {
-        return res.status(404).json({
-          error: "Esse processo não existe!",
-          message: "Esse processo não existe!",
-        });
+        return res.status(204).json({});
       } else {
-        return res.json(process);
+        return res.status(200).json(process);
       }
     } catch (error) {
       return res.status(500).json({
@@ -191,37 +173,22 @@ class ProcessController {
           nickname,
           idPriority: priority,
         });
-        try {
-          if (flow) {
-            const flowProcess = await FlowProcess.create({
-              idFlow,
-              record,
-              finalised: false,
-            });
-            return res
-              .status(200)
-              .json({ message: "Criado com sucesso!", flowProcess });
-          }
-        } catch (error) {
-          return res.status(500).json(error);
+        if (flow) {
+          const flowProcess = await FlowProcess.create({
+            idFlow,
+            record,
+            finalised: false,
+          });
+          return res.status(200).json(flowProcess);
         }
       }
-      return res.status(404).json({ message: "Erro na criação de processo" });
+      return res.status(500).json({ error: "Erro na criação de processo" });
     } catch (error) {
       return res.status(500).json(error);
     }
   }
 
-  /*async allProcesses(req, res) {
-    return findProcess(res, { unity: req.user.unity });
-  }*/
-
   async processesInFlow(req, res) {
-    /*const search = {
-      fluxoId: req.params.flowId,
-      unity: req.user.unity,
-    };*/
-
     try {
       const { idFlow } = req.params;
 
@@ -258,9 +225,7 @@ class ProcessController {
 
       return res.status(200).json({ processes, totalPages });
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error, message: "Erro ao buscar processos" });
+      return res.status(500).json(error);
     }
   }
 
@@ -286,11 +251,11 @@ class ProcessController {
       });
 
       if (flowStages.length === 0) {
-        return res.status(404).json({ error: "Não há etapas neste fluxo" });
+        return res.status(404).json({ message: "Não há etapas neste fluxo" });
       }
 
       if (!process) {
-        return res.status(404).json({ error: "processo inexistente" });
+        return res.status(404).json({ message: "processo inexistente" });
       }
 
       const startingProcess =
@@ -320,8 +285,6 @@ class ProcessController {
         };
         tempProgress.push(progressData);
       } else {
-        // let aux = [];
-        // aux.push(process.progress);
         tempProgress = process.progress;
       }
 
@@ -371,7 +334,7 @@ class ProcessController {
 
       return res.status(200).json({ message: "OK" });
     } catch (error) {
-      return res.status(500).json({ error, message: "Impossível apagar" });
+      return res.status(500).json(error);
     }
   }
 
@@ -385,7 +348,7 @@ class ProcessController {
     ) {
       return res.status(400).json({
         error: "Identificadores inválidos",
-        message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
+        message: `Identificadores '${idFlow}', '${from}' ou '${to}' são inválidos`,
       });
     }
 
@@ -422,10 +385,6 @@ class ProcessController {
       });
       const currentToStage = await Stage.findOne({
         where: { idStage: to },
-      });
-
-      const currentFromStage = await Stage.findOne({
-        where: { idStage: from },
       });
 
       let tempProgress = [];
@@ -486,58 +445,7 @@ class ProcessController {
         message: `Impossível atualizar processo '${record}' para etapa '${to}`,
       });
     } catch (error) {
-      return res.status(500).json({
-        error,
-        message: `Erro ao atualizar processo '${record}' para etapa '${to}`,
-      });
-    }
-  }
-
-  async newObservation(req, res) {
-    const { record, originStage, destinationStage, commentary } = req.body;
-
-    try {
-      const updateResult = await Database.connection.query(
-        'update \
-          "flowStage" \
-        set \
-          "idStageA" = ?, \
-          "idStageB" = ?, \
-          commentary = ? \
-        where \
-          "idFlowStage" in ( \
-        select \
-          fst."idFlowStage" as "idFlowStage" \
-        from \
-          "flowProcess" fp \
-        join "flowStage" fst \
-        on \
-          fst."idFlow" = fp."idFlow" \
-        where \
-          fp.record = ? \
-          and fst."idStageA" = ? \
-          and fst."idStageB" = ?)',
-        {
-          replacements: [
-            originStage,
-            destinationStage,
-            commentary,
-            record,
-            originStage,
-            destinationStage,
-          ],
-          type: QueryTypes.UPDATE,
-        }
-      );
-
-      return res.status(200).json({
-        message: "Comentário adicionado com sucesso",
-      });
-    } catch (error) {
-      return res.status(500).json({
-        error,
-        message: "Falha ao adicionar comentário",
-      });
+      return res.status(500).json(error);
     }
   }
 }

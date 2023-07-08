@@ -142,16 +142,12 @@ class FlowController {
   async index(req, res) {
     try {
       let where;
-      if (req.headers.test !== "ok") {
-        const { idUnit, idRole } = await tokenToUser(req);
-        const unitFilter = idRole === 5 ? {} : { idUnit };
-        where = {
-          ...filterByName(req),
-          ...unitFilter,
-        };
-      } else {
-        where = {};
-      }
+      const { idUnit, idRole } = await tokenToUser(req);
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByName(req),
+        ...unitFilter,
+      };
 
       const { limit, offset } = req.query;
 
@@ -326,7 +322,9 @@ class FlowController {
         ? res.status(status).json(json)
         : res.status(status).json({ message });
     } catch (error) {
-      return res.status(500).json({ error: "Impossível criar fluxo" });
+      return res
+        .status(500)
+        .json({ error: `Impossível criar fluxo: ${error}` });
     }
   }
 

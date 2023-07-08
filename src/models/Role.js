@@ -18,6 +18,10 @@ class Role extends Model {
           type: DataTypes.SMALLINT,
           allowNull: false,
         },
+        allowedActions: {
+          type: DataTypes.ARRAY(DataTypes.STRING),
+          allowNull: false,
+        },
       },
       {
         sequelize,

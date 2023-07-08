@@ -1,13 +1,13 @@
 import Role from "../models/Role.js";
 
 class RoleController {
-  async index(req, res) {
+  async index(_req, res) {
     const role = await Role.findAll();
 
     if (!role) {
-      return res.status(204).json({ error: "Não Existe cargo" });
+      return res.status(204).json({ message: "Não Existe cargo" });
     } else {
-      return res.json(role);
+      return res.status(200).json(role);
     }
   }
 
@@ -17,25 +17,40 @@ class RoleController {
     const role = await Role.findByPk(idRole);
 
     if (!role) {
-      return res.status(204).json({ error: "Esse cargo não existe!" });
+      return res.status(204).json([]);
     } else {
-      return res.json(role);
+      return res.status(200).json(role);
     }
   }
 
-  async update(req, res) {
+  async updateRoleName(req, res) {
     const { name, idRole } = req.body;
 
     const role = await Role.findByPk(idRole);
 
     if (!role || role === null) {
-      return res.status(204).json({ error: "Esse cargo não existe!" });
+      return res.status(204).json([]);
     } else {
       role.set({ name });
+      await role.save();
+      return res.status(200).json(role);
+    }
+  }
+
+  async updateRoleAllowedActions(req, res) {
+    const { allowedActions } = req.body;
+    const { idRole } = req.params;
+
+    const role = await Role.findByPk(idRole);
+
+    if (!role || role === null) {
+      return res.status(204).json([]);
+    } else {
+      role.set({ allowedActions });
 
       await role.save();
 
-      return res.json(role);
+      return res.status(200).json(role);
     }
   }
 
@@ -45,25 +60,24 @@ class RoleController {
     const role = await Role.findByPk(idRole);
 
     if (!role) {
-      return res.status(204).json({ error: "Esse cargo não existe!" });
+      return res.status(404);
     } else {
       await role.destroy();
-      return res.json(role);
+      return res.status(200).json(role);
     }
   }
 
   async store(req, res) {
-    const { name } = req.body;
-    const { accessLevel } = req.body;
+    const { name, accessLevel } = req.body;
 
     try {
       const role = await Role.create({
         name,
         accessLevel,
       });
-      return res.json(role);
+      return res.status(200).json(role);
     } catch (error) {
-      return res.status(408).json(error);
+      return res.status(500).json(error);
     }
   }
 }

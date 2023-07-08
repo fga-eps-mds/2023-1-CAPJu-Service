@@ -7,16 +7,12 @@ import { filterByName } from "../utils/filters.js";
 class StageController {
   async index(req, res) {
     let where;
-    if (req.headers.test !== "ok") {
-      const { idUnit, idRole } = await tokenToUser(req);
-      const unitFilter = idRole === 5 ? {} : { idUnit };
-      where = {
-        ...filterByName(req),
-        ...unitFilter,
-      };
-    } else {
-      where = {};
-    }
+    const { idUnit, idRole } = await tokenToUser(req);
+    const unitFilter = idRole === 5 ? {} : { idUnit };
+    where = {
+      ...filterByName(req),
+      ...unitFilter,
+    };
 
     const stages = await Stage.findAll({
       where,
@@ -27,9 +23,9 @@ class StageController {
     const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
     if (!stages || stages.length === 0) {
-      return res.status(200).json({ error: "Não Existem fluxos" });
+      return res.status(204).json([]);
     } else {
-      return res.json({ stages: stages || [], totalPages });
+      return res.status(200).json({ stages: stages || [], totalPages });
     }
   }
 
@@ -39,7 +35,7 @@ class StageController {
     const stage = await Stage.findByPk(idStage);
 
     if (!stage) {
-      return res.status(401).json({ error: "Esse fluxo não existe" });
+      return res.status(204).json({});
     } else {
       return res.status(200).json(stage);
     }
@@ -56,7 +52,7 @@ class StageController {
 
       return res.status(200).json(stage);
     } catch (error) {
-      return res.status(400).json(error);
+      return res.status(500).json(error);
     }
   }
 
@@ -71,22 +67,19 @@ class StageController {
       });
 
       if (flowStages.length > 0) {
-        return res.status(409).json({
-          error: "Há fluxos utilizando esta etapa",
-          message: `Há ${flowStages.length} fluxos que dependem desta etapa.`,
-        });
+        return res.status(204).json({});
       }
 
       const stage = await Stage.findByPk(idStage);
 
       if (!stage) {
-        return res.status(401).json({ error: "Essa etapa não existe!" });
+        return res.status(204).json({});
       } else {
         await stage.destroy();
         return res.status(200).json(stage);
       }
     } catch (error) {
-      return res.status(400).json({ error });
+      return res.status(500).json(error);
     }
   }
 }

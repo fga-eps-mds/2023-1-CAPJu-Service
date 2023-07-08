@@ -121,7 +121,12 @@ routes.get("/role", RoleController.index);
 
 routes.get("/roleAdmins/:id", RoleController.getById);
 
-routes.put("/updateRole", RoleController.update);
+routes.put("/updateRole", RoleController.updateRoleName);
+
+routes.put(
+  "/updateRoleAllowedActions/:idRole",
+  RoleController.updateRoleAllowedActions
+);
 
 routes.delete("/deleteRole", RoleController.delete);
 

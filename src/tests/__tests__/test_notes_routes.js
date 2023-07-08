@@ -1,15 +1,20 @@
-import supertest from "supertest";
-import { app } from "../TestApp";
+import NoteController from "../../controllers/NoteController.js";
 import Note from "../../models/Note.js";
 
-jest.mock("../../models/Note.js");
+jest.mock("axios");
 
-describe("role endpoints", () => {
-  beforeEach(() => {
+const reqMock = {};
+const resMock = {
+  status: jest.fn().mockReturnThis(),
+  json: jest.fn(),
+};
+
+describe("note endpoints", () => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  test("new note and list existing", async () => {
+  test("newNote - create new note", async () => {
     const testNote = {
       commentary: "obs",
       record: "123",
@@ -17,30 +22,36 @@ describe("role endpoints", () => {
       idStageB: 2,
     };
 
-    Note.create.mockResolvedValue(testNote);
-    Note.findAll.mockResolvedValue(testNote);
+    Note.create = jest.fn().mockResolvedValue(testNote);
 
-    const response = await supertest(app).post("/newNote").send(testNote);
-    expect(response.status).toBe(200);
-    expect(response.body.record).toBe(testNote.record);
+    reqMock.body = testNote;
+    await NoteController.newNote(reqMock, resMock);
 
-    const getResponse = await supertest(app).get(`/notes/${testNote.record}`);
-    expect(getResponse.status).toBe(200);
-    expect(getResponse.body.commentary).toBe(testNote.commentary);
+    expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith(testNote);
   });
 
-  test("catch error when listing notes (status 500)", async () => {
+  test("newNote - failed to create new note", async () => {
+    const testNote = {
+      commentary: "obs",
+      record: "123",
+      idStageA: 1,
+      idStageB: 2,
+    };
+
     const errorMessage = "Database error";
-    Note.findAll.mockRejectedValue(new Error(errorMessage));
-    const record = "123";
-    const getResponse = await supertest(app).get(`/notes/${record}`);
-    expect(getResponse.status).toBe(500);
-    expect(getResponse.body.message).toEqual(
-      `Erro ao buscar observação: Error: ${errorMessage}`
-    );
+    Note.create = jest.fn().mockRejectedValue(new Error(errorMessage));
+
+    reqMock.body = testNote;
+    await NoteController.newNote(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: `Erro ao criar observação: Error: ${errorMessage}`,
+    });
   });
 
-  test("new note and edit commentary", async () => {
+  test("index - list existing notes", async () => {
     const testNote = {
       commentary: "obs",
       record: "123",
@@ -48,132 +59,114 @@ describe("role endpoints", () => {
       idStageB: 2,
     };
 
-    Note.create.mockResolvedValue(testNote);
-    Note.findByPk.mockResolvedValue({
+    Note.findAll = jest.fn().mockResolvedValue(testNote);
+
+    reqMock.params = { record: testNote.record };
+    await NoteController.index(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith(testNote);
+  });
+
+  test("index - failed to list existing notes", async () => {
+    const errorMessage = "Database error";
+    Note.findAll = jest.fn().mockRejectedValue(new Error(errorMessage));
+
+    reqMock.params = { record: "123" };
+    await NoteController.index(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: `Erro ao buscar observação: Error: ${errorMessage}`,
+    });
+  });
+
+  test("update - change commentary", async () => {
+    const testNote = {
+      commentary: "obs",
+      record: "123",
+      idStageA: 1,
+      idStageB: 2,
+    };
+
+    Note.findByPk = jest.fn().mockResolvedValue({
       set: jest.fn(),
       save: jest.fn(),
     });
 
-    const response = await supertest(app).post("/newNote").send(testNote);
-    expect(response.status).toBe(200);
+    reqMock.body = { commentary: testNote.commentary };
+    reqMock.params = { idNote: 1 };
+    await NoteController.update(reqMock, resMock);
 
-    const updateResponse = await supertest(app)
-      .put(`/updateNote/${response.body.idNote}`)
-      .send({
-        commentary: "obs2",
-      });
-    expect(updateResponse.status).toBe(200);
-    expect(updateResponse.body.message).toEqual(
-      "Observação atualizada com sucesso."
-    );
-  });
-
-  test("new note and delete it", async () => {
-    const testNote = {
-      commentary: "obs",
-      record: "123",
-      idStageA: 1,
-      idStageB: 2,
-    };
-
-    Note.create.mockResolvedValue(testNote);
-    Note.findByPk.mockResolvedValue({ destroy: jest.fn() });
-
-    const response = await supertest(app).post("/newNote").send(testNote);
-    expect(response.status).toBe(200);
-
-    const deleteResponse = await supertest(app).delete(
-      `/deleteNote/${response.body.idNote}`
-    );
-    expect(deleteResponse.status).toBe(200);
-    expect(deleteResponse.body.message).toEqual(
-      "Observação deletada com sucesso."
-    );
-  });
-
-  test("edit non-existent note (status 400)", async () => {
-    const nonExistentNoteId = 123;
-
-    Note.findByPk.mockResolvedValue(null);
-
-    const updateResponse = await supertest(app)
-      .put(`/updateNote/${nonExistentNoteId}`)
-      .send({
-        commentary: "obs2",
-      });
-    expect(updateResponse.status).toBe(400);
-    expect(updateResponse.body.error).toEqual(
-      `idNote ${nonExistentNoteId} não existe!`
-    );
-  });
-
-  test("delete non-existent note (status 400)", async () => {
-    const nonExistentNoteId = 123;
-
-    Note.findByPk.mockResolvedValue(null);
-
-    const deleteResponse = await supertest(app).delete(
-      `/deleteNote/${nonExistentNoteId}`
-    );
-    expect(deleteResponse.status).toBe(400);
-    expect(deleteResponse.body.error).toEqual(
-      `idNote ${nonExistentNoteId} não existe!`
-    );
-  });
-
-  test("new note - database error (status 500)", async () => {
-    const testNote = {
-      commentary: "obs",
-      record: "123",
-      idStageA: 1,
-      idStageB: 2,
-    };
-
-    const errorMessage = "Database error";
-
-    Note.create.mockRejectedValue(new Error(errorMessage));
-
-    const response = await supertest(app).post("/newNote").send(testNote);
-    expect(response.status).toBe(500);
-    expect(response.body.message).toEqual(
-      `Erro ao criar observação: Error: ${errorMessage}`
-    );
-  });
-
-  test("edit note - database error (status 500)", async () => {
-    const testNoteId = 123;
-    const updatedCommentary = "obs2";
-
-    const errorMessage = "Database error";
-
-    Note.findByPk.mockRejectedValue(new Error(errorMessage));
-
-    const updateResponse = await supertest(app)
-      .put(`/updateNote/${testNoteId}`)
-      .send({
-        commentary: updatedCommentary,
-      });
-    expect(updateResponse.status).toBe(500);
-    expect(updateResponse.body.message).toEqual(
-      `Erro ao atualizar observação: Error: ${errorMessage}`
-    );
-  });
-
-  test("delete note - database error (status 500)", async () => {
-    const testNoteId = 123;
-
-    const errorMessage = "Database error";
-
-    Note.findByPk.mockResolvedValue({
-      destroy: jest.fn().mockRejectedValue(new Error(errorMessage)),
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Observação atualizada com sucesso.",
     });
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
 
-    const deleteResponse = await supertest(app).delete(
-      `/deleteNote/${testNoteId}`
-    );
-    expect(deleteResponse.status).toBe(500);
-    expect(deleteResponse.body.message).toEqual(
-      `Erro ao deletar observação: Error: ${errorMessage}`
-    );
+  test("update - failed to change commentary", async () => {
+    const errorMessage = "Database error";
+    Note.findByPk = jest.fn().mockRejectedValue(new Error(errorMessage));
+
+    reqMock.body = { commentary: "obs2" };
+    reqMock.params = { idNote: 1 };
+    await NoteController.update(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: `Erro ao atualizar observação: Error: ${errorMessage}`,
+    });
+  });
+
+  test("update - note not found", async () => {
+    Note.findByPk = jest.fn().mockResolvedValue(false);
+
+    const idNote = 1;
+    reqMock.body = { commentary: "obs2" };
+    reqMock.params = { idNote };
+    await NoteController.update(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(400);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: `idNote ${idNote} não existe!`,
+    });
+  });
+
+  test("delete - remove note", async () => {
+    Note.findByPk = jest.fn().mockResolvedValue({ destroy: jest.fn() });
+
+    reqMock.params = { idNote: 1 };
+    await NoteController.delete(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Observação deletada com sucesso.",
+    });
+  });
+
+  test("delete - failed to remove note", async () => {
+    const errorMessage = "Database error";
+    Note.findByPk = jest.fn().mockRejectedValue(new Error(errorMessage));
+
+    reqMock.params = { idNote: 1 };
+    await NoteController.delete(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: `Erro ao deletar observação: Error: ${errorMessage}`,
+    });
+  });
+
+  test("delete - note not found", async () => {
+    Note.findByPk = jest.fn().mockResolvedValue(false);
+
+    const idNote = 1;
+    reqMock.params = { idNote };
+    await NoteController.delete(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(400);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: `idNote ${idNote} não existe!`,
+    });
   });
 });

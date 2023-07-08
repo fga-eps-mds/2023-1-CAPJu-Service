@@ -49,7 +49,7 @@ class NoteController {
     }
   };
 
-  async update(req, res) {
+  update = async (req, res) => {
     const { commentary } = req.body;
     const { idNote } = req.params;
 
@@ -69,7 +69,7 @@ class NoteController {
         .status(500)
         .json({ message: `Erro ao atualizar observação: ${error}` });
     }
-  }
+  };
 }
 
 export default new NoteController();
