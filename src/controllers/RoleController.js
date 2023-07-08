@@ -2,38 +2,48 @@ import Role from "../models/Role.js";
 
 class RoleController {
   async index(_req, res) {
-    const role = await Role.findAll();
+    try {
+      const role = await Role.findAll();
 
-    if (!role) {
-      return res.status(204).json({ message: "Não Existe cargo" });
-    } else {
-      return res.status(200).json(role);
+      if (!role) {
+        return res.status(204).json({ message: "Não Existe cargo" });
+      } else {
+        return res.status(200).json(role);
+      }
+    } catch (error) {
+      return res.status(500).json(error);
     }
   }
 
   async getById(req, res) {
     const idRole = req.params.id;
 
-    const role = await Role.findByPk(idRole);
-
-    if (!role) {
-      return res.status(204).json([]);
-    } else {
-      return res.status(200).json(role);
+    try {
+      const role = await Role.findByPk(idRole);
+      if (!role) {
+        return res.status(204).json([]);
+      } else {
+        return res.status(200).json(role);
+      }
+    } catch (error) {
+      return res.status(500).json(error);
     }
   }
 
   async updateRoleName(req, res) {
     const { name, idRole } = req.body;
 
-    const role = await Role.findByPk(idRole);
-
-    if (!role || role === null) {
-      return res.status(204).json([]);
-    } else {
-      role.set({ name });
-      await role.save();
-      return res.status(200).json(role);
+    try {
+      const role = await Role.findByPk(idRole);
+      if (!role || role === null) {
+        return res.status(204).json([]);
+      } else {
+        role.set({ name });
+        await role.save();
+        return res.status(200).json(role);
+      }
+    } catch (error) {
+      return res.status(500).json(error);
     }
   }
 
@@ -41,29 +51,33 @@ class RoleController {
     const { allowedActions } = req.body;
     const { idRole } = req.params;
 
-    const role = await Role.findByPk(idRole);
-
-    if (!role || role === null) {
-      return res.status(204).json([]);
-    } else {
-      role.set({ allowedActions });
-
-      await role.save();
-
-      return res.status(200).json(role);
+    try {
+      const role = await Role.findByPk(idRole);
+      if (!role || role === null) {
+        return res.status(204).json([]);
+      } else {
+        role.set({ allowedActions });
+        await role.save();
+        return res.status(200).json(role);
+      }
+    } catch (error) {
+      return res.status(500).json(error);
     }
   }
 
   async delete(req, res) {
     const { idRole } = req.body;
 
-    const role = await Role.findByPk(idRole);
-
-    if (!role) {
-      return res.status(404);
-    } else {
-      await role.destroy();
-      return res.status(200).json(role);
+    try {
+      const role = await Role.findByPk(idRole);
+      if (!role) {
+        return res.status(404);
+      } else {
+        await role.destroy();
+        return res.status(200).json(role);
+      }
+    } catch (error) {
+      return res.status(500).json(error);
     }
   }
 
