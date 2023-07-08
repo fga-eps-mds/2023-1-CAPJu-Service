@@ -9,14 +9,15 @@ import { QueryTypes } from "sequelize";
 import { tokenToUser } from "../middleware/authMiddleware.js";
 import { filterByNicknameAndRecord } from "../utils/filters.js";
 
-const isRecordValid = (record) => {
-  const regex = /^\d{20}$/;
-  return regex.test(record);
-};
+const validateRecord = (record) => {
+  const filteredRecord = record.replace(/[^\d]/g, '');
+  const regexFilter = /^\d{20}$/;
+  const isRecordValid = regexFilter.test(filteredRecord);
 
-const recordFilter = (record) => {
-  const regex = /[^\d]/g;
-  return record.replace(regex, "");
+  return {
+    filteredRecord,
+    valid: isRecordValid,
+  };
 };
 
 const IsUtilDay = (data) => {
@@ -34,14 +35,6 @@ const handleVerifyDate = (startDate, duration) => {
     days++;
   }
   return days;
-};
-
-const validateRecord = (record) => {
-  const filtered = recordFilter(record);
-  return {
-    filtered,
-    valid: isRecordValid(filtered),
-  };
 };
 
 class ProcessController {
