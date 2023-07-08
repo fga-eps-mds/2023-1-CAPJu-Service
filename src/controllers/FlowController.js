@@ -153,13 +153,13 @@ class FlowController {
 
       const flows = limit
         ? await Flow.findAll({
-          where,
-          offset: parseInt(offset),
-          limit: parseInt(limit),
-        })
+            where,
+            offset: parseInt(offset),
+            limit: parseInt(limit),
+          })
         : await Flow.findAll({
-          where,
-        });
+            where,
+          });
       const totalCount = await Flow.count({ where });
       const totalPages = Math.ceil(totalCount / limit);
 
@@ -322,7 +322,9 @@ class FlowController {
         ? res.status(status).json(json)
         : res.status(status).json({ message });
     } catch (error) {
-      return res.status(500).json({ error: `Impossível criar fluxo: ${error}` });
+      return res
+        .status(500)
+        .json({ error: `Impossível criar fluxo: ${error}` });
     }
   }
 

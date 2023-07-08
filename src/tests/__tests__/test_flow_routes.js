@@ -8,7 +8,7 @@ import FlowProcess from "../../models/FlowProcess.js";
 
 import * as middleware from "../../middleware/authMiddleware.js";
 
-jest.mock('axios');
+jest.mock("axios");
 
 let reqMock = {};
 let resMock = {
@@ -32,15 +32,15 @@ describe("flow endpoints", () => {
       idUsersToNotify: ["12345678901", "12345678909"],
     };
 
-    User.findOne = jest.fn().mockResolvedValue({})
-    Stage.findByPk = jest.fn(1).mockResolvedValue({ idStage: 1 })
-    Stage.findByPk = jest.fn(2).mockResolvedValue({ idStage: 2 })
+    User.findOne = jest.fn().mockResolvedValue({});
+    Stage.findByPk = jest.fn(1).mockResolvedValue({ idStage: 1 });
+    Stage.findByPk = jest.fn(2).mockResolvedValue({ idStage: 2 });
     Flow.create = jest.fn().mockResolvedValue({
       idFlow: 1,
       ...flowData,
-    })
-    FlowStage.create = jest.fn().mockResolvedValue({})
-    FlowUser.create = jest.fn().mockResolvedValue({})
+    });
+    FlowStage.create = jest.fn().mockResolvedValue({});
+    FlowUser.create = jest.fn().mockResolvedValue({});
 
     reqMock.body = flowData;
     await FlowController.store(reqMock, resMock);
@@ -63,13 +63,15 @@ describe("flow endpoints", () => {
       idUsersToNotify: ["12345678901", "12345678909"],
     };
 
-    User.findOne = jest.fn().mockResolvedValue({})
+    User.findOne = jest.fn().mockResolvedValue({});
 
     reqMock.body = flowData;
     await FlowController.store(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(404);
-    expect(resMock.json).toHaveBeenCalledWith({ message: "Necessário pelo menos duas etapas!" });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Necessário pelo menos duas etapas!",
+    });
   });
 
   test("get flow by id", async () => {
@@ -87,8 +89,8 @@ describe("flow endpoints", () => {
     Flow.findByPk = jest.fn().mockResolvedValue({
       idFlow,
       ...flowData,
-    })
-    FlowStage.findAll = jest.fn().mockResolvedValue([])
+    });
+    FlowStage.findAll = jest.fn().mockResolvedValue([]);
 
     reqMock.params = idFlow;
     await FlowController.getById(reqMock, resMock);
@@ -111,11 +113,11 @@ describe("flow endpoints", () => {
     Flow.findByPk = jest.fn().mockResolvedValue({
       idFlow,
       ...flowData,
-    })
+    });
     FlowStage.findAll = jest.fn().mockResolvedValue([
       { idStageA: 1, idStageB: 2, commentary: "Primeiro Comentário" },
       { idStageA: 2, idStageB: 3, commentary: "Segundo Comentário" },
-    ])
+    ]);
 
     reqMock.params = idFlow;
     await FlowController.getByIdWithSequence(reqMock, resMock);
@@ -127,7 +129,7 @@ describe("flow endpoints", () => {
     const record = "12345678901234567899";
     const flowData = { name: "Fluxo XPTO" };
 
-    FlowProcess.findAll = jest.fn().mockResolvedValue([flowData])
+    FlowProcess.findAll = jest.fn().mockResolvedValue([flowData]);
 
     reqMock.params = record;
     await FlowController.indexByRecord(reqMock, resMock);
@@ -137,7 +139,7 @@ describe("flow endpoints", () => {
   });
 
   test("get all flow stages", async () => {
-    FlowStage.findAll = jest.fn().mockResolvedValue([])
+    FlowStage.findAll = jest.fn().mockResolvedValue([]);
 
     await FlowController.getFlowStages(reqMock, resMock);
 
@@ -172,18 +174,18 @@ describe("flow endpoints", () => {
       idUsersToNotify: ["12345678901", "12345678909"],
     };
 
-    Flow.findByPk = jest.fn().mockResolvedValue(flowData)
-    FlowStage.destroy = jest.fn().mockResolvedValue()
-    FlowUser.destroy = jest.fn().mockResolvedValue()
-    User.findOne = jest.fn().mockResolvedValue({})
-    Stage.findByPk = jest.fn(1).mockResolvedValue({ idStage: 1 })
-    Stage.findByPk = jest.fn(2).mockResolvedValue({ idStage: 2 })
+    Flow.findByPk = jest.fn().mockResolvedValue(flowData);
+    FlowStage.destroy = jest.fn().mockResolvedValue();
+    FlowUser.destroy = jest.fn().mockResolvedValue();
+    User.findOne = jest.fn().mockResolvedValue({});
+    Stage.findByPk = jest.fn(1).mockResolvedValue({ idStage: 1 });
+    Stage.findByPk = jest.fn(2).mockResolvedValue({ idStage: 2 });
     Flow.create = jest.fn().mockResolvedValue({
       idFlow: 1,
       ...flowData,
-    })
-    FlowStage.create = jest.fn().mockResolvedValue({})
-    FlowUser.create = jest.fn().mockResolvedValue({})
+    });
+    FlowStage.create = jest.fn().mockResolvedValue({});
+    FlowUser.create = jest.fn().mockResolvedValue({});
 
     reqMock.params = flowData;
     await FlowController.getUsersToNotify(reqMock, resMock);
@@ -192,10 +194,10 @@ describe("flow endpoints", () => {
   });
 
   test("delete flow", async () => {
-    FlowProcess.findAll = jest.fn().mockResolvedValue([])
-    FlowStage.destroy = jest.fn().mockResolvedValue()
-    FlowUser.destroy = jest.fn().mockResolvedValue()
-    Flow.destroy = jest.fn().mockResolvedValue(2)
+    FlowProcess.findAll = jest.fn().mockResolvedValue([]);
+    FlowStage.destroy = jest.fn().mockResolvedValue();
+    FlowUser.destroy = jest.fn().mockResolvedValue();
+    Flow.destroy = jest.fn().mockResolvedValue(2);
 
     await FlowController.delete(reqMock, resMock);
 
@@ -203,13 +205,13 @@ describe("flow endpoints", () => {
   });
 
   test("delete flow stage", async () => {
-    FlowStage.destroy = jest.fn().mockResolvedValue(2)
+    FlowStage.destroy = jest.fn().mockResolvedValue(2);
 
     reqMock.params = {
       idFlow: 1,
       ifStageA: 1,
       ifStageB: 1,
-    }
+    };
     await FlowController.deleteFlowStage(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(200);
@@ -219,10 +221,10 @@ describe("flow endpoints", () => {
     jest.spyOn(middleware, "tokenToUser").mockReturnValue({
       idUnit: 1,
       idRole: 5,
-    })
-    Flow.findAll = jest.fn().mockResolvedValue([])
-    Flow.count = jest.fn().mockResolvedValue(0)
-    FlowStage.findAll = jest.fn().mockResolvedValue([])
+    });
+    Flow.findAll = jest.fn().mockResolvedValue([]);
+    Flow.count = jest.fn().mockResolvedValue(0);
+    FlowStage.findAll = jest.fn().mockResolvedValue([]);
 
     reqMock.query = {
       limit: 1,

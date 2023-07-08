@@ -69,7 +69,7 @@ class NoteController {
         .status(500)
         .json({ message: `Erro ao atualizar observação: ${error}` });
     }
-  }
+  };
 }
 
 export default new NoteController();
