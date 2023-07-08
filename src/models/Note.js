@@ -10,7 +10,7 @@ class Note extends Model {
           autoIncrement: true,
           allowNull: false,
         },
-        commentary: DataTypes.STRING(100),
+        commentary: DataTypes.STRING(500),
         record: {
           type: DataTypes.STRING(20),
           allowNull: false,
