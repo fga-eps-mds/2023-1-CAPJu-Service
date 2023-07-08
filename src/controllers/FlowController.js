@@ -132,10 +132,7 @@ class FlowController {
         message: `Não há fluxos com o processo '${record}'`,
       });
     } catch (error) {
-      return res.status(500).json({
-        error,
-        message: `Erro ao buscar fluxos do processo ${record}`,
-      });
+      return res.status(500).json(error);
     }
   }
 
@@ -186,9 +183,7 @@ class FlowController {
         .status(200)
         .json({ flows: flowsWithSequences || [], totalPages });
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error, message: "Impossível obter fluxos" });
+      return res.status(500).json(error);
     }
   }
 
@@ -217,10 +212,7 @@ class FlowController {
 
       return res.status(200).json(flowSequence);
     } catch (error) {
-      return res.status(500).json({
-        error,
-        message: `Impossível obter fluxo ${idFlow}`,
-      });
+      return res.status(500).json(error);
     }
   }
 
@@ -256,13 +248,11 @@ class FlowController {
         sequences: sequences,
       });
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error, message: "Impossível ler sequências" });
+      return res.status(500).json(error);
     }
   }
 
-  async getFlowStages(req, res) {
+  async getFlowStages(_req, res) {
     try {
       const flowStages = await FlowStage.findAll();
 
@@ -274,9 +264,7 @@ class FlowController {
 
       return res.status(200).json(flowStages);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error, message: "Erro ao ler fluxos ligados a etapas" });
+      return res.status(500).json(error);
     }
   }
 
@@ -300,10 +288,7 @@ class FlowController {
 
       res.status(200).json({ usersToNotify: result });
     } catch (error) {
-      res.status(500).json({
-        error,
-        message: "Impossível obter usuários que devem ser notificados no fluxo",
-      });
+      res.status(500).json(error);
     }
   }
 
@@ -322,9 +307,7 @@ class FlowController {
         ? res.status(status).json(json)
         : res.status(status).json({ message });
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error: `Impossível criar fluxo: ${error}` });
+      return res.status(500).json(error);
     }
   }
 
@@ -335,9 +318,7 @@ class FlowController {
       const flow = await Flow.findByPk(idFlow);
 
       if (!flow) {
-        return res
-          .status(404)
-          .json({ message: `Fluxo '${idFlow} não existe!` });
+        return res.status(404).json({ message: `Fluxo ${idFlow} não existe!` });
       } else {
         flow.set({ name });
         const { idUnit } = flow;
@@ -364,7 +345,7 @@ class FlowController {
           : res.status(status).json({ message });
       }
     } catch (error) {
-      return res.status(500).json({ error, message: "Impossível criar fluxo" });
+      return res.status(500).json(error);
     }
   }
 
@@ -387,9 +368,7 @@ class FlowController {
         return res.status(404).json({ message: "Fluxo não encontrado" });
       }
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error, message: "Impossível apagar fluxo" });
+      return res.status(500).json(error);
     }
   }
 
