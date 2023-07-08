@@ -42,23 +42,27 @@ describe("process endpoints", () => {
   });
 
   test("index - returning processesWithFlows (200))", async () => {
-    const processes = [{
-      idFlow: 10,
-      nickname: "Meu Primeiro Processo",
-      idPriority: 0,
-      status: "inProgress",
-      idStage: 1,
-      record: "12345678901234567890",
-      idUnit: 1,
-      effectiveDate: new Date(),
-      progress: [],
-    }]
-    const flowProcesses = [{
-      idFlowProcess: 1,
-      idFlow: 10,
-      record: "12345678901234567890",
-      finalised: false,
-    }]
+    const processes = [
+      {
+        idFlow: 10,
+        nickname: "Meu Primeiro Processo",
+        idPriority: 0,
+        status: "inProgress",
+        idStage: 1,
+        record: "12345678901234567890",
+        idUnit: 1,
+        effectiveDate: new Date(),
+        progress: [],
+      },
+    ];
+    const flowProcesses = [
+      {
+        idFlowProcess: 1,
+        idFlow: 10,
+        record: "12345678901234567890",
+        finalised: false,
+      },
+    ];
 
     jest.spyOn(middleware, "tokenToUser").mockReturnValue({
       idUnit: 1,
@@ -149,7 +153,7 @@ describe("process endpoints", () => {
   test("getById - process does not exist (204))", async () => {
     Process.findByPk = jest.fn().mockReturnValue(false);
 
-    reqMock.params = { id: 1 }
+    reqMock.params = { id: 1 };
     await ProcessController.getById(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({});
@@ -159,7 +163,7 @@ describe("process endpoints", () => {
   test("getById - returning process (200))", async () => {
     Process.findByPk = jest.fn().mockReturnValue([]);
 
-    reqMock.params = { id: 1 }
+    reqMock.params = { id: 1 };
     await ProcessController.getById(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith([]);
@@ -171,7 +175,7 @@ describe("process endpoints", () => {
     const idProcess = 1;
     Process.findByPk = jest.fn().mockRejectedValue(error);
 
-    reqMock.params = { id: idProcess }
+    reqMock.params = { id: idProcess };
     await ProcessController.getById(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(500);
@@ -187,9 +191,9 @@ describe("process endpoints", () => {
       nickname: "Meu Primeiro Processo",
       priority: 0,
       record: "123",
-    }
+    };
 
-    reqMock.body = process
+    reqMock.body = process;
     await ProcessController.store(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(400);
@@ -205,7 +209,7 @@ describe("process endpoints", () => {
       nickname: "Meu Primeiro Processo",
       priority: 0,
       record: "12345678901234567890",
-    }
+    };
     const flow = {
       idFlow: 10,
       name: "Fluxo AB",
@@ -234,7 +238,7 @@ describe("process endpoints", () => {
       nickname: "Meu Primeiro Processo",
       priority: 0,
       record: "12345678901234567890",
-    }
+    };
 
     reqMock.body = process;
     Flow.findByPk = jest.fn().mockReturnValue(false);
@@ -250,9 +254,9 @@ describe("process endpoints", () => {
       nickname: "Meu Primeiro Processo",
       priority: 0,
       record: "12345678901234567890",
-    }
+    };
 
-    reqMock.body = process
+    reqMock.body = process;
     const error = new Error("Internal Server Error");
     Flow.findByPk = jest.fn().mockRejectedValue(error);
 
@@ -264,24 +268,27 @@ describe("process endpoints", () => {
 
   test("processesInFlows - list processes (200))", async () => {
     const processes = [
-      { id: 1, name: 'Process 1' },
-      { id: 2, name: 'Process 2' },
-    ]
+      { id: 1, name: "Process 1" },
+      { id: 2, name: "Process 2" },
+    ];
 
     Database.connection = {
       query: jest.fn().mockResolvedValueOnce(processes),
     };
     Database.connection.query.mockResolvedValueOnce([{ total: 2 }]);
 
-    reqMock.params = { idFlow: 1 }
+    reqMock.params = { idFlow: 1 };
     await ProcessController.processesInFlow(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith({ processes: processes, totalPages: 1 });
+    expect(resMock.json).toHaveBeenCalledWith({
+      processes: processes,
+      totalPages: 1,
+    });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
   test("processesInFlows - internal server error (500))", async () => {
-    reqMock.params = { idFlow: 1 }
+    reqMock.params = { idFlow: 1 };
     const error = new Error("Internal Server Error");
     Database.connection = {
       query: jest.fn().mockRejectedValue(error),
@@ -303,7 +310,7 @@ describe("process endpoints", () => {
       record: "123",
     };
 
-    reqMock.body = process
+    reqMock.body = process;
     await ProcessController.updateProcess(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -327,7 +334,9 @@ describe("process endpoints", () => {
     };
     await ProcessController.updateProcess(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith({ message: "Não há etapas neste fluxo" });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Não há etapas neste fluxo",
+    });
     expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
@@ -345,7 +354,9 @@ describe("process endpoints", () => {
     };
     await ProcessController.updateProcess(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith({ message: "processo inexistente" });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "processo inexistente",
+    });
     expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
@@ -369,7 +380,7 @@ describe("process endpoints", () => {
       idStageB: 2,
       idFlow: 10,
       commentary: "",
-    }
+    };
     const stage = {
       idStage: 1,
       name: "Stage A",
@@ -379,14 +390,14 @@ describe("process endpoints", () => {
     const flowProcess = {
       set: jest.fn(),
       save: jest.fn(),
-    }
+    };
 
     Process.findByPk = jest.fn().mockResolvedValue(process);
     FlowStage.findAll = jest.fn().mockResolvedValue([flowStage]);
     Stage.findOne = jest.fn().mockResolvedValue(stage);
     FlowProcess.findAll = jest.fn().mockResolvedValue([flowProcess]);
 
-    reqMock.body = process
+    reqMock.body = process;
     await ProcessController.updateProcess(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(200);
@@ -406,7 +417,7 @@ describe("process endpoints", () => {
 
     Process.findByPk = jest.fn().mockRejectedValue(error);
 
-    reqMock.body = process
+    reqMock.body = process;
     await ProcessController.updateProcess(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(error);
@@ -417,10 +428,12 @@ describe("process endpoints", () => {
     FlowProcess.destroy = jest.fn().mockResolvedValue({});
     Process.destroy = jest.fn().mockResolvedValue(0);
 
-    reqMock.params = { record: '123' }
+    reqMock.params = { record: "123" };
     await ProcessController.deleteProcess(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith({ error: 'Não há registro 123!' });
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Não há registro 123!",
+    });
     expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
@@ -428,7 +441,7 @@ describe("process endpoints", () => {
     FlowProcess.destroy = jest.fn().mockResolvedValue({});
     Process.destroy = jest.fn().mockResolvedValue(1);
 
-    reqMock.params = { record: '123' }
+    reqMock.params = { record: "123" };
     await ProcessController.deleteProcess(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({ message: "OK" });
@@ -440,7 +453,7 @@ describe("process endpoints", () => {
 
     FlowProcess.destroy = jest.fn().mockRejectedValue(error);
 
-    reqMock.params = { record: '123' }
+    reqMock.params = { record: "123" };
     await ProcessController.deleteProcess(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(error);
@@ -449,12 +462,12 @@ describe("process endpoints", () => {
 
   test("updateProcessStage - from, to or idFlow are invalid (400))", async () => {
     reqMock.body = {
-      record: '12345678901234567890',
+      record: "12345678901234567890",
       from: NaN,
       to: NaN,
       idFlow: NaN,
       isNextStage: true,
-    }
+    };
     await ProcessController.updateProcessStage(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -468,12 +481,12 @@ describe("process endpoints", () => {
     FlowStage.findAll = jest.fn().mockResolvedValue([]);
 
     reqMock.body = {
-      record: '12345678901234567890',
+      record: "12345678901234567890",
       from: 1,
       to: 2,
       idFlow: 1,
       isNextStage: true,
-    }
+    };
     await ProcessController.updateProcessStage(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -484,11 +497,13 @@ describe("process endpoints", () => {
   });
 
   test("updateProcessStage - stage was updated (200))", async () => {
-    FlowStage.findAll = jest.fn().mockResolvedValue([{
-      idFlowStage: 1,
-      idStageA: 1,
-      idStageB: 2,
-    }]);
+    FlowStage.findAll = jest.fn().mockResolvedValue([
+      {
+        idFlowStage: 1,
+        idStageA: 1,
+        idStageB: 2,
+      },
+    ]);
     Process.findOne = jest.fn().mockResolvedValue({
       idStage: 1,
       progress: [],
@@ -499,12 +514,12 @@ describe("process endpoints", () => {
     Process.update = jest.fn().mockResolvedValue([2]);
 
     reqMock.body = {
-      record: '12345678901234567890',
+      record: "12345678901234567890",
       from: 1,
       to: 2,
       idFlow: 1,
       isNextStage: true,
-    }
+    };
     await ProcessController.updateProcessStage(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -514,14 +529,16 @@ describe("process endpoints", () => {
   });
 
   test("updateProcessStage - failed to update stage (409))", async () => {
-    const record = '12345678901234567890';
+    const record = "12345678901234567890";
     const to = 2;
 
-    FlowStage.findAll = jest.fn().mockResolvedValue([{
-      idFlowStage: 1,
-      idStageA: 1,
-      idStageB: 2,
-    }]);
+    FlowStage.findAll = jest.fn().mockResolvedValue([
+      {
+        idFlowStage: 1,
+        idStageA: 1,
+        idStageB: 2,
+      },
+    ]);
     Process.findOne = jest.fn().mockResolvedValue({
       idStage: 1,
       progress: [],
@@ -537,7 +554,7 @@ describe("process endpoints", () => {
       to: to,
       idFlow: 1,
       isNextStage: true,
-    }
+    };
     await ProcessController.updateProcessStage(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -553,12 +570,12 @@ describe("process endpoints", () => {
     FlowStage.findAll = jest.fn().mockRejectedValue(error);
 
     reqMock.body = {
-      record: '12345678901234567890',
+      record: "12345678901234567890",
       from: 1,
       to: 2,
       idFlow: 1,
       isNextStage: true,
-    }
+    };
     await ProcessController.updateProcessStage(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(error);

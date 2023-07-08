@@ -10,7 +10,7 @@ import { tokenToUser } from "../middleware/authMiddleware.js";
 import { filterByNicknameAndRecord } from "../utils/filters.js";
 
 const validateRecord = (record) => {
-  const filteredRecord = record.replace(/[^\d]/g, '');
+  const filteredRecord = record.replace(/[^\d]/g, "");
   const regexFilter = /^\d{20}$/;
   const isRecordValid = regexFilter.test(filteredRecord);
 
@@ -107,9 +107,7 @@ class ProcessController {
       });
 
       if (!priorities) {
-        return res
-          .status(204)
-          .json([]);
+        return res.status(204).json([]);
       } else {
         return res.status(200).json(priorities);
       }
@@ -126,9 +124,7 @@ class ProcessController {
     });
 
     if (!priorityProcesses) {
-      return res
-        .status(204)
-        .json([]);
+      return res.status(204).json([]);
     } else {
       return res.status(200).json(priorityProcesses);
     }
@@ -183,9 +179,7 @@ class ProcessController {
             record,
             finalised: false,
           });
-          return res
-            .status(200)
-            .json(flowProcess);
+          return res.status(200).json(flowProcess);
         }
       }
       return res.status(500).json({ error: "Erro na criação de processo" });
@@ -267,9 +261,9 @@ class ProcessController {
       const startingProcess =
         process.status === "notStarted" && status === "inProgress"
           ? {
-            idStage: flowStages[0].idStageA,
-            effectiveDate: new Date(),
-          }
+              idStage: flowStages[0].idStageA,
+              effectiveDate: new Date(),
+            }
           : {};
       let tempProgress = [];
       if (process.status === "notStarted" && status === "inProgress") {
@@ -281,7 +275,7 @@ class ProcessController {
         const stageEndDate = new Date(stageStartDate);
         stageEndDate.setDate(
           stageEndDate.getDate() +
-          handleVerifyDate(stageStartDate, currentStage.duration)
+            handleVerifyDate(stageStartDate, currentStage.duration)
         );
 
         const progressData = {
@@ -399,7 +393,7 @@ class ProcessController {
       const stageEndDate = new Date(stageStartDate);
       stageEndDate.setDate(
         stageEndDate.getDate() +
-        handleVerifyDate(stageStartDate, currentToStage.duration)
+          handleVerifyDate(stageStartDate, currentToStage.duration)
       );
 
       maturityDate = stageEndDate;

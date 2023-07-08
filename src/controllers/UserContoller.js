@@ -250,9 +250,7 @@ class UserController {
       const { oldPassword, newPassword } = req.body;
       const user = await User.findByPk(cpf);
       if (!user) {
-        return res
-          .status(204)
-          .json({});
+        return res.status(204).json({});
       }
 
       if (oldPassword === user.password) {

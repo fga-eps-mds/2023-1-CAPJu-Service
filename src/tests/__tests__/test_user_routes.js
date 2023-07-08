@@ -433,12 +433,14 @@ describe("user endpoints", () => {
     reqMock = {
       params: 1,
       body: {
-        email: 'novofulano@email.com'
-      }
+        email: "novofulano@email.com",
+      },
     };
 
     await UserController.updateUser(reqMock, resMock);
-    expect(resMock.json).toHaveBeenCalledWith({ message: "Email atualizado com sucesso" });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Email atualizado com sucesso",
+    });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
@@ -447,8 +449,8 @@ describe("user endpoints", () => {
     reqMock = {
       params: 1,
       body: {
-        email: 'novofulano@email.com'
-      }
+        email: "novofulano@email.com",
+      },
     };
 
     await UserController.updateUser(reqMock, resMock);
@@ -462,8 +464,8 @@ describe("user endpoints", () => {
     reqMock = {
       params: 1,
       body: {
-        email: 'novofulano@email.com'
-      }
+        email: "novofulano@email.com",
+      },
     };
     await UserController.updateUser(reqMock, resMock);
 
@@ -488,12 +490,14 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue(testUser);
     reqMock = {
       body: {
-        cpf: '123456778900',
-        idRole: 3
-      }
+        cpf: "123456778900",
+        idRole: 3,
+      },
     };
     await UserController.updateRole(reqMock, resMock);
-    expect(resMock.json).toHaveBeenCalledWith({ message: "Papel atualizado com sucesso" });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Papel atualizado com sucesso",
+    });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
@@ -501,24 +505,23 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue();
     reqMock = {
       body: {
-        cpf: '123456778900',
-        idRole: 3
-      }
+        cpf: "123456778900",
+        idRole: 3,
+      },
     };
     await UserController.updateRole(reqMock, resMock);
     expect(resMock.json).toHaveBeenCalledWith({});
     expect(resMock.status).toHaveBeenCalledWith(204);
   });
 
-
   test("updateRole - error in update role (500) ", async () => {
     const error = new Error("Internal Error");
     User.findByPk = jest.fn().mockRejectedValue(error);
     reqMock = {
       body: {
-        cpf: '123456778900',
-        idRole: 3
-      }
+        cpf: "123456778900",
+        idRole: 3,
+      },
     };
     await UserController.updateRole(reqMock, resMock);
     expect(resMock.json).toHaveBeenCalledWith({
@@ -542,15 +545,17 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue(testUser);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
       body: {
         oldPassword: "123Fulano",
         newPassword: "1234Fulano",
-      }
+      },
     };
     await UserController.editPassword(reqMock, resMock);
-    expect(resMock.json).toHaveBeenCalledWith({ message: "Usuário atualizado com sucesso!" });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Usuário atualizado com sucesso!",
+    });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
@@ -558,12 +563,12 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue();
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
       body: {
         oldPassword: "123Fulano",
         newPassword: "1234Fulano",
-      }
+      },
     };
     await UserController.editPassword(reqMock, resMock);
     expect(resMock.json).toHaveBeenCalledWith({});
@@ -585,12 +590,12 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue(testUser);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
       body: {
         oldPassword: "123Fulano",
         newPassword: "1234Fulano",
-      }
+      },
     };
     await UserController.editPassword(reqMock, resMock);
     expect(resMock.json).toHaveBeenCalledWith({ message: "Senha inválida!" });
@@ -602,12 +607,12 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockRejectedValue(error);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
       body: {
         oldPassword: "123Fulano",
         newPassword: "1234Fulano",
-      }
+      },
     };
     await UserController.editPassword(reqMock, resMock);
     expect(resMock.json).toHaveBeenCalledWith({
@@ -615,7 +620,6 @@ describe("user endpoints", () => {
       message: "Erro a atualizar usuário ",
     });
     expect(resMock.status).toHaveBeenCalledWith(500);
-
   });
 
   test("deleteByParam - delete user by cpf (200) ", async () => {
@@ -632,11 +636,13 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue(testUser);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
     };
     await UserController.deleteByParam(reqMock, resMock);
-    expect(resMock.json).toHaveBeenCalledWith({ message: "Usuário apagado com sucesso" });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Usuário apagado com sucesso",
+    });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
@@ -644,7 +650,7 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue();
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
     };
     await UserController.deleteByParam(reqMock, resMock);
@@ -657,7 +663,7 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockRejectedValue(error);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
     };
     await UserController.deleteByParam(reqMock, resMock);
@@ -683,11 +689,13 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue(testUser);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
     };
     await UserController.acceptRequest(reqMock, resMock);
-    expect(resMock.json).toHaveBeenCalledWith({ message: "Usuário aceito com sucesso", });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Usuário aceito com sucesso",
+    });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
@@ -695,7 +703,7 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue();
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
     };
     await UserController.acceptRequest(reqMock, resMock);
@@ -708,7 +716,7 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockRejectedValue(error);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
     };
     await UserController.acceptRequest(reqMock, resMock);
@@ -733,11 +741,13 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue(testUser);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
     };
     await UserController.deleteRequest(reqMock, resMock);
-    expect(resMock.json).toHaveBeenCalledWith({ message: "Usuário não aceito foi excluído", });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Usuário não aceito foi excluído",
+    });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
@@ -745,7 +755,7 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue();
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
     };
     await UserController.deleteRequest(reqMock, resMock);
@@ -758,7 +768,7 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockRejectedValue(error);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
     };
     await UserController.deleteRequest(reqMock, resMock);
@@ -784,12 +794,12 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue(testUser);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
       body: {
         email: "fulano@email.com",
         password: "12345Fulano",
-      }
+      },
     };
     await UserController.updateUserEmailAndPassword(reqMock, resMock);
     expect(resMock.json).toHaveBeenCalledWith(testUser);
@@ -800,15 +810,17 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockResolvedValue();
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
       body: {
         email: "fulano@email.com",
         password: "12345Fulano",
-      }
+      },
     };
     await UserController.updateUserEmailAndPassword(reqMock, resMock);
-    expect(resMock.json).toHaveBeenCalledWith({ message: "Nenhum usuário foi encontrado" });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Nenhum usuário foi encontrado",
+    });
     expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
@@ -817,12 +829,12 @@ describe("user endpoints", () => {
     User.findByPk = jest.fn().mockRejectedValue(error);
     reqMock = {
       params: {
-        id: '123456778900',
+        id: "123456778900",
       },
       body: {
         email: "fulano@email.com",
         password: "12345Fulano",
-      }
+      },
     };
     await UserController.updateUserEmailAndPassword(reqMock, resMock);
     expect(resMock.json).toHaveBeenCalledWith({
@@ -831,5 +843,4 @@ describe("user endpoints", () => {
     });
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
-
 });
