@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "dev": "npx nodemon --experimental-json-modules src/server.js",
     "create-db": "npx sequelize-cli db:create",
+    "drop-db": "npx sequelize-cli db:drop",
     "migration": "sequelize db:migrate",
     "test-migration": "NODE_ENV=test sequelize db:migrate",
     "seed": "sequelize db:seed:all",
