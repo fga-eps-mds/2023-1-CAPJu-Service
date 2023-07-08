@@ -9,7 +9,7 @@ const resMock = {
   json: jest.fn(),
 };
 
-describe("role endpoints", () => {
+describe("note endpoints", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
