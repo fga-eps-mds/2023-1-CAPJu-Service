@@ -209,9 +209,7 @@ class UserController {
       const newEmail = req.body.email;
 
       if (!user) {
-        return res.status(404).json({
-          error: "Usuário não existe",
-        });
+        return res.status(204).json({});
       } else {
         user.set({ email: newEmail });
         await user.save();
@@ -233,9 +231,7 @@ class UserController {
       const user = await User.findByPk(cpf);
 
       if (!user) {
-        return res.status(404).json({
-          error: "Usuário não existe",
-        });
+        return res.status(204).json({});
       } else {
         user.set({ idRole: idRole });
         await user.save();
@@ -255,8 +251,8 @@ class UserController {
       const user = await User.findByPk(cpf);
       if (!user) {
         return res
-          .status(404)
-          .json({ message: "Nenhum usuário foi encontrado" });
+          .status(204)
+          .json({});
       }
 
       if (oldPassword === user.password) {
