@@ -55,11 +55,6 @@ routes.put(
   protect,
   ProcessController.updateProcessStage
 );
-routes.put(
-  "/processNewObservation/",
-  protect,
-  ProcessController.newObservation
-);
 
 //Rotas de Fluxos
 routes.post("/newFlow", FlowController.store);
