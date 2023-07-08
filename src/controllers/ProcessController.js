@@ -56,7 +56,7 @@ class ProcessController {
       });
 
       if (!processes || processes.length === 0) {
-        return res.status(204).json({ error: "Não há processos" });
+        return res.status(204).json([]);
       } else {
         const processesWithFlows = [];
         for (const process of processes) {
@@ -98,7 +98,7 @@ class ProcessController {
     }
   }
 
-  async getPriorities(req, res) {
+  async getPriorities(_req, res) {
     try {
       const priorities = await Priority.findAll({
         where: {
@@ -108,17 +108,17 @@ class ProcessController {
 
       if (!priorities) {
         return res
-          .status(404)
-          .json({ error: "Não foi encontrado prioridades" });
+          .status(204)
+          .json([]);
       } else {
         return res.status(200).json(priorities);
       }
     } catch (error) {
-      console.log(error);
+      return res.status(500).json(error);
     }
   }
 
-  async getPriorityProcess(req, res) {
+  async getPriorityProcess(_req, res) {
     const priorityProcesses = await Process.findAll({
       where: {
         idPriority: [1, 2, 3, 4, 5, 6, 7, 8],
@@ -127,8 +127,8 @@ class ProcessController {
 
     if (!priorityProcesses) {
       return res
-        .status(404)
-        .json({ error: "Não há processos com prioridade legal" });
+        .status(204)
+        .json([]);
     } else {
       return res.status(200).json(priorityProcesses);
     }
@@ -141,12 +141,9 @@ class ProcessController {
       const process = await Process.findByPk(idProcess);
 
       if (!process) {
-        return res.status(404).json({
-          error: "Esse processo não existe!",
-          message: "Esse processo não existe!",
-        });
+        return res.status(204).json({});
       } else {
-        return res.json(process);
+        return res.status(200).json(process);
       }
     } catch (error) {
       return res.status(500).json({
@@ -180,37 +177,24 @@ class ProcessController {
           nickname,
           idPriority: priority,
         });
-        try {
-          if (flow) {
-            const flowProcess = await FlowProcess.create({
-              idFlow,
-              record,
-              finalised: false,
-            });
-            return res
-              .status(200)
-              .json({ message: "Criado com sucesso!", flowProcess });
-          }
-        } catch (error) {
-          return res.status(500).json(error);
+        if (flow) {
+          const flowProcess = await FlowProcess.create({
+            idFlow,
+            record,
+            finalised: false,
+          });
+          return res
+            .status(200)
+            .json(flowProcess);
         }
       }
-      return res.status(404).json({ message: "Erro na criação de processo" });
+      return res.status(500).json({ error: "Erro na criação de processo" });
     } catch (error) {
       return res.status(500).json(error);
     }
   }
 
-  /*async allProcesses(req, res) {
-    return findProcess(res, { unity: req.user.unity });
-  }*/
-
   async processesInFlow(req, res) {
-    /*const search = {
-      fluxoId: req.params.flowId,
-      unity: req.user.unity,
-    };*/
-
     try {
       const { idFlow } = req.params;
 
@@ -247,9 +231,7 @@ class ProcessController {
 
       return res.status(200).json({ processes, totalPages });
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error, message: "Erro ao buscar processos" });
+      return res.status(500).json(error);
     }
   }
 
@@ -275,19 +257,19 @@ class ProcessController {
       });
 
       if (flowStages.length === 0) {
-        return res.status(404).json({ error: "Não há etapas neste fluxo" });
+        return res.status(404).json({ message: "Não há etapas neste fluxo" });
       }
 
       if (!process) {
-        return res.status(404).json({ error: "processo inexistente" });
+        return res.status(404).json({ message: "processo inexistente" });
       }
 
       const startingProcess =
         process.status === "notStarted" && status === "inProgress"
           ? {
-              idStage: flowStages[0].idStageA,
-              effectiveDate: new Date(),
-            }
+            idStage: flowStages[0].idStageA,
+            effectiveDate: new Date(),
+          }
           : {};
       let tempProgress = [];
       if (process.status === "notStarted" && status === "inProgress") {
@@ -299,7 +281,7 @@ class ProcessController {
         const stageEndDate = new Date(stageStartDate);
         stageEndDate.setDate(
           stageEndDate.getDate() +
-            handleVerifyDate(stageStartDate, currentStage.duration)
+          handleVerifyDate(stageStartDate, currentStage.duration)
         );
 
         const progressData = {
@@ -309,8 +291,6 @@ class ProcessController {
         };
         tempProgress.push(progressData);
       } else {
-        // let aux = [];
-        // aux.push(process.progress);
         tempProgress = process.progress;
       }
 
@@ -360,7 +340,7 @@ class ProcessController {
 
       return res.status(200).json({ message: "OK" });
     } catch (error) {
-      return res.status(500).json({ error, message: "Impossível apagar" });
+      return res.status(500).json(error);
     }
   }
 
@@ -374,7 +354,7 @@ class ProcessController {
     ) {
       return res.status(400).json({
         error: "Identificadores inválidos",
-        message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
+        message: `Identificadores '${idFlow}', '${from}' ou '${to}' são inválidos`,
       });
     }
 
@@ -413,17 +393,13 @@ class ProcessController {
         where: { idStage: to },
       });
 
-      const currentFromStage = await Stage.findOne({
-        where: { idStage: from },
-      });
-
       let tempProgress = [];
       let maturityDate;
       const stageStartDate = new Date();
       const stageEndDate = new Date(stageStartDate);
       stageEndDate.setDate(
         stageEndDate.getDate() +
-          handleVerifyDate(stageStartDate, currentToStage.duration)
+        handleVerifyDate(stageStartDate, currentToStage.duration)
       );
 
       maturityDate = stageEndDate;
