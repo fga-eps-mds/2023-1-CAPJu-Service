@@ -23,7 +23,7 @@ class RoleController {
     }
   }
 
-  async update(req, res) {
+  async updateRoleName(req, res) {
     const { name, idRole } = req.body;
 
     const role = await Role.findByPk(idRole);
@@ -32,6 +32,23 @@ class RoleController {
       return res.status(204).json({ error: "Esse cargo não existe!" });
     } else {
       role.set({ name });
+
+      await role.save();
+
+      return res.json(role);
+    }
+  }
+
+  async updateRoleAllowedActions(req, res) {
+    const { allowedActions } = req.body;
+    const { idRole } = req.params;
+
+    const role = await Role.findByPk(idRole);
+
+    if (!role || role === null) {
+      return res.status(204).json({ error: "Esse cargo não existe!" });
+    } else {
+      role.set({ allowedActions });
 
       await role.save();
 
