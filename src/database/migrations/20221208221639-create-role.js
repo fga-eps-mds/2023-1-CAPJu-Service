@@ -18,6 +18,10 @@ module.exports = {
         type: Sequelize.SMALLINT,
         allowNull: false,
       },
+      allowedActions: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        allowNull: false,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
