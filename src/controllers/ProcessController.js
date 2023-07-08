@@ -451,58 +451,7 @@ class ProcessController {
         message: `Impossível atualizar processo '${record}' para etapa '${to}`,
       });
     } catch (error) {
-      return res.status(500).json({
-        error,
-        message: `Erro ao atualizar processo '${record}' para etapa '${to}`,
-      });
-    }
-  }
-
-  async newObservation(req, res) {
-    const { record, originStage, destinationStage, commentary } = req.body;
-
-    try {
-      const updateResult = await Database.connection.query(
-        'update \
-          "flowStage" \
-        set \
-          "idStageA" = ?, \
-          "idStageB" = ?, \
-          commentary = ? \
-        where \
-          "idFlowStage" in ( \
-        select \
-          fst."idFlowStage" as "idFlowStage" \
-        from \
-          "flowProcess" fp \
-        join "flowStage" fst \
-        on \
-          fst."idFlow" = fp."idFlow" \
-        where \
-          fp.record = ? \
-          and fst."idStageA" = ? \
-          and fst."idStageB" = ?)',
-        {
-          replacements: [
-            originStage,
-            destinationStage,
-            commentary,
-            record,
-            originStage,
-            destinationStage,
-          ],
-          type: QueryTypes.UPDATE,
-        }
-      );
-
-      return res.status(200).json({
-        message: "Comentário adicionado com sucesso",
-      });
-    } catch (error) {
-      return res.status(500).json({
-        error,
-        message: "Falha ao adicionar comentário",
-      });
+      return res.status(500).json(error);
     }
   }
 }
