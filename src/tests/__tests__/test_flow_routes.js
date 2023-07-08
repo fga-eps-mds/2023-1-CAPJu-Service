@@ -55,7 +55,7 @@ describe("flow endpoints", () => {
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  it("should return a 404 status with an error message if there are less than two sequences", async () => {
+  test("should return a 404 status with an error message if there are less than two sequences", async () => {
     const flowData = {
       name: "Fluxo Teste",
       idUnit: 1,
@@ -215,7 +215,7 @@ describe("flow endpoints", () => {
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  it("list all flows", async () => {
+  test("list all flows", async () => {
     jest.spyOn(middleware, "tokenToUser").mockReturnValue({
       idUnit: 1,
       idRole: 5,
@@ -224,15 +224,10 @@ describe("flow endpoints", () => {
     Flow.count = jest.fn().mockResolvedValue(0)
     FlowStage.findAll = jest.fn().mockResolvedValue([])
 
-    reqMock = {
-      query: {
-        limit: 1,
-        offset: 0,
-        filter: 0,
-      },
-      headers: {
-        test: "test"
-      }
+    reqMock.query = {
+      limit: 1,
+      offset: 0,
+      filter: 0,
     }
     await FlowController.index(reqMock, resMock);
 
