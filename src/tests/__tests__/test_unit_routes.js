@@ -3,7 +3,7 @@ import UnitController from "../../controllers/UnitController.js";
 import Unit from "../../models/Unit.js";
 import User from "../../models/User.js";
 
-jest.mock('axios');
+jest.mock("axios");
 
 const reqMock = {};
 const resMock = {
@@ -24,7 +24,7 @@ describe("unit endpoints", () => {
       limit: 1,
       offset: 0,
       filter: 0,
-    }
+    };
     await UnitController.index(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({ units: [], totalPages: 0 });
@@ -32,7 +32,7 @@ describe("unit endpoints", () => {
   });
 
   test("index - failed to list (500)", async () => {
-    const error = new Error("Internal Error")
+    const error = new Error("Internal Error");
     Unit.findAll = jest.fn().mockRejectedValue(error);
 
     await UnitController.index(reqMock, resMock);
@@ -48,10 +48,10 @@ describe("unit endpoints", () => {
     const newUnit = {
       idUnit: 1,
       name: "New unit",
-    }
+    };
     Unit.create = jest.fn().mockResolvedValue(newUnit);
 
-    reqMock.body = newUnit.name
+    reqMock.body = newUnit.name;
     await UnitController.store(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(newUnit);
@@ -59,10 +59,10 @@ describe("unit endpoints", () => {
   });
 
   test("store - failed to create unit (500)", async () => {
-    const error = new Error("Internal Error")
+    const error = new Error("Internal Error");
     Unit.create = jest.fn().mockRejectedValue(error);
 
-    reqMock.body = { name: "Unidade" }
+    reqMock.body = { name: "Unidade" };
     await UnitController.store(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -78,15 +78,13 @@ describe("unit endpoints", () => {
       name: "New unit",
       set: jest.fn(),
       save: jest.fn(),
-    }
-    Unit.findByPk = jest
-      .fn()
-      .mockResolvedValue(unit);
+    };
+    Unit.findByPk = jest.fn().mockResolvedValue(unit);
 
     reqMock.body = {
       idUnit: 1,
       name: "Unidade",
-    }
+    };
     await UnitController.update(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(unit);
@@ -94,12 +92,12 @@ describe("unit endpoints", () => {
   });
 
   test("update - failed to update unit (400)", async () => {
-    Unit.findByPk = jest.fn().mockResolvedValue(false)
+    Unit.findByPk = jest.fn().mockResolvedValue(false);
 
     reqMock.body = {
       idUnit: 1,
       name: "Unidade",
-    }
+    };
     await UnitController.update(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -117,9 +115,9 @@ describe("unit endpoints", () => {
       idUnit: 1,
       idRole: 3,
     };
-    User.findAll = jest.fn().mockResolvedValue([testUser])
+    User.findAll = jest.fn().mockResolvedValue([testUser]);
 
-    reqMock.body = { idUnit: 1 }
+    reqMock.body = { idUnit: 1 };
     await UnitController.delete(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -130,10 +128,10 @@ describe("unit endpoints", () => {
   });
 
   test("delete - unit does not exist (204)", async () => {
-    User.findAll = jest.fn().mockResolvedValue([])
-    Unit.findByPk = jest.fn().mockResolvedValue(false)
+    User.findAll = jest.fn().mockResolvedValue([]);
+    Unit.findByPk = jest.fn().mockResolvedValue(false);
 
-    reqMock.body = { idUnit: 1 }
+    reqMock.body = { idUnit: 1 };
     await UnitController.delete(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -147,11 +145,11 @@ describe("unit endpoints", () => {
       idUnit: 1,
       name: "New unit",
       destroy: jest.fn(),
-    }
-    User.findAll = jest.fn().mockResolvedValue([])
-    Unit.findByPk = jest.fn().mockResolvedValue(unit)
+    };
+    User.findAll = jest.fn().mockResolvedValue([]);
+    Unit.findByPk = jest.fn().mockResolvedValue(unit);
 
-    reqMock.body = { idUnit: unit.idUnit }
+    reqMock.body = { idUnit: unit.idUnit };
     await UnitController.delete(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(unit);
@@ -159,10 +157,10 @@ describe("unit endpoints", () => {
   });
 
   test("delete - failed to delete unit (500)", async () => {
-    const error = new Error("Internal Error")
+    const error = new Error("Internal Error");
     User.findAll = jest.fn().mockRejectedValue(error);
 
-    reqMock.body = { idUnit: 1 }
+    reqMock.body = { idUnit: 1 };
     await UnitController.delete(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({ error });
@@ -170,9 +168,9 @@ describe("unit endpoints", () => {
   });
 
   test("getAdminsByUnitId - there are no admins (204)", async () => {
-    User.findAll = jest.fn().mockResolvedValue(false)
+    User.findAll = jest.fn().mockResolvedValue(false);
 
-    reqMock.params = { id: 1 }
+    reqMock.params = { id: 1 };
     await UnitController.getAdminsByUnitId(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -190,9 +188,9 @@ describe("unit endpoints", () => {
       idUnit: 1,
       idRole: 1,
     };
-    User.findAll = jest.fn().mockResolvedValue([testUser])
+    User.findAll = jest.fn().mockResolvedValue([testUser]);
 
-    reqMock.params = { id: 1 }
+    reqMock.params = { id: 1 };
     await UnitController.getAdminsByUnitId(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith([testUser]);
@@ -200,12 +198,12 @@ describe("unit endpoints", () => {
   });
 
   test("setUnitAdmin - There are no accepted users for the unit (404)", async () => {
-    User.findOne = jest.fn().mockResolvedValue(false)
+    User.findOne = jest.fn().mockResolvedValue(false);
 
     reqMock.body = {
       idUnit: 1,
-      cpf: "12345678912"
-    }
+      cpf: "12345678912",
+    };
     await UnitController.setUnitAdmin(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -227,12 +225,12 @@ describe("unit endpoints", () => {
       ...testUser,
       set: jest.fn(),
       save: jest.fn(),
-    })
+    });
 
     reqMock.body = {
       idUnit: testUser.idUnit,
-      cpf: testUser.cpf
-    }
+      cpf: testUser.cpf,
+    };
     await UnitController.setUnitAdmin(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -259,12 +257,12 @@ describe("unit endpoints", () => {
   });
 
   test("removeUnitAdmin - user not found (404)", async () => {
-    User.findOne = jest.fn().mockResolvedValue(false)
+    User.findOne = jest.fn().mockResolvedValue(false);
 
     reqMock.body = {
       idUnit: 1,
       cpf: "12345678912",
-    }
+    };
     await UnitController.removeUnitAdmin(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
@@ -284,12 +282,12 @@ describe("unit endpoints", () => {
       set: jest.fn(),
       save: jest.fn(),
     };
-    User.findOne = jest.fn().mockResolvedValue(testUser)
+    User.findOne = jest.fn().mockResolvedValue(testUser);
 
     reqMock.body = {
       idUnit: testUser.idUnit,
-      cpf: testUser.cpf
-    }
+      cpf: testUser.cpf,
+    };
     await UnitController.removeUnitAdmin(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(testUser);

@@ -230,7 +230,7 @@ describe("flow endpoints", () => {
       limit: 1,
       offset: 0,
       filter: 0,
-    }
+    };
     await FlowController.index(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(200);
