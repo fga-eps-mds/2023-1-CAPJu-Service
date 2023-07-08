@@ -36,7 +36,13 @@ module.exports = {
         {
           name: "Juiz",
           accessLevel: 2,
-          allowedActions: [],
+          allowedActions: [
+            "see-unit",
+            "see-stage",
+            "see-flow",
+            "see-process",
+            "edit-account",
+          ],
           createdAt: new Date(),
           updatedAt: new Date(),
         },
