@@ -110,6 +110,7 @@ module.exports = {
             "edit-profile",
             "delete-profile",
             "edit-account",
+            "manage-profiles",
           ],
           createdAt: new Date(),
           updatedAt: new Date(),
