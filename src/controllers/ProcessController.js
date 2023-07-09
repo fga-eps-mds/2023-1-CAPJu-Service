@@ -162,7 +162,7 @@ class ProcessController {
         });
       }
 
-      const record = recordStatus.filtered;
+      const record = recordStatus.filteredRecord;
 
       const flow = await Flow.findByPk(idFlow);
 
