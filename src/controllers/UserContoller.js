@@ -19,7 +19,10 @@ class UserController {
       const { cpf, password } = req.body;
       const user = await User.findByPk(cpfFilter(cpf));
       if (!user) {
-        return res.status(204).json({});
+        return res.status(401).json({
+          error: "Usuário inexistente",
+          message: "Usuário inexistente",
+        });
       }
       if (!user.accepted) {
         return res.status(401).json({

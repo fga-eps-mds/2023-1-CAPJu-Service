@@ -30,17 +30,22 @@ describe("user endpoints", () => {
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  test("login - user not found (204) ", async () => {
+  test("login - user not found (401) ", async () => {
     const testUser = {
       cpf: "",
       password: "123Fulano",
     };
 
     User.findByPk = jest.fn().mockResolvedValue(testUser.cpf);
+
     reqMock.body = testUser;
     await UserController.login(reqMock, resMock);
-    expect(resMock.json).toHaveBeenCalledWith({});
-    expect(resMock.status).toHaveBeenCalledWith(204);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Usuário inexistente",
+      message: "Usuário inexistente",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(401);
   });
 
   test("login - user not accepted (401) ", async () => {
