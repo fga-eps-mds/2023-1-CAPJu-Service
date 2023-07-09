@@ -242,7 +242,7 @@ class ProcessController {
         });
       }
 
-      const record = recordStatus.filtered;
+      const record = recordStatus.filteredRecord;
 
       const process = await Process.findByPk(record);
 
